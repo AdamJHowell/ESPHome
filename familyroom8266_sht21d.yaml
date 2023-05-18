@@ -1,0 +1,92 @@
+esphome:
+  name: familyroom8266
+  friendly_name: FamilyRoom8266
+  includes:
+  - DFRobot_SHT20.h
+  - DFRobot_SHT20.cpp
+  - SHT20.h
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: !secret wifi_ssid_backup
+    password: !secret wifi_password
+
+captive_portal:
+
+i2c:
+  sda: 4
+  scl: 5
+  scan: true
+  frequency: 400kHz
+
+mqtt:
+  broker: 192.168.55.200
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    unit_of_measurement: "dB"
+    accuracy_decimals: 2
+    update_interval: 20s
+    entity_category: "diagnostic"
+    on_value:
+        - mqtt.publish:
+            topic: "FamilyRoom/esp8266/rssi"
+            payload: !lambda |-
+              return to_string( id( wifi_signal_db ).state );
+  # - platform: copy # Reports the WiFi signal strength in %
+  #   source_id: wifi_signal_db
+  #   name: "WiFi Signal Percent"
+  #   filters:
+  #     - lambda: return min( max( 2 * ( x + 100.0 ), 0.0 ), 100.0 );
+  #   unit_of_measurement: "%"
+  #   accuracy_decimals: 2
+  #   entity_category: "diagnostic"
+  - platform: custom
+    lambda: |-
+      auto sht20 = new SHT20();
+      App.register_component( sht20 );
+      return {sht20->temperature_sensor, sht20->humidity_sensor};
+    sensors:
+    - name: "Temperature"
+      id: inside_temp
+      unit_of_measurement: "°F"
+      accuracy_decimals: 2
+      filters:
+      - filter_out: 998.00
+      - lambda: return ( x * 1.8 ) + 32.0;
+      on_value:
+        - mqtt.publish:
+            topic: "FamilyRoom/esp8266/sht20/temperature"
+            payload: !lambda |-
+              return to_string( id( inside_temp ).state );
+    - name: "Humidity"
+      id: inside_humidity
+      unit_of_measurement: "%"
+      accuracy_decimals: 2
+      filters:
+      - filter_out: 998.00
+      on_value:
+        - mqtt.publish:
+            topic: "FamilyRoom/esp8266/sht20/humidity"
+            payload: !lambda |-
+              return to_string( id( inside_humidity ).state );
