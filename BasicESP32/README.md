@@ -1,4 +1,4 @@
-# ESPHome
+# BasicESP32
 
 This repo contains a very basic YAML file, which should work for (nearly) any ESP32.
 
