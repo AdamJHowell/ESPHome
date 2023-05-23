@@ -1,0 +1,35 @@
+esphome:
+  name: wt32
+  platform: ESP32
+  board: esp-wrover-kit
+
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO0_IN
+  phy_addr: 1
+  power_pin: GPIO16
+
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret encryption_key
+
+ota:
+  password: !secret ota_password
+
+sensor:
+
+i2c:
+  sda: 18
+  scl: 19
+  scan: true
+  frequency: 400kHz
+
+mqtt:
+  broker: 192.168.55.200
