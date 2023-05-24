@@ -35,13 +35,18 @@ sensor:
     id:                  wifi_signal_db
     unit_of_measurement: "dB"
     accuracy_decimals:   2
-    update_interval:     20s
+    update_interval:     30s
     entity_category:     "diagnostic"
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/rssi"
           payload: !lambda |-
                            return to_string( id( wifi_signal_db ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ip"
+          # The ID "ip_address" comes from the text_sensor!
+          payload: !lambda |-
+                           return to_string( id( ip_address ).state );
   - platform:        sht3xd
     temperature:
       name:                "Temp"
@@ -73,15 +78,16 @@ sensor:
 text_sensor:
   - platform: wifi_info
     ip_address:
-      name: ESP IP Address
+      name: $device_name_friendly IP address
+      id: ip_address
     ssid:
-      name: ESP Connected SSID
+      name: $device_name_friendly connected SSID
     bssid:
-      name: ESP Connected BSSID
+      name: $device_name_friendly connected BSSID
     mac_address:
-      name: ESP Mac Wifi Address
+      name: $device_name_friendly MAC Address
     scan_results:
-      name: ESP Latest Scan Results
+      name: $device_name_friendly scan results
 
 wifi:
   networks:
