@@ -1,6 +1,10 @@
+substitutions:
+  name_of_device: basic-esp32
+  device_name_friendly: BasicESP32
+
 esphome:
-  name: basicesp32
-  friendly_name: BasicESP32
+  name: $name_of_device
+  friendly_name: $device_name_friendly
 
 esp32:
   board: nodemcu-32s
