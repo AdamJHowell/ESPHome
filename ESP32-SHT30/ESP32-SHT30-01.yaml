@@ -14,6 +14,22 @@ esp32:
   framework:
     type: arduino
 
+deep_sleep:
+  id:             "deep_sleep_30s"
+  run_duration:   '30s'
+  sleep_duration: '2min'
+
+output:
+  - platform: gpio
+    pin:      2
+    id:       onboard_led
+
+light:
+  - platform: binary
+    name:     "Built-in LED"
+    id:       led_light
+    output:   onboard_led
+
 # Enable logging
 logger:
   level: VERBOSE
@@ -42,11 +58,6 @@ sensor:
           topic:           "$mqtt_location/$mqtt_device/rssi"
           payload: !lambda |-
                            return to_string( id( wifi_signal_db ).state );
-      - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/ip"
-          # The ID "ip_address" comes from the text_sensor!
-          payload: !lambda |-
-                           return to_string( id( ip_address ).state );
   - platform:        sht3xd
     temperature:
       name:                "Temp"
@@ -79,13 +90,24 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       name: $device_name_friendly IP address
-      id: ip_address
+      id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$mqtt_device/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
     ssid:
       name: $device_name_friendly connected SSID
     bssid:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
+      id:   mac_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$mqtt_device/mac"
+            payload: !lambda |-
+                             return to_string( id( mac_address ).state.c_str() );
     scan_results:
       name: $device_name_friendly scan results
 
@@ -98,6 +120,13 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
+  on_connect:
+    then:
+      - light.turn_on: led_light
+  on_disconnect:
+    then:
+      - light.turn_off: led_light
+  topic_prefix:   "$mqtt_location/$mqtt_device"
 
 i2c:
   sda:       21
