@@ -13,6 +13,10 @@ esp32:
 
 # Enable logging
 logger:
+  level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client: ERROR
 
 # Enable Home Assistant API
 api:
@@ -25,9 +29,21 @@ ota:
 sensor:
   - platform: sht3xd
     temperature:
-      name: "temperature"
+      name: "SHT30Temp"
+      id: sht30_temp
+      on_value:
+        - mqtt.publish:
+            topic: "$name_of_device/sht30/temperature"
+            payload: !lambda |-
+              return to_string( id( sht30_temp ).state );
     humidity:
       name: "humidity"
+      id: sht30_humidity
+      on_value:
+        - mqtt.publish:
+            topic: "$name_of_device/sht30/humidity"
+            payload: !lambda |-
+              return to_string( id( sht30_humidity ).state );
     address: 0x44
     update_interval: 20s
   - platform: wifi_signal
