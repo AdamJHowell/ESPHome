@@ -1,9 +1,12 @@
 substitutions:
-  name_of_device: armada-sht30-01
+  name_of_device:       armada-sht30-01
   device_name_friendly: Armada-SHT30-01
+  mqtt_location:        "Mobile"
+  mqtt_device:          "ESP32-01"
+  mqtt_sensor:          "sht30"
 
 esphome:
-  name: $name_of_device
+  name:          $name_of_device
   friendly_name: $device_name_friendly
 
 esp32:
@@ -16,7 +19,7 @@ logger:
   level: VERBOSE
   logs:
     mqtt.component: NONE
-    mqtt.client: NONE
+    mqtt.client:    NONE
 
 # Enable Home Assistant API
 api:
@@ -27,27 +30,44 @@ ota:
   password: "930f4ae76dcbb47f18d72e27fc759ff5"
 
 sensor:
-  - platform: sht3xd
+  - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name:                "WiFi Signal dB"
+    id:                  wifi_signal_db
+    unit_of_measurement: "dB"
+    accuracy_decimals:   2
+    update_interval:     20s
+    entity_category:     "diagnostic"
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/rssi"
+          payload: !lambda |-
+                           return to_string( id( wifi_signal_db ).state );
+  - platform:        sht3xd
     temperature:
-      name: "SHT30Temp"
-      id: sht30_temp
+      name:                "Temp"
+      id:                  sht30_tempF
+      unit_of_measurement: "°F"
+      accuracy_decimals:   2
+      filters:
+        - lambda: return ( x * 1.8 ) + 32.0;
       on_value:
         - mqtt.publish:
-            topic: "$name_of_device/sht30/temperature"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/temperature"
             payload: !lambda |-
-              return to_string( id( sht30_temp ).state );
+                             return to_string( id( sht30_tempF ).state );
     humidity:
-      name: "humidity"
-      id: sht30_humidity
+      name:              "humidity"
+      id:                sht30_humidity
+      accuracy_decimals: 2
       on_value:
         - mqtt.publish:
-            topic: "$name_of_device/sht30/humidity"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/humidity"
             payload: !lambda |-
-              return to_string( id( sht30_humidity ).state );
-    address: 0x44
+                             return to_string( id( sht30_humidity ).state );
+    address:         0x44
     update_interval: 20s
-  - platform: wifi_signal
-    name: $device_name_friendly WiFi Signal
+  - platform:        wifi_signal
+    name:            $device_name_friendly Wi-Fi strength
     update_interval: 20s
 
 text_sensor:
@@ -65,16 +85,16 @@ text_sensor:
 
 wifi:
   networks:
-  - ssid: !secret wifi_ssid
-    password: !secret wifi_password
-  - ssid: !secret wifi_ssid_work
-    password: !secret wifi_pass_work
+    - ssid: !secret     wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret     wifi_ssid_work
+      password: !secret wifi_pass_work
 
 mqtt:
-  broker: 192.168.55.200
+  broker: !secret broker_address
 
 i2c:
-  sda: 21
-  scl: 22
-  scan: true
+  sda:       21
+  scl:       22
+  scan:      true
   frequency: 400kHz
