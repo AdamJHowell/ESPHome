@@ -1,7 +1,7 @@
 substitutions:
   name_of_device:       freenovecam1
   device_name_friendly: FreenoveCam1
-  short_name:           cam-id
+  short_name:           cam_id
 
 esphome:
   name:          $name_of_device
