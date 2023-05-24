@@ -96,3 +96,16 @@ i2c:
   scl: 19
   scan: true
   frequency: 400kHz
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ESP IP Address
+    ssid:
+      name: ESP Connected SSID
+    bssid:
+      name: ESP Connected BSSID
+    mac_address:
+      name: ESP Mac Wifi Address
+    scan_results:
+      name: ESP Latest Scan Results

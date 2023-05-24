@@ -20,6 +20,9 @@ wifi:
     #gateway: 192.168.55.1
     #subnet: 255.255.255.0
 
+mqtt:
+  broker: 192.168.55.200
+
 text_sensor:
   - platform: wifi_info
     ip_address:
@@ -107,6 +110,7 @@ display:
     model: "SSD1306 128x64"
     address: 0x3C
     rotation: 180°
+    update_interval: 2s
     lambda: |-
       it.strftime( 64, 0, id( tnr1 ), TextAlign::TOP_CENTER,"%Y-%m-%d", id( homeassistant_time ).now() );
       it.strftime( 64, 64, id( tnr2 ), TextAlign::BASELINE_CENTER, "%H:%M", id( homeassistant_time ).now() );

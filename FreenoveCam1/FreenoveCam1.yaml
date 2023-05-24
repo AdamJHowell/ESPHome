@@ -78,7 +78,7 @@ esp32_camera:
   max_framerate: 5.0fps
   idle_framerate: 0.2fps
   vertical_flip: true
-  horizontal_mirror: true
+  horizontal_mirror: True
   brightness: 2
   contrast: 1
   special_effect: none
@@ -102,3 +102,16 @@ sensor:
   - platform: wifi_signal
     name: $device_name_friendly WiFi Signal
     update_interval: 20s
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ESP IP Address
+    ssid:
+      name: ESP Connected SSID
+    bssid:
+      name: ESP Connected BSSID
+    mac_address:
+      name: ESP Mac Wifi Address
+    scan_results:
+      name: ESP Latest Scan Results
