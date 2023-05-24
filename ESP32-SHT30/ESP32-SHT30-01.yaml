@@ -14,10 +14,10 @@ esp32:
   framework:
     type: arduino
 
-deep_sleep:
-  id:             "deep_sleep_30s"
-  run_duration:   '30s'
-  sleep_duration: '2min'
+#deep_sleep:
+#  id:             "deep_sleep_2min"
+#  run_duration:   '30s'
+#  sleep_duration: '2min'
 
 output:
   - platform: gpio
@@ -27,15 +27,15 @@ output:
 light:
   - platform: binary
     name:     "Built-in LED"
-    id:       led_light
     output:   onboard_led
+    id:       led_light
 
 # Enable logging
 logger:
   level: VERBOSE
   logs:
-    mqtt.component: NONE
-    mqtt.client:    NONE
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
 
 # Enable Home Assistant API
 api:
@@ -112,6 +112,7 @@ text_sensor:
       name: $device_name_friendly scan results
 
 wifi:
+  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
   networks:
     - ssid: !secret     wifi_ssid
       password: !secret wifi_password
@@ -132,4 +133,4 @@ i2c:
   sda:       21
   scl:       22
   scan:      true
-  frequency: 400kHz
+  frequency: 800kHz
