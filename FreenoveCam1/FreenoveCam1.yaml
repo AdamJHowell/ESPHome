@@ -6,9 +6,16 @@ substitutions:
   mqtt_device:          "ESP32-01"
   mqtt_sensor:          "sht30"
 
+globals:
+  - id:            global_mac
+    type:          std::string
+    restore_value: no  # Strings cannot be saved/restored
+    initial_value: '"00:11:22:AA:BB:CC"'
+
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
+  name:                $name_of_device
+  friendly_name:       $device_name_friendly
+  name_add_mac_suffix: false
 
 esp32:
   board: esp-wrover-kit
@@ -72,6 +79,7 @@ ota:
   password: !secret ota_password
 
 wifi:
+  id:              wifi_id
   power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
   networks:
     - ssid: !secret     wifi_ssid
@@ -87,7 +95,7 @@ mqtt:
   #  on_disconnect:
   #    then:
   #      - light.turn_off: led_light
-  topic_prefix:   "$mqtt_location/{mac_address}"
+  topic_prefix:   "$mqtt_location/{{ wifi.mac_address }}"
 
 esp32_camera:
   id:                $short_name
@@ -139,7 +147,7 @@ text_sensor:
       id:   ip_address
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/{mac_address}/ip"
+            topic:           "$mqtt_location/{{ wifi.mac_address }}/ip"
             payload: !lambda |-
                              return to_string( id( ip_address ).state );
     ssid:
@@ -148,11 +156,12 @@ text_sensor:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
-      id:   mac_address
+      id:   text_sensor_mac_address_id
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/{mac_address}/mac"
+            topic:           "$mqtt_location/{{ wifi.mac_address }}/mac"
             payload: !lambda |-
-                             return to_string( id( mac_address ).state.c_str() );
+                             id( global_mac ) = id( text_sensor_mac_address_id ).state.c_str();
+                             return to_string( id( text_sensor_mac_address_id ).state );
     scan_results:
       name: $device_name_friendly scan results
