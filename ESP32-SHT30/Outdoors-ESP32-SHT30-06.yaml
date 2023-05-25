@@ -1,0 +1,142 @@
+substitutions:
+  name_of_device:       back-porch
+  device_name_friendly: BackPorch-SHT30-06
+  mqtt_location:        "Outdoors"
+  mqtt_device:          "ESP32-06"
+  mqtt_sensor:          "sht30"
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+light:
+  - platform: status_led
+    name:     "Onboard LED"
+    pin:
+      number:   GPIO2
+      inverted: true
+#  - platform: binary
+#    name:     "Built-in LED"
+#    output:   onboard_led
+#    id:       led_light
+
+#output:
+#  - platform: gpio
+#    pin:      2
+#    id:       onboard_led
+#
+
+#deep_sleep:
+#  id:             "deep_sleep_2min"
+#  run_duration:   '30s'
+#  sleep_duration: '2min'
+
+# Enable logging
+logger:
+  level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "O5I+AON66eIzuMGtYQFBYB5SA8rFwZc+qFJlRMIENuk="
+
+ota:
+  password: "930f4ae76dcbb47f18d72e27fc759ff5"
+
+sensor:
+  - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name:                "WiFi Signal dB"
+    id:                  wifi_signal_db
+    unit_of_measurement: "dB"
+    accuracy_decimals:   2
+    update_interval:     30s
+    entity_category:     "diagnostic"
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/{mac_address}/rssi"
+          payload: !lambda |-
+                           return to_string( id( wifi_signal_db ).state );
+  - platform:        sht3xd
+    temperature:
+      name:                "Temp"
+      id:                  sht30_tempF
+      unit_of_measurement: "°F"
+      accuracy_decimals:   2
+      filters:
+        - lambda: return ( x * 1.8 ) + 32.0;
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/$mqtt_sensor/temperature"
+            payload: !lambda |-
+                             return to_string( id( sht30_tempF ).state );
+    humidity:
+      name:              "humidity"
+      id:                sht30_humidity
+      accuracy_decimals: 2
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/$mqtt_sensor/humidity"
+            payload: !lambda |-
+                             return to_string( id( sht30_humidity ).state );
+    address:         0x44
+    update_interval: 20s
+  - platform:        wifi_signal
+    name:            $device_name_friendly Wi-Fi strength
+    update_interval: 20s
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: $device_name_friendly IP address
+      id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
+    ssid:
+      name: $device_name_friendly connected SSID
+    bssid:
+      name: $device_name_friendly connected BSSID
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   mac_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/mac"
+            payload: !lambda |-
+                             return to_string( id( mac_address ).state.c_str() );
+    scan_results:
+      name: $device_name_friendly scan results
+
+wifi:
+  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
+  networks:
+    - ssid: !secret     wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret     wifi_ssid_work
+      password: !secret wifi_pass_work
+
+mqtt:
+  broker: !secret broker_address
+  #  on_connect:
+  #    then:
+  #      - light.turn_on: led_light
+  #  on_disconnect:
+  #    then:
+  #      - light.turn_off: led_light
+  topic_prefix:   "$mqtt_location/{mac_address}"
+
+i2c:
+  sda:       21
+  scl:       22
+  scan:      true
+  frequency: 400kHz
