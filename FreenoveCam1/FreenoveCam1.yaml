@@ -2,6 +2,9 @@ substitutions:
   name_of_device:       freenovecam1
   device_name_friendly: FreenoveCam1
   short_name:           cam_id
+  mqtt_location:        $device_name_friendly
+  mqtt_device:          "ESP32-01"
+  mqtt_sensor:          "sht30"
 
 esphome:
   name:          $name_of_device
@@ -12,9 +15,28 @@ esp32:
   framework:
     type: arduino
 
+light:
+  - platform: status_led
+    name: "Onboard LED"
+    pin: GPIO2
+
+#output:
+#  - platform: gpio
+#    pin:      2
+#    id:       onboard_led
+#
+#light:
+#  - platform: binary
+#    name:     "Built-in LED"
+#    output:   onboard_led
+#    id:       led_light
+
 # Enable logging
 logger:
   level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
 
 # Enable Home Assistant API
 api:
@@ -48,6 +70,7 @@ ota:
   password: !secret ota_password
 
 wifi:
+  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
   networks:
     - ssid: !secret     wifi_ssid
       password: !secret wifi_password
@@ -56,7 +79,13 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-  topic_prefix: "$mqtt_location/{mac_address}"
+#  on_connect:
+#    then:
+#      - light.turn_on: led_light
+#  on_disconnect:
+#    then:
+#      - light.turn_off: led_light
+  topic_prefix:   "$mqtt_location/{mac_address}"
 
 esp32_camera:
   id:                $short_name
@@ -104,12 +133,24 @@ sensor:
 text_sensor:
   - platform: wifi_info
     ip_address:
-      name: ESP IP Address
+      name: $device_name_friendly IP address
+      id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
     ssid:
-      name: ESP Connected SSID
+      name: $device_name_friendly connected SSID
     bssid:
-      name: ESP Connected BSSID
+      name: $device_name_friendly connected BSSID
     mac_address:
-      name: ESP Mac Wifi Address
+      name: $device_name_friendly MAC Address
+      id:   mac_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/mac"
+            payload: !lambda |-
+                             return to_string( id( mac_address ).state.c_str() );
     scan_results:
-      name: ESP Latest Scan Results
+      name: $device_name_friendly scan results

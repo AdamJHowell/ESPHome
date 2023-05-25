@@ -11,8 +11,23 @@ esp32:
   framework:
     type: arduino
 
+output:
+  - platform: gpio
+    pin:      2
+    id:       onboard_led
+
+light:
+  - platform: binary
+    name:     "Built-in LED"
+    output:   onboard_led
+    id:       led_light
+
 # Enable logging
 logger:
+  level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
 
 # Enable Home Assistant API
 api:
@@ -34,7 +49,13 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-  topic_prefix: "$mqtt_location/{mac_address}"
+  on_connect:
+    then:
+      - light.turn_on: led_light
+  on_disconnect:
+    then:
+      - light.turn_off: led_light
+  topic_prefix:   "$mqtt_location/{mac_address}"
 
 captive_portal:
 
@@ -49,15 +70,26 @@ sensor:
     update_interval: 20s
 
 text_sensor:
-  - platform:        wifi_info
+  - platform: wifi_info
     ip_address:
       name: $device_name_friendly IP address
+      id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
     ssid:
       name: $device_name_friendly connected SSID
     bssid:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
+      id:   mac_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/mac"
+            payload: !lambda |-
+                             return to_string( id( mac_address ).state.c_str() );
     scan_results:
       name: $device_name_friendly scan results
-    update_interval: 120s
