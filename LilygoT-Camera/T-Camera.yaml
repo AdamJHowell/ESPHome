@@ -9,7 +9,7 @@
 substitutions:
   slug: esp32_tcam
   name: Lilygo T-camera
-  description: LILYGO TTGO T-Camera
+  description: LILYGO TTGO LilygoT-Camera
 
 packages:
   <<: !include_dir_named common
