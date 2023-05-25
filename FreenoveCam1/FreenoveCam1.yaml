@@ -17,8 +17,10 @@ esp32:
 
 light:
   - platform: status_led
-    name: "Onboard LED"
-    pin: GPIO2
+    name:     "Onboard LED"
+    pin:
+      number:   GPIO2
+      inverted: true
 
 #output:
 #  - platform: gpio
@@ -79,12 +81,12 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-#  on_connect:
-#    then:
-#      - light.turn_on: led_light
-#  on_disconnect:
-#    then:
-#      - light.turn_off: led_light
+  #  on_connect:
+  #    then:
+  #      - light.turn_on: led_light
+  #  on_disconnect:
+  #    then:
+  #      - light.turn_off: led_light
   topic_prefix:   "$mqtt_location/{mac_address}"
 
 esp32_camera:
