@@ -47,6 +47,7 @@ i2c:
 
 mqtt:
   broker: !secret broker_address
+  topic_prefix: "$mqtt_location/{mac_address}"
 
 text_sensor:
   - platform:        wifi_info

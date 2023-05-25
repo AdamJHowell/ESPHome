@@ -95,3 +95,7 @@ display:
     lambda: |-
       it.strftime(0, 0, id(fontocra), TextAlign::TOP_LEFT, "%H:%M", id(home_time).now());
       it.line(0, 50, 128, 50);
+
+mqtt:
+  broker: !secret broker_address
+  topic_prefix: "$mqtt_location/{mac_address}"

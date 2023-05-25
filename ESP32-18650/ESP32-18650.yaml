@@ -34,6 +34,7 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
+  topic_prefix: "$mqtt_location/{mac_address}"
 
 captive_portal:
 

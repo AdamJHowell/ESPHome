@@ -55,7 +55,8 @@ wifi:
       password: !secret wifi_pass_work
 
 mqtt:
-  broker: 192.168.55.200
+  broker: !secret broker_address
+  topic_prefix: "$mqtt_location/{mac_address}"
 
 esp32_camera:
   id:                $short_name

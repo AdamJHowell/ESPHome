@@ -127,7 +127,7 @@ mqtt:
   on_disconnect:
     then:
       - light.turn_off: led_light
-  topic_prefix:   "$mqtt_location/$mqtt_device"
+  topic_prefix:   "$mqtt_location/{mac_address}"
 
 i2c:
   sda:       21

@@ -63,7 +63,7 @@ mqtt:
     then:
       - light.turn_off: rx_light
       - light.turn_off: tx_light
-  topic_prefix:   "$mqtt_location/$mqtt_device"
+  topic_prefix:   "$mqtt_location/{mac_address}"
 
 text_sensor:
   - platform: ethernet_info
