@@ -11,12 +11,12 @@ esphome:
   board:         esp-wrover-kit
 
 ethernet:
-  type:      LAN8720
-  mdc_pin:   GPIO23
-  mdio_pin:  GPIO18
-  clk_mode:  GPIO0_IN
-  phy_addr:  1
-  power_pin: GPIO16
+  type:          LAN8720
+  mdc_pin:       GPIO23
+  mdio_pin:      GPIO18
+  clk_mode:      GPIO0_IN
+  phy_addr:      1
+  power_pin:     GPIO16
 
 output:
   - platform: gpio
@@ -25,7 +25,6 @@ output:
   - platform: gpio
     pin:      17
     id:       tx_led
-    inverted: true  # This is just a hack to get the LEDs to always be in an alternate state.
 
 light:
   - platform: binary
@@ -48,14 +47,8 @@ api:
 ota:
   password: !secret ota_password
 
-i2c:
-  sda:       18
-  scl:       19
-  scan:      true
-  frequency: 400kHz
-
 mqtt:
-  broker: !secret broker_address
+  broker: !secret   broker_address
   on_connect:
     then:
       - light.turn_on: rx_light
@@ -64,9 +57,32 @@ mqtt:
     then:
       - light.turn_off: rx_light
       - light.turn_off: tx_light
-  topic_prefix:   "$mqtt_location/{mac_address}"
+  topic_prefix:     "$mqtt_location/$name_of_device"
 
 text_sensor:
   - platform: ethernet_info
     ip_address:
       name: ESP IP Address
+
+# This is the component, or "hub", which the sensor block uses.
+dallas:
+  - pin: 14
+    update_interval: 20s
+
+# This block configures each individual sensor connected to the Dallas component.
+sensor:
+  - platform: dallas
+    #    index:    0
+    address:  0xd40000000dff4528
+    name:     "Water heater output"
+    filters:
+      - filter_out: nan
+      - lambda: return ( x * 1.8 ) + 32.0;
+    id:                  wh_tempF
+    unit_of_measurement: "°F"
+    accuracy_decimals:   2
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$name_of_device/water_heater_output"
+          payload: !lambda |-
+                           return to_string( id( wh_tempF ).state );

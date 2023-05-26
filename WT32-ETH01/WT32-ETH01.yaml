@@ -48,12 +48,6 @@ api:
 ota:
   password: !secret ota_password
 
-i2c:
-  sda:       18
-  scl:       19
-  scan:      true
-  frequency: 400kHz
-
 mqtt:
   broker: !secret broker_address
   on_connect:
@@ -64,7 +58,7 @@ mqtt:
     then:
       - light.turn_off: rx_light
       - light.turn_off: tx_light
-  topic_prefix:   "$mqtt_location/{mac_address}"
+  topic_prefix:   "$mqtt_location/$name_of_device"
 
 text_sensor:
   - platform: ethernet_info
