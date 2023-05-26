@@ -1,19 +1,32 @@
 substitutions:
-  name_of_device: basic-esp32
-  device_name_friendly: BasicESP32
+  name_of_device:       t-energy-clone-01
+  device_name_friendly: T-Energy-Clone-01
+  mqtt_location:        "Mobile"
+  mqtt_device:          "T-Energy-Clone-01"
 
 esphome:
-  name: $name_of_device
+  name:          $name_of_device
   friendly_name: $device_name_friendly
 
 esp32:
   board: nodemcu-32s
   framework:
-    type: arduino
+    type:    arduino
     version: recommended
 
+light:
+  - platform: status_led
+    name:     "Onboard LED"
+    pin:
+      number:   GPIO2
+      inverted: true
+
+# Enable logging
 logger:
   level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
 
 # Enable Home Assistant API
 api:
@@ -24,13 +37,44 @@ ota:
   password: !secret ota_password
 
 wifi:
+  id:              wifi_id
+  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
   networks:
-  - ssid: !secret wifi_ssid
-    password: !secret wifi_password
-  - ssid: !secret wifi_ssid_work
-    password: !secret wifi_pass_work
+    - ssid: !secret     wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret     wifi_ssid_work
+      password: !secret wifi_pass_work
+
+mqtt:
+  broker: !secret broker_address
+  topic_prefix:   "$mqtt_location/$name_of_device"
 
 sensor:
-  - platform: wifi_signal
-    name: "WiFi Signal Sensor"
-    update_interval: 60s
+  - platform:        wifi_signal
+    name:            $device_name_friendly WiFi Signal
+    update_interval: 20s
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: $device_name_friendly IP address
+      id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$name_of_device/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
+    ssid:
+      name: $device_name_friendly connected SSID
+    bssid:
+      name: $device_name_friendly connected BSSID
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address_id
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$name_of_device/mac"
+            payload: !lambda |-
+                             return to_string( id( text_sensor_mac_address_id ).state );
+    scan_results:
+      name: $device_name_friendly scan results
