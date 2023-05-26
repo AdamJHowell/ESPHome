@@ -25,6 +25,7 @@ output:
   - platform: gpio
     pin:      17
     id:       tx_led
+    inverted: true  # This is just a hack to get the LEDs to always be in an alternate state.
 
 light:
   - platform: binary
