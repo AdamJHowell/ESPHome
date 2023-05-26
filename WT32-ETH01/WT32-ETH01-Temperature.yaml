@@ -1,0 +1,72 @@
+substitutions:
+  name_of_device:       wt32-temperature
+  device_name_friendly: WT32-ESP32-Temperature
+  mqtt_location:        "FurnaceRoom"
+  mqtt_device:          $device_name_friendly
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  platform:      ESP32
+  board:         esp-wrover-kit
+
+ethernet:
+  type:      LAN8720
+  mdc_pin:   GPIO23
+  mdio_pin:  GPIO18
+  clk_mode:  GPIO0_IN
+  phy_addr:  1
+  power_pin: GPIO16
+
+output:
+  - platform: gpio
+    pin:      5
+    id:       rx_led
+  - platform: gpio
+    pin:      17
+    id:       tx_led
+    inverted: true  # This is just a hack to get the LEDs to always be in an alternate state.
+
+light:
+  - platform: binary
+    name:     "RX LED"
+    output:   rx_led
+    id:       rx_light
+  - platform: binary
+    name:     "TX LED"
+    output:   tx_led
+    id:       tx_light
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret encryption_key
+
+ota:
+  password: !secret ota_password
+
+i2c:
+  sda:       18
+  scl:       19
+  scan:      true
+  frequency: 400kHz
+
+mqtt:
+  broker: !secret broker_address
+  on_connect:
+    then:
+      - light.turn_on: rx_light
+      - light.turn_on: tx_light
+  on_disconnect:
+    then:
+      - light.turn_off: rx_light
+      - light.turn_off: tx_light
+  topic_prefix:   "$mqtt_location/{mac_address}"
+
+text_sensor:
+  - platform: ethernet_info
+    ip_address:
+      name: ESP IP Address
