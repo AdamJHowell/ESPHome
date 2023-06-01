@@ -1,0 +1,148 @@
+substitutions:
+  name_of_device:       esp32-energy
+  device_name_friendly: ESP32-Energy
+  mqtt_location:        "FurnaceRoom"
+  mqtt_device:          "ESP32-Energy"
+  mqtt_sensor:          "ct-clamp"
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  platform:      ESP32
+  board:         esp32dev
+
+output:
+  - platform: gpio
+    pin:      2
+    id:       onboard_led
+
+light:
+  - platform: binary
+    name:     "Built-in LED"
+    output:   onboard_led
+    id:       led_light
+
+# Enable logging
+logger:
+  level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
+
+wifi:
+  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
+  networks:
+    - ssid: !secret     wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret     wifi_ssid_work
+      password: !secret wifi_pass_work
+
+mqtt:
+  broker: !secret broker_address
+  on_connect:
+    then:
+      - light.turn_on: led_light
+  on_disconnect:
+    then:
+      - light.turn_off: led_light
+  topic_prefix:   "$mqtt_location/$name_of_device"
+
+captive_portal:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "O5I+AON66eIzuMGtYQFBYB5SA8rFwZc+qFJlRMIENuk="
+
+ota:
+  password: "930f4ae76dcbb47f18d72e27fc759ff5"
+
+sensor:
+  - platform:          ct_clamp
+    sensor:            adc_sensor
+    name:              "raw"
+    update_interval:   10s
+    accuracy_decimals: 5
+
+  - platform:          ct_clamp
+    sensor:            adc_sensor
+    sample_duration:   300ms
+    name:              "Electricity usage (amps)"
+    update_interval:   10s
+    accuracy_decimals: 3
+    filters:
+      - calibrate_linear:
+          - 0.003 -> 0
+          - 0.147 -> 8.63    # value as per power plug
+
+  - platform:            ct_clamp
+    sensor:              adc_sensor
+    sample_duration:     300ms
+    name:                "Electricity usage"
+    id:                  esp_watts
+    update_interval:     10s
+    accuracy_decimals:   3
+    filters:
+      - calibrate_linear:
+          - 0.003 -> 0
+          - 0.147 -> 8.63    # value as per power plug
+      - lambda: return x * 230.0 / 1000;
+    unit_of_measurement: "Kw"
+
+  - platform:        adc
+    pin:             34
+    id:              adc_sensor
+    attenuation:     11db
+    #    name: "Volts"
+    update_interval: 10s
+    #========================
+
+  - platform:            total_daily_energy        # This sensor will give you a Daily kW reading
+    name:                "Total Daily Energy"
+    unit_of_measurement: 'kWh'
+    power_id:            esp_watts
+    accuracy_decimals:   3
+    filters:
+    device_class:        energy
+
+  - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name:                "WiFi Signal dB"
+    id:                  wifi_signal_db
+    unit_of_measurement: "dB"
+    accuracy_decimals:   2
+    update_interval:     30s
+    entity_category:     "diagnostic"
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$name_of_device/rssi"
+          payload: !lambda |-
+                           return to_string( id( wifi_signal_db ).state );
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: $device_name_friendly IP address
+      id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$name_of_device/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
+    ssid:
+      name: $device_name_friendly connected SSID
+    bssid:
+      name: $device_name_friendly connected BSSID
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   mac_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$name_of_device/mac"
+            payload: !lambda |-
+                             return to_string( id( mac_address ).state.c_str() );
+    scan_results:
+      name: $device_name_friendly scan results
+
+time:
+  - platform: sntp
+    id:       my_time
