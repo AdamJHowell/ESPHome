@@ -1,12 +1,11 @@
 substitutions:
-  name_of_device:       t-energy-clone-01
-  device_name_friendly: T-Energy-Clone-01
+  device_name:          basic-esp32
+  device_name_friendly: Basic-ESP32
   mqtt_location:        "Mobile"
-  mqtt_device:          "T-Energy-Clone-01"
 
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
+  name:                $device_name
+  friendly_name:       $device_name_friendly
 
 esp32:
   board: nodemcu-32s
@@ -47,7 +46,7 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-  topic_prefix:   "$mqtt_location/$name_of_device"
+  topic_prefix:   "$mqtt_location/$device_name_friendly"
 
 sensor:
   - platform:        wifi_signal
@@ -61,7 +60,7 @@ text_sensor:
       id:   ip_address
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/ip"
+            topic:           "$mqtt_location/$device_name_friendly/ip"
             payload: !lambda |-
                              return to_string( id( ip_address ).state );
     ssid:
@@ -70,11 +69,14 @@ text_sensor:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
-      id:   text_sensor_mac_address_id
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/mac"
-            payload: !lambda |-
-                             return to_string( id( text_sensor_mac_address_id ).state );
+      id:   text_sensor_mac_address
     scan_results:
       name: $device_name_friendly scan results
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );
