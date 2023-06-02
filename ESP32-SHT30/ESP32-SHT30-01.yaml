@@ -91,11 +91,6 @@ text_sensor:
     ip_address:
       name: $device_name_friendly IP address
       id:   ip_address
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/ip"
-            payload: !lambda |-
-                             return to_string( id( ip_address ).state );
     ssid:
       name: $device_name_friendly connected SSID
     bssid:
@@ -103,11 +98,6 @@ text_sensor:
     mac_address:
       name: $device_name_friendly MAC Address
       id:   mac_address
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/mac"
-            payload: !lambda |-
-                             return to_string( id( mac_address ).state.c_str() );
     scan_results:
       name: $device_name_friendly scan results
 
@@ -127,10 +117,22 @@ mqtt:
   on_disconnect:
     then:
       - light.turn_off: led_light
-  topic_prefix:   "$mqtt_location/$name_of_device"
+#  topic_prefix:   "$mqtt_location/$name_of_device"
 
 i2c:
   sda:       21
   scl:       22
   scan:      true
   frequency: 800kHz
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/mac"
+          payload: !lambda |-
+                           return to_string( id( mac_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ip"
+          payload: !lambda |-
+                           return to_string( id( ip_address ).state );

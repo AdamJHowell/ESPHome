@@ -3,13 +3,14 @@ substitutions:
   device_name_friendly: ESP32-Energy
   mqtt_location:        "FurnaceRoom"
   mqtt_device:          "ESP32-Energy"
-  mqtt_sensor:          "ct-clamp"
+  mqtt_sensor:          "ct-clamp-01"
 
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
-  platform:      ESP32
-  board:         esp32dev
+  name:                $name_of_device
+  friendly_name:       $device_name_friendly
+  name_add_mac_suffix: false
+  platform:            ESP32
+  board:               esp32dev
 
 output:
   - platform: gpio
@@ -45,22 +46,23 @@ mqtt:
   on_disconnect:
     then:
       - light.turn_off: led_light
-  topic_prefix:   "$mqtt_location/$name_of_device"
+#  topic_prefix:   "$mqtt_location/$mqtt_device"
 
 captive_portal:
 
 # Enable Home Assistant API
 api:
   encryption:
-    key: "O5I+AON66eIzuMGtYQFBYB5SA8rFwZc+qFJlRMIENuk="
+    key: !secret encryption_key_esp32_energy
 
 ota:
-  password: "930f4ae76dcbb47f18d72e27fc759ff5"
+  password: !secret ota_password_esp32_energy
 
 sensor:
   - platform:          ct_clamp
     sensor:            adc_sensor
     name:              "raw"
+    id:                ct_raw
     update_interval:   10s
     accuracy_decimals: 5
 
@@ -68,12 +70,13 @@ sensor:
     sensor:            adc_sensor
     sample_duration:   300ms
     name:              "Electricity usage (amps)"
+    id:                ct_amps
     update_interval:   10s
     accuracy_decimals: 3
     filters:
       - calibrate_linear:
-          - 0.003 -> 0
-          - 0.147 -> 8.63    # value as per power plug
+          - 0.003 -> 0       # Map a 0.003 reading to 0 Kw.
+          - 0.147 -> 8.63    # Map a 0.147 reading to 8.63 Kw.
 
   - platform:            ct_clamp
     sensor:              adc_sensor
@@ -84,20 +87,28 @@ sensor:
     accuracy_decimals:   3
     filters:
       - calibrate_linear:
-          - 0.003 -> 0
-          - 0.147 -> 8.63    # value as per power plug
-      - lambda: return x * 230.0 / 1000;
+          - 0.003 -> 0       # Map a 0.003 reading to 0 Kw.
+          - 0.147 -> 8.63    # Map a 0.147 reading to 8.63 Kw.
+
+      - lambda: return x * 150.0 / 1000;
     unit_of_measurement: "Kw"
 
+  ################
+  # ADC settings #
+  ################
   - platform:        adc
-    pin:             34
+    name:            "Raw ADC"
     id:              adc_sensor
+    pin:             34
     attenuation:     11db
-    #    name: "Volts"
     update_interval: 10s
-    #========================
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-34-raw"
+          payload: !lambda |-
+                           return to_string( id( adc_sensor ).state );
 
-  - platform:            total_daily_energy        # This sensor will give you a Daily kW reading
+  - platform:            total_daily_energy    # This sensor will give you a Daily kW reading
     name:                "Total Daily Energy"
     unit_of_measurement: 'kWh'
     power_id:            esp_watts
@@ -105,7 +116,7 @@ sensor:
     filters:
     device_class:        energy
 
-  - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
+  - platform:            wifi_signal       # Reports the WiFi signal strength/RSSI in dB
     name:                "WiFi Signal dB"
     id:                  wifi_signal_db
     unit_of_measurement: "dB"
@@ -114,7 +125,7 @@ sensor:
     entity_category:     "diagnostic"
     on_value:
       - mqtt.publish:
-          topic:           "$mqtt_location/$name_of_device/rssi"
+          topic:           "$mqtt_location/$mqtt_device/rssi"
           payload: !lambda |-
                            return to_string( id( wifi_signal_db ).state );
 
@@ -123,11 +134,6 @@ text_sensor:
     ip_address:
       name: $device_name_friendly IP address
       id:   ip_address
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/ip"
-            payload: !lambda |-
-                             return to_string( id( ip_address ).state );
     ssid:
       name: $device_name_friendly connected SSID
     bssid:
@@ -135,14 +141,33 @@ text_sensor:
     mac_address:
       name: $device_name_friendly MAC Address
       id:   mac_address
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/mac"
-            payload: !lambda |-
-                             return to_string( id( mac_address ).state.c_str() );
     scan_results:
       name: $device_name_friendly scan results
 
 time:
   - platform: sntp
     id:       my_time
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/mac"
+          payload: !lambda |-
+                           return to_string( id( mac_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ip"
+          payload: !lambda |-
+                           return to_string( id( ip_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ct_raw"
+          payload: !lambda |-
+                           return to_string( id( ct_raw ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ct_amps"
+          payload: !lambda |-
+                           return to_string( id( ct_amps ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/esp_watts"
+          payload: !lambda |-
+                           return to_string( id( esp_watts ).state );

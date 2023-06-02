@@ -1,10 +1,10 @@
 substitutions:
-  devicename: lilygo-camera
-  friendly_name: Lilygo Camera
+  name_of_device: lilygo-camera
+  device_name_friendly: Lilygo Camera
 
 esphome:
-  name: $devicename
-  friendly_name: $friendly_name
+  name: $name_of_device
+  friendly_name: $device_name_friendly
   platform: ESP32
   board: esp-wrover-kit
 
@@ -14,11 +14,6 @@ wifi:
     password: !secret wifi_password
   - ssid: !secret wifi_ssid_work
     password: !secret wifi_pass_work
-# Optional manual IP
-  #manual_ip:
-    #static_ip: 192.168.55.84
-    #gateway: 192.168.55.1
-    #subnet: 255.255.255.0
 
 mqtt:
   broker: 192.168.55.200
@@ -56,7 +51,6 @@ binary_sensor:
   - platform: gpio
     pin:
       number: GPIO15
-#      mode: INPUT_PULLUP
       inverted: True
     name: $friendly_name Button
 
