@@ -1,4 +1,4 @@
-#The substution block has all the configurable details
+#The substitution block has all the configurable details
 substitutions:
   name_of_device: m5stampc3
   device_name_friendly: M5StampC3
