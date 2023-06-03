@@ -37,7 +37,7 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key_freenove_cam1
+    key: !secret encryption_key_freenove_fc1
   services: # change camera parameters on-the-fly
     - service: camera_set_param
       variables:
@@ -63,7 +63,7 @@ api:
                   else { ESP_LOGW( "esp32_camera_set_param", "Error in name or data range" ); }
 
 ota:
-  password: !secret ota_password
+  password: !secret ota_password_freenove_fc1
 
 wifi:
   power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
