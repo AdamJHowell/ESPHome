@@ -1,8 +1,8 @@
 substitutions:
-  name_of_device:       armada-sht30-01
-  device_name_friendly: Armada-SHT30-01
-  mqtt_location:        "ESP32-01"
-  mqtt_device:          "ESP32-01"
+  name_of_device:       armada-sht30-02
+  device_name_friendly: Armada-SHT30-02
+  mqtt_location:        "MasterBedroom"
+  mqtt_device:          "ESP32-02"
   mqtt_sensor:          "sht30"
 
 esphome:
@@ -55,7 +55,7 @@ sensor:
     entity_category:     "diagnostic"
     on_value:
       - mqtt.publish:
-          topic:           "$mqtt_location/$name_of_device/rssi"
+          topic:           "$mqtt_location/$mqtt_device/rssi"
           payload: !lambda |-
                            return to_string( id( wifi_signal_db ).state );
   - platform:        sht3xd
@@ -68,7 +68,7 @@ sensor:
         - lambda: return ( x * 1.8 ) + 32.0;
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/$mqtt_sensor/temperature"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/temperature"
             payload: !lambda |-
                              return to_string( id( sht30_tempF ).state );
     humidity:
@@ -77,7 +77,7 @@ sensor:
       accuracy_decimals: 2
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$name_of_device/$mqtt_sensor/humidity"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/humidity"
             payload: !lambda |-
                              return to_string( id( sht30_humidity ).state );
     address:         0x44
@@ -117,7 +117,7 @@ mqtt:
 #  on_disconnect:
 #    then:
 #      - light.turn_off: led_light
-#  topic_prefix:   "$mqtt_location/$name_of_device"
+#  topic_prefix:   "$mqtt_location/$mqtt_device"
 
 i2c:
   sda:       21
