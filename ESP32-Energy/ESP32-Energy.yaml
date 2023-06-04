@@ -61,12 +61,23 @@ ota:
   password: !secret ota_password_esp32_energy
 
 sensor:
+  - platform:            template
+    id:                  my_power
+    name:                "Measured Power"
+    lambda:              return id( adc_sensor ).state * 110 / 1000;  # Power = V*I/1000.
+    unit_of_measurement: 'kW'
+    update_interval:     5s
+
+  - platform: total_daily_energy
+    name:     "Total Daily Power Usage"
+    power_id: my_power
+
   - platform:          ct_clamp
     sensor:            adc_sensor
     name:              "raw"
     id:                ct_raw
     update_interval:   10s
-    accuracy_decimals: 5
+    accuracy_decimals: 3
 
   - platform:          ct_clamp
     sensor:            adc_sensor
