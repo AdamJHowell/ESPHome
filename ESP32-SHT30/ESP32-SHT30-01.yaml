@@ -68,7 +68,7 @@ sensor:
         - lambda: return ( x * 1.8 ) + 32.0;
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/temperature"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/tempF"
             payload: !lambda |-
                              return to_string( id( sht30_tempF ).state );
     humidity:
