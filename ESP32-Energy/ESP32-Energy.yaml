@@ -64,7 +64,7 @@ sensor:
   - platform:            template
     id:                  my_power
     name:                "Measured Power"
-    lambda:              return id( adc_sensor ).state * 110 / 1000;  # Power = V*I/1000.
+    lambda:              return id( adc_office ).state * 110 / 1000;  # Power = I * V / 1000.
     unit_of_measurement: 'kW'
     update_interval:     5s
 
@@ -73,14 +73,14 @@ sensor:
     power_id: my_power
 
   - platform:          ct_clamp
-    sensor:            adc_sensor
+    sensor:            adc_office
     name:              "raw"
     id:                ct_raw
     update_interval:   10s
     accuracy_decimals: 3
 
   - platform:          ct_clamp
-    sensor:            adc_sensor
+    sensor:            adc_office
     sample_duration:   300ms
     name:              "Electricity usage (amps)"
     id:                ct_amps
@@ -92,10 +92,25 @@ sensor:
           - 0.147 -> 8.63    # Map a 0.147 reading to 8.63 Kw.
 
   - platform:            ct_clamp
-    sensor:              adc_sensor
+    sensor:              adc_office
     sample_duration:     300ms
     name:                "Electricity usage"
     id:                  esp_watts
+    update_interval:     10s
+    accuracy_decimals:   3
+    filters:
+      - calibrate_linear:
+          - 0.003 -> 0       # Map a 0.003 reading to 0 Kw.
+          - 0.147 -> 8.63    # Map a 0.147 reading to 8.63 Kw.
+
+      - lambda: return x * 150.0 / 1000;
+    unit_of_measurement: "Kw"
+
+  - platform:            ct_clamp
+    sensor:              adc_phase_1
+    sample_duration:     300ms
+    name:                "Electricity usage 1"
+    id:                  phase1_watts
     update_interval:     10s
     accuracy_decimals:   3
     filters:
@@ -110,21 +125,45 @@ sensor:
   # ADC settings #
   ################
   - platform:        adc
-    name:            "Raw ADC"
-    id:              adc_sensor
+    name:            "Downstairs office"
+    id:              adc_office
     pin:             34
     attenuation:     11db
     update_interval: 10s
     on_value:
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-34-raw"
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-Office-raw"
           payload: !lambda |-
-                           return to_string( id( adc_sensor ).state );
+                           return to_string( id( adc_office ).state );
+
+  - platform:        adc
+    name:            "Phase 1"
+    id:              adc_phase_1
+    pin:             36
+    attenuation:     11db
+    update_interval: 10s
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/Phase-01/ADC-Phase1-raw"
+          payload: !lambda |-
+                           return to_string( id( adc_phase_1 ).state );
+
+  - platform:        adc
+    name:            "Raw ADC"
+    id:              adc_phase_2
+    pin:             39
+    attenuation:     11db
+    update_interval: 10s
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/Phase-02/ADC-Phase2-raw"
+          payload: !lambda |-
+                           return to_string( id( adc_phase_2 ).state );
 
   - platform:            total_daily_energy    # This sensor will give you a Daily kW reading
-    name:                "Total Daily Energy"
+    name:                "Phase 1 Daily Energy"
     unit_of_measurement: 'kWh'
-    power_id:            esp_watts
+    power_id:            phase1_watts
     accuracy_decimals:   3
     filters:
     device_class:        energy
