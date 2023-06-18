@@ -15,18 +15,7 @@ esphome:
 status_led:
   pin:
     number:   GPIO2
-    inverted: false
-
-#output:
-#  - platform: gpio
-#    pin:      GPIO2
-#    id:       onboard_led
-#
-#light:
-#  - platform: binary
-#    name:     "Built-in LED"
-#    output:   onboard_led
-#    id:       led_light
+    inverted: true   # The 30-pin ESP32 tends to need this inverted to illuminate the LED when everything is connected.
 
 # Enable logging
 logger:
@@ -42,15 +31,7 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-#  on_connect:
-#    then:
-#      - light.turn_on: led_light
-#  on_disconnect:
-#    then:
-#      - light.turn_off: led_light
 #  topic_prefix:   "$mqtt_location/$mqtt_device"
-
-captive_portal:
 
 # Enable Home Assistant API
 api:
@@ -65,7 +46,7 @@ sensor:
   # ADC settings #
   ################
   - platform:        adc
-    name:            "Phase 1 raw"
+    name:            "Phase 1 ADC"
     id:              adc_phase_1
     pin:             36
     attenuation:     11db
@@ -77,7 +58,7 @@ sensor:
                            return to_string( id( adc_phase_1 ).state );
 
   - platform:        adc
-    name:            "Phase 2 raw"
+    name:            "Phase 2 ADC"
     id:              adc_phase_2
     pin:             39
     attenuation:     11db
@@ -89,7 +70,7 @@ sensor:
                            return to_string( id( adc_phase_2 ).state );
 
   - platform:        adc
-    name:            "Office raw"
+    name:            "Office ADC"
     id:              adc_office
     pin:             34
     attenuation:     11db
@@ -103,47 +84,73 @@ sensor:
 
   - platform:            template
     id:                  my_power
-    name:                "Measured office power"
-    lambda:              return id( adc_office ).state * 120 / 1000;  # Power = I * V / 1000.
+    name:                "Measured overall power"
+    lambda:              return ( ( id( adc_phase_1 ).state * 120 ) + ( id( adc_phase_2 ).state * 120 ) ) / 1000;  # Power = I * V / 1000.
     unit_of_measurement: 'kW'
     update_interval:     5s
 
   - platform: total_daily_energy
     name:     "Total Daily Power Usage"
     power_id: my_power
+  - platform:          ct_clamp
+    sensor:            adc_phase_1
+    name:              "Phase 1 raw"
+    id:                phase1_raw
+    update_interval:   10s
+    accuracy_decimals: 3
+
+  - platform:          ct_clamp
+    sensor:            adc_phase_1
+    sample_duration:   300ms
+    name:              "Phase 1 amps"
+    id:                phase1_amps
+    update_interval:   10s
+    accuracy_decimals: 3
+    filters:
+      - calibrate_linear:
+          - 0.0106 -> 0       # Map a 0.0106 reading to 0
+          - 0.2566 -> 10.96   # Map a 0.2566 reading to 10.96
+
+  - platform: total_daily_energy
+    name:     "Total Daily Power Usage"
+    power_id: my_power
+  - platform:          ct_clamp
+    sensor:            adc_phase_2
+    name:              "Phase 2 raw"
+    id:                phase2_raw
+    update_interval:   10s
+    accuracy_decimals: 3
+
+  - platform:          ct_clamp
+    sensor:            adc_phase_2
+    sample_duration:   300ms
+    name:              "Phase 2 amps"
+    id:                phase2_amps
+    update_interval:   10s
+    accuracy_decimals: 3
+    filters:
+      - calibrate_linear:
+          - 0.01077 -> 0      # Map a 0.01077 reading to 0
+          - 0.04193 -> 1.65   # Map a 0.04193 reading to 1.65
 
   - platform:          ct_clamp
     sensor:            adc_office
-    name:              "raw"
-    id:                ct_raw
+    name:              "Office raw"
+    id:                office_raw
     update_interval:   10s
     accuracy_decimals: 3
 
   - platform:          ct_clamp
     sensor:            adc_office
     sample_duration:   300ms
-    name:              "Electricity usage (amps)"
-    id:                ct_amps
+    name:              "Office amps"
+    id:                office_amps
     update_interval:   10s
     accuracy_decimals: 3
     filters:
       - calibrate_linear:
-          - 0.011 -> 0        # Map a 0.011 reading to 0 Kw.
-          - 0.027 -> 1.764    # Map a 0.027 reading to 1.764 Kw.
-
-  - platform:            ct_clamp
-    sensor:              adc_office
-    sample_duration:     300ms
-    name:                "Office watts"
-    id:                  office_watts
-    update_interval:     10s
-    accuracy_decimals:   3
-    filters:
-      - calibrate_linear:
-          - 0.011 -> 0          # Map a 0.011 reading to 0 Kw.
-          - 0.0276 -> 208.152   # Map a 0.0276 reading to 208.152 Kw.
-      - lambda: return x * 150.0 / 1000;
-    unit_of_measurement: "Kw"
+          - 0.011 -> 0        # Map a 0.011 reading to 0
+          - 0.027 -> 1.764    # Map a 0.027 reading to 1.764
 
   - platform:            ct_clamp
     sensor:              adc_phase_1
@@ -152,13 +159,13 @@ sensor:
     id:                  phase1_watts
     update_interval:     10s
     accuracy_decimals:   3
+    unit_of_measurement: "Kw"
     filters:
       - calibrate_linear:
           - 0.009 -> 0         # Map a 0.009 reading to 0 Kw.
           - 0.011 -> 11.4      # Map a 0.011 reading to 11.4 Kw.
           - 0.256 -> 1223.136  # Map a 0.256 reading to 1223.136 Kw.
       - lambda: return x * 150.0 / 1000;
-    unit_of_measurement: "Kw"
 
   - platform:            total_daily_energy    # This sensor will give you a Daily kW reading
     name:                "Phase 1 Daily Energy"
@@ -190,6 +197,27 @@ sensor:
     filters:
     device_class:        energy
 
+  - platform:            ct_clamp
+    sensor:              adc_office
+    sample_duration:     300ms
+    name:                "Office watts"
+    id:                  office_watts
+    update_interval:     10s
+    accuracy_decimals:   3
+    filters:
+      - calibrate_linear:
+          - 0.011 -> 0          # Map a 0.011 reading to 0 Kw.
+          - 0.0276 -> 208.152   # Map a 0.0276 reading to 208.152 Kw.
+      - lambda: return x * 150.0 / 1000;
+    unit_of_measurement: "Kw"
+
+  - platform:            total_daily_energy    # This sensor will give you a Daily kW reading
+    name:                "Office Daily Energy"
+    unit_of_measurement: 'kWh'
+    power_id:            office_watts
+    accuracy_decimals:   3
+    filters:
+    device_class:        energy
 
 
   - platform:            wifi_signal       # Reports the WiFi signal strength/RSSI in dB
@@ -236,13 +264,37 @@ interval:
           payload: !lambda |-
                            return to_string( id( ip_address ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ct_raw"
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase1_raw"
           payload: !lambda |-
-                           return to_string( id( ct_raw ).state );
+                           return to_string( id( phase1_raw ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ct_amps"
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase1_amps"
           payload: !lambda |-
-                           return to_string( id( ct_amps ).state );
+                           return to_string( id( phase1_amps ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase1_watts"
+          payload: !lambda |-
+                           return to_string( id( phase1_watts ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase2_raw"
+          payload: !lambda |-
+                           return to_string( id( phase2_raw ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase2_amps"
+          payload: !lambda |-
+                           return to_string( id( phase2_amps ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase2_watts"
+          payload: !lambda |-
+                           return to_string( id( phase2_watts ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/office_raw"
+          payload: !lambda |-
+                           return to_string( id( office_raw ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/office_amps"
+          payload: !lambda |-
+                           return to_string( id( office_amps ).state );
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/office_watts"
           payload: !lambda |-
