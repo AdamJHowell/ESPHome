@@ -12,16 +12,21 @@ esphome:
   platform:            ESP32
   board:               esp32dev
 
-output:
-  - platform: gpio
-    pin:      GPIO2
-    id:       onboard_led
+status_led:
+  pin:
+    number:   GPIO2
+    inverted: false
 
-light:
-  - platform: binary
-    name:     "Built-in LED"
-    output:   onboard_led
-    id:       led_light
+#output:
+#  - platform: gpio
+#    pin:      GPIO2
+#    id:       onboard_led
+#
+#light:
+#  - platform: binary
+#    name:     "Built-in LED"
+#    output:   onboard_led
+#    id:       led_light
 
 # Enable logging
 logger:
@@ -37,12 +42,12 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-  on_connect:
-    then:
-      - light.turn_on: led_light
-  on_disconnect:
-    then:
-      - light.turn_off: led_light
+#  on_connect:
+#    then:
+#      - light.turn_on: led_light
+#  on_disconnect:
+#    then:
+#      - light.turn_off: led_light
 #  topic_prefix:   "$mqtt_location/$mqtt_device"
 
 captive_portal:
