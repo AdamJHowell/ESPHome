@@ -39,7 +39,7 @@ api:
     key: !secret encryption_key_esp32_energy
 
 ota:
-  password: !secret ota_password_esp32_energy
+  password: !secret ota_password_esp32_energy1
 
 sensor:
   ################
@@ -106,10 +106,10 @@ sensor:
     id:                phase1_amps
     update_interval:   10s
     accuracy_decimals: 3
-    filters:
-      - calibrate_linear:
-          - 0.0106 -> 0       # Map a 0.0106 reading to 0
-          - 0.2566 -> 10.96   # Map a 0.2566 reading to 10.96
+#    filters:
+#      - calibrate_linear:
+#          - 0.0106 -> 0       # Map a 0.0106 reading to 0
+#          - 0.2566 -> 10.96   # Map a 0.2566 reading to 10.96
 
   - platform: total_daily_energy
     name:     "Total Daily Power Usage"
@@ -128,10 +128,10 @@ sensor:
     id:                phase2_amps
     update_interval:   10s
     accuracy_decimals: 3
-    filters:
-      - calibrate_linear:
-          - 0.01077 -> 0      # Map a 0.01077 reading to 0
-          - 0.04193 -> 1.65   # Map a 0.04193 reading to 1.65
+#    filters:
+#      - calibrate_linear:
+#          - 0.01077 -> 0      # Map a 0.01077 reading to 0
+#          - 0.04193 -> 1.65   # Map a 0.04193 reading to 1.65
 
   - platform:          ct_clamp
     sensor:            adc_office
@@ -147,10 +147,10 @@ sensor:
     id:                office_amps
     update_interval:   10s
     accuracy_decimals: 3
-    filters:
-      - calibrate_linear:
-          - 0.011 -> 0        # Map a 0.011 reading to 0
-          - 0.027 -> 1.764    # Map a 0.027 reading to 1.764
+#    filters:
+#      - calibrate_linear:
+#          - 0.011 -> 0        # Map a 0.011 reading to 0
+#          - 0.027 -> 1.764    # Map a 0.027 reading to 1.764
 
   - platform:            ct_clamp
     sensor:              adc_phase_1
@@ -161,10 +161,10 @@ sensor:
     accuracy_decimals:   3
     unit_of_measurement: "Kw"
     filters:
-      - calibrate_linear:
-          - 0.009 -> 0         # Map a 0.009 reading to 0 Kw.
-          - 0.011 -> 11.4      # Map a 0.011 reading to 11.4 Kw.
-          - 0.256 -> 1223.136  # Map a 0.256 reading to 1223.136 Kw.
+#      - calibrate_linear:
+#          - 0.009 -> 0         # Map a 0.009 reading to 0 Kw.
+#          - 0.011 -> 11.4      # Map a 0.011 reading to 11.4 Kw.
+#          - 0.256 -> 1223.136  # Map a 0.256 reading to 1223.136 Kw.
       - lambda: return x * 150.0 / 1000;
 
   - platform:            total_daily_energy    # This sensor will give you a Daily kW reading
@@ -183,9 +183,9 @@ sensor:
     update_interval:     10s
     accuracy_decimals:   3
     filters:
-      - calibrate_linear:
-          - 0.0095 -> 0        # Map a 0.0095 reading to 0 Kw.
-          - 0.0415 -> 196.185  # Map a 0.0415 reading to 196.185 Kw.
+#      - calibrate_linear:
+#          - 0.0095 -> 0        # Map a 0.0095 reading to 0 Kw.
+#          - 0.0415 -> 196.185  # Map a 0.0415 reading to 196.185 Kw.
       - lambda: return x * 150.0 / 1000;
     unit_of_measurement: "Kw"
 
@@ -205,9 +205,9 @@ sensor:
     update_interval:     10s
     accuracy_decimals:   3
     filters:
-      - calibrate_linear:
-          - 0.011 -> 0          # Map a 0.011 reading to 0 Kw.
-          - 0.0276 -> 208.152   # Map a 0.0276 reading to 208.152 Kw.
+#      - calibrate_linear:
+#          - 0.011 -> 0          # Map a 0.011 reading to 0 Kw.
+#          - 0.0276 -> 208.152   # Map a 0.0276 reading to 208.152 Kw.
       - lambda: return x * 150.0 / 1000;
     unit_of_measurement: "Kw"
 
