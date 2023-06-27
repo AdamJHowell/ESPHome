@@ -1,6 +1,7 @@
 substitutions:
   name: tdisplays3
   friendly_name: T-Display-S3
+  mqtt_location: Mobile
 
 esphome:
   name: "${name}"
@@ -77,7 +78,7 @@ switch:
 time:
   - platform: homeassistant
     id: home_time
-    timezone: Europe/Amsterdam
+    timezone: America/Denver
 
 display:
   - platform: st7789v
@@ -93,9 +94,26 @@ display:
     id: disp
     rotation: 180
     lambda: |-
-      it.strftime(0, 0, id(fontocra), TextAlign::TOP_LEFT, "%H:%M", id(home_time).now());
-      it.line(0, 50, 128, 50);
+      it.strftime( 0, 0, id( fontocra ), TextAlign::TOP_LEFT, "%H:%M", id( home_time ).now() );
+      it.line( 0, 50, 128, 50 );
 
 mqtt:
   broker: !secret broker_address
-  topic_prefix: "$mqtt_location/{mac_address}"
+
+text_sensor:
+  - platform: wifi_info
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$friendly_name/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$friendly_name/ip"
+          payload: !lambda |-
+                           return to_string( id( ip_address ).state );

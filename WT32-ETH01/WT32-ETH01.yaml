@@ -64,3 +64,19 @@ text_sensor:
   - platform: ethernet_info
     ip_address:
       name: ESP IP Address
+  - platform: wifi_info
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/ip"
+          payload: !lambda |-
+                           return to_string( id( ip_address ).state );

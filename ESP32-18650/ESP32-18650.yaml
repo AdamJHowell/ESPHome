@@ -85,11 +85,18 @@ text_sensor:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
-      id:   mac_address
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/{mac_address}/mac"
-            payload: !lambda |-
-                             return to_string( id( mac_address ).state.c_str() );
+      id:   text_sensor_mac_address
     scan_results:
       name: $device_name_friendly scan results
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ip"
+          payload: !lambda |-
+                           return to_string( id( ip_address ).state );
