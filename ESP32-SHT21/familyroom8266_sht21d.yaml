@@ -59,6 +59,7 @@ text_sensor:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address
     scan_results:
       name: $device_name_friendly scan results
 
@@ -112,3 +113,11 @@ sensor:
               topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/humidity"
               payload: !lambda |-
                                return to_string( id( inside_humidity ).state );
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );

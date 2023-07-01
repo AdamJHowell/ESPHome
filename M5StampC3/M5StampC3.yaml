@@ -107,6 +107,15 @@ text_sensor:
     bssid:
       name: ESP Connected BSSID
     mac_address:
-      name: ESP Mac Wifi Address
+      name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address
     scan_results:
       name: ESP Latest Scan Results
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );

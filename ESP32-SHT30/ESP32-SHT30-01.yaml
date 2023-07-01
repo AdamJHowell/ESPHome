@@ -111,13 +111,6 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
-#  on_connect:
-#    then:
-#      - light.turn_on: led_light
-#  on_disconnect:
-#    then:
-#      - light.turn_off: led_light
-#  topic_prefix:   "$mqtt_location/$mqtt_device"
 
 i2c:
   sda:       21

@@ -93,3 +93,17 @@ display:
     lambda: |-
       it.strftime(64, 0, id(tnr1), TextAlign::TOP_CENTER,"%Y-%m-%d", id(homeassistant_time).now());
       it.strftime(64, 64, id(tnr2), TextAlign::BASELINE_CENTER, "%H:%M", id(homeassistant_time).now());
+
+text_sensor:
+  - platform: wifi_info
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );

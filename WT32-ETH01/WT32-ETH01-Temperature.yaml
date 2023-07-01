@@ -63,6 +63,9 @@ text_sensor:
   - platform: ethernet_info
     ip_address:
       name: ESP IP Address
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id:   text_sensor_mac_address
 
 # This is the component, or "hub", which the sensor block uses.
 dallas:
@@ -86,3 +89,11 @@ sensor:
           topic:           "$mqtt_location/$name_of_device/water_heater_output"
           payload: !lambda |-
                            return to_string( id( wh_tempF ).state );
+
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$device_name_friendly/mac"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_mac_address ).state );
