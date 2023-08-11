@@ -6,7 +6,9 @@
 # CT2 connects to ADC 1.3 on GPIO 39.
 # CT3 connects to ADC 1.6 on GPIO 34.
 # CT4 connects to ADC 1.7 on GPIO 35.
-# ToDo: Configure the ADC ports.
+# SCL is on GPIO 22.
+# SDA is on GPIO 21.
+# ToDo: Configure the four ADC ports.
 substitutions:
   name_of_device:       esp32-quad-energy
   device_name_friendly: ESP32-QuadEnergy
@@ -90,6 +92,17 @@ sensor:
           payload: !lambda |-
                            return to_string( id( adc_office ).state );
 
+  - platform:        adc
+    name:            "Office ADC"
+    id:              adc_office
+    pin:             35
+    attenuation:     11db
+    update_interval: 10s
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-Office-raw"
+          payload: !lambda |-
+                           return to_string( id( adc_office ).state );
 
   - platform:            template
     id:                  my_power
