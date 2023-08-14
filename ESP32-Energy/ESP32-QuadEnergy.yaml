@@ -81,8 +81,8 @@ sensor:
                            return to_string( id( adc_phase_2 ).state );
 
   - platform:        adc
-    name:            "Office ADC"
-    id:              adc_office
+    name:            "CT 3 ADC"
+    id:              ct3_adc
     pin:             34
     attenuation:     11db
     update_interval: 10s
@@ -90,11 +90,11 @@ sensor:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-Office-raw"
           payload: !lambda |-
-                           return to_string( id( adc_office ).state );
+                           return to_string( id( ct3_adc ).state );
 
   - platform:        adc
-    name:            "Office ADC"
-    id:              adc_office
+    name:            "CT 4 ADC"
+    id:              ct4_adc
     pin:             35
     attenuation:     11db
     update_interval: 10s
@@ -102,7 +102,7 @@ sensor:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-Office-raw"
           payload: !lambda |-
-                           return to_string( id( adc_office ).state );
+                           return to_string( id( ct4_adc ).state );
 
   - platform:            template
     id:                  my_power
@@ -156,14 +156,14 @@ sensor:
   #          - 0.04193 -> 1.65   # Map a 0.04193 reading to 1.65
 
   - platform:          ct_clamp
-    sensor:            adc_office
+    sensor:            ct3_adc
     name:              "Office raw"
     id:                office_raw
     update_interval:   10s
     accuracy_decimals: 3
 
   - platform:          ct_clamp
-    sensor:            adc_office
+    sensor:            ct3_adc
     sample_duration:   300ms
     name:              "Office amps"
     id:                office_amps
@@ -220,7 +220,7 @@ sensor:
     device_class:        energy
 
   - platform:            ct_clamp
-    sensor:              adc_office
+    sensor:              ct3_adc
     sample_duration:     300ms
     name:                "Office watts"
     id:                  office_watts
