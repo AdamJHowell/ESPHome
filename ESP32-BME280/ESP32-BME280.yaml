@@ -73,18 +73,20 @@ sensor:
             payload: !lambda |-
                              return to_string( id( bme280_tempF ).state );
     pressure:
-      name:              "BME280 Pressure"
-      id:                bme280_pressure
-      accuracy_decimals: 2
+      name:                "BME280 Pressure"
+      id:                  bme280_pressure
+      unit_of_measurement: "hPa"
+      accuracy_decimals:   2
       on_value:
         - mqtt.publish:
             topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/pressure"
             payload: !lambda |-
                              return to_string( id( bme280_pressure ).state );
     humidity:
-      name:              "BME280 Humidity"
-      id:                bme280_humidity
-      accuracy_decimals: 2
+      name:                "BME280 Humidity"
+      id:                  bme280_humidity
+      unit_of_measurement: "%"
+      accuracy_decimals:   2
       on_value:
         - mqtt.publish:
             topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/humidity"
