@@ -19,16 +19,21 @@ esp32:
 #  run_duration:   '30s'
 #  sleep_duration: '2min'
 
-output:
-  - platform: gpio
-    pin:      2
-    id:       onboard_led
+status_led:
+  pin:
+    number: GPIO2
+    inverted: true
 
-light:
-  - platform: binary
-    name:     "Built-in LED"
-    output:   onboard_led
-    id:       led_light
+#output:
+#  - platform: gpio
+#    pin:      2
+#    id:       onboard_led
+#
+#light:
+#  - platform: binary
+#    name:     "Built-in LED"
+#    output:   onboard_led
+#    id:       led_light
 
 # Enable logging
 logger:
