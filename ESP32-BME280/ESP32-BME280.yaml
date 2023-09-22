@@ -1,7 +1,7 @@
 substitutions:
   name_of_device:       esp32-bme280
   device_name_friendly: ESP32-BME280
-  mqtt_location:        "Mobile"
+  mqtt_location:        "BackYard"
   mqtt_device:          "ESP32"
   mqtt_sensor:          "bme280"
 
@@ -20,9 +20,10 @@ esp32:
 #  sleep_duration: '2min'
 
 status_led:
-  pin:
-    number: GPIO2
-    inverted: true
+  pin: GPIO2
+#  pin:
+#    number: GPIO2
+#    inverted: true
 
 #output:
 #  - platform: gpio
@@ -37,10 +38,7 @@ status_led:
 
 # Enable logging
 logger:
-  level: VERBOSE
-  logs:
-    mqtt.component: ERROR
-    mqtt.client:    ERROR
+  level: DEBUG
 
 # Enable Home Assistant API
 api:
