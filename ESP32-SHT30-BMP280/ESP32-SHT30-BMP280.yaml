@@ -1,9 +1,10 @@
 substitutions:
-  name_of_device:       esp32-bme280
-  device_name_friendly: ESP32-BME280
+  name_of_device:       armada-sht30-02
+  device_name_friendly: Armada-SHT30-02
   mqtt_location:        "Backyard"
-  mqtt_device:          "ESP32"
-  mqtt_sensor:          "bme280"
+  mqtt_device:          "ESP32-02"
+  mqtt_sensor1:         "sht30"
+  mqtt_sensor2:         "bmp280"
 
 esphome:
   name:          $name_of_device
@@ -21,15 +22,12 @@ esp32:
 
 status_led:
   pin: GPIO2
-#  pin:
-#    number: GPIO2
-#    inverted: true
 
 #output:
 #  - platform: gpio
 #    pin:      2
 #    id:       onboard_led
-#
+
 #light:
 #  - platform: binary
 #    name:     "Built-in LED"
@@ -38,15 +36,18 @@ status_led:
 
 # Enable logging
 logger:
-  level: DEBUG
+  level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
 
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key_bme280
+    key: !secret encryption_key
 
 ota:
-  password: !secret ota_password_bme280
+  password: !secret ota_password
 
 sensor:
   - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
@@ -61,42 +62,59 @@ sensor:
           topic:           "$mqtt_location/$mqtt_device/rssi"
           payload: !lambda |-
                            return to_string( id( wifi_signal_db ).state );
-  - platform:        bme280
+
+  - platform:        sht3xd
     temperature:
-      name:                "BME280 Temperature"
-      oversampling:        16x
-      id:                  bme280_tempF
+      name:                "SHT30 temp"
+      id:                  sht30_tempF
       unit_of_measurement: "°F"
       accuracy_decimals:   2
       filters:
         - lambda: return ( x * 1.8 ) + 32.0;
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/tempF"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor1/tempF"
             payload: !lambda |-
-                             return to_string( id( bme280_tempF ).state );
+                             return to_string( id( sht30_tempF ).state );
+    humidity:
+      name:              "SHT30 humidity"
+      id:                sht30_humidity
+      accuracy_decimals: 2
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor1/humidity"
+            payload: !lambda |-
+                             return to_string( id( sht30_humidity ).state );
+    address:         0x44
+    update_interval: 20s
+
+  - platform:        bmp280
+    temperature:
+      name:                "BMP280 temp"
+      id:                  bmp280_tempF
+      unit_of_measurement: "°F"
+      accuracy_decimals:   2
+      oversampling:        16x
+      filters:
+        - lambda: return ( x * 1.8 ) + 32.0;
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor2/tempF"
+            payload: !lambda |-
+                             return to_string( id( bmp280_tempF ).state );
     pressure:
-      name:                "BME280 Pressure"
-      id:                  bme280_pressure
+      name:                "BMP280 pressure"
+      id:                  bmp280_pressure
       unit_of_measurement: "hPa"
       accuracy_decimals:   2
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/pressure"
+            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor2/pressure"
             payload: !lambda |-
-                             return to_string( id( bme280_pressure ).state );
-    humidity:
-      name:                "BME280 Humidity"
-      id:                  bme280_humidity
-      unit_of_measurement: "%"
-      accuracy_decimals:   2
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/humidity"
-            payload: !lambda |-
-                             return to_string( id( bme280_humidity ).state );
+                             return to_string( id( bmp280_pressure ).state );
     address:         0x76
     update_interval: 20s
+
   - platform:        wifi_signal
     name:            $device_name_friendly Wi-Fi strength
     update_interval: 20s

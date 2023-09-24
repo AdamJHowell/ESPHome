@@ -1,9 +1,9 @@
 substitutions:
-  name_of_device:       esp32-bme280
-  device_name_friendly: ESP32-BME280
-  mqtt_location:        "Backyard"
-  mqtt_device:          "ESP32"
-  mqtt_sensor:          "bme280"
+  name_of_device:       back-porch
+  device_name_friendly: BackPorch-SHT30-06
+  mqtt_location:        "Outdoors"
+  mqtt_device:          "ESP32-06"
+  mqtt_sensor:          "sht30"
 
 esphome:
   name:          $name_of_device
@@ -14,39 +14,42 @@ esp32:
   framework:
     type: arduino
 
-#deep_sleep:
-#  id:             "deep_sleep_2min"
-#  run_duration:   '30s'
-#  sleep_duration: '2min'
-
-status_led:
-  pin: GPIO2
-#  pin:
-#    number: GPIO2
-#    inverted: true
+light:
+  - platform: status_led
+    name:     "Onboard LED"
+    pin:
+      number:   GPIO2
+      inverted: true
+#  - platform: binary
+#    name:     "Built-in LED"
+#    output:   onboard_led
+#    id:       led_light
 
 #output:
 #  - platform: gpio
 #    pin:      2
 #    id:       onboard_led
 #
-#light:
-#  - platform: binary
-#    name:     "Built-in LED"
-#    output:   onboard_led
-#    id:       led_light
+
+#deep_sleep:
+#  id:             "deep_sleep_2min"
+#  run_duration:   '30s'
+#  sleep_duration: '2min'
 
 # Enable logging
 logger:
-  level: DEBUG
+  level: VERBOSE
+  logs:
+    mqtt.component: ERROR
+    mqtt.client:    ERROR
 
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key_bme280
+    key: "O5I+AON66eIzuMGtYQFBYB5SA8rFwZc+qFJlRMIENuk="
 
 ota:
-  password: !secret ota_password_bme280
+  password: "930f4ae76dcbb47f18d72e27fc759ff5"
 
 sensor:
   - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
@@ -58,44 +61,32 @@ sensor:
     entity_category:     "diagnostic"
     on_value:
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/rssi"
+          topic:           "$mqtt_location/{mac_address}/rssi"
           payload: !lambda |-
                            return to_string( id( wifi_signal_db ).state );
-  - platform:        bme280
+  - platform:        sht3xd
     temperature:
-      name:                "BME280 Temperature"
-      oversampling:        16x
-      id:                  bme280_tempF
+      name:                "Temp"
+      id:                  sht30_tempF
       unit_of_measurement: "°F"
       accuracy_decimals:   2
       filters:
         - lambda: return ( x * 1.8 ) + 32.0;
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/tempF"
+            topic:           "$mqtt_location/{mac_address}/$mqtt_sensor/temperature"
             payload: !lambda |-
-                             return to_string( id( bme280_tempF ).state );
-    pressure:
-      name:                "BME280 Pressure"
-      id:                  bme280_pressure
-      unit_of_measurement: "hPa"
-      accuracy_decimals:   2
-      on_value:
-        - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/pressure"
-            payload: !lambda |-
-                             return to_string( id( bme280_pressure ).state );
+                             return to_string( id( sht30_tempF ).state );
     humidity:
-      name:                "BME280 Humidity"
-      id:                  bme280_humidity
-      unit_of_measurement: "%"
-      accuracy_decimals:   2
+      name:              "humidity"
+      id:                sht30_humidity
+      accuracy_decimals: 2
       on_value:
         - mqtt.publish:
-            topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/humidity"
+            topic:           "$mqtt_location/{mac_address}/$mqtt_sensor/humidity"
             payload: !lambda |-
-                             return to_string( id( bme280_humidity ).state );
-    address:         0x76
+                             return to_string( id( sht30_humidity ).state );
+    address:         0x44
     update_interval: 20s
   - platform:        wifi_signal
     name:            $device_name_friendly Wi-Fi strength
@@ -106,13 +97,18 @@ text_sensor:
     ip_address:
       name: $device_name_friendly IP address
       id:   ip_address
+      on_value:
+        - mqtt.publish:
+            topic:           "$mqtt_location/{mac_address}/ip"
+            payload: !lambda |-
+                             return to_string( id( ip_address ).state );
     ssid:
       name: $device_name_friendly connected SSID
     bssid:
       name: $device_name_friendly connected BSSID
     mac_address:
       name: $device_name_friendly MAC Address
-      id:   mac_address
+      id:   text_sensor_mac_address
     scan_results:
       name: $device_name_friendly scan results
 
@@ -126,21 +122,24 @@ wifi:
 
 mqtt:
   broker: !secret broker_address
+  #  on_connect:
+  #    then:
+  #      - light.turn_on: led_light
+  #  on_disconnect:
+  #    then:
+  #      - light.turn_off: led_light
+  topic_prefix:   "$mqtt_location/{mac_address}"
 
 i2c:
   sda:       21
   scl:       22
   scan:      true
-  frequency: 800kHz
+  frequency: 400kHz
 
 interval:
   - interval: 1min
     then:
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/mac"
+          topic:           "$mqtt_location/$device_name_friendly/mac"
           payload: !lambda |-
-                           return to_string( id( mac_address ).state );
-      - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/ip"
-          payload: !lambda |-
-                           return to_string( id( ip_address ).state );
+                           return to_string( id( text_sensor_mac_address ).state );
