@@ -1,0 +1,13 @@
+# wifi_signal.yaml
+platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
+name:                "WiFi Signal dB"
+id:                  wifi_signal_db
+unit_of_measurement: "dB"
+accuracy_decimals:   2
+update_interval:     30s
+entity_category:     "diagnostic"
+on_value:
+  - mqtt.publish:
+      topic:           "$mqtt_location/$mqtt_device/rssi"
+      payload: !lambda |-
+                       return to_string( id( wifi_signal_db ).state );
