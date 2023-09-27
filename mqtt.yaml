@@ -1,0 +1,2 @@
+# mqtt.yaml
+broker: !secret broker_address

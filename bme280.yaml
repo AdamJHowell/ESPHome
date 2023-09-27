@@ -1,0 +1,37 @@
+# bme280.yaml
+platform:        bme280
+temperature:
+  name: "BME280 Temperature"
+  id:                  bme280_tempF
+  unit_of_measurement: "°F"
+  accuracy_decimals:   2
+  oversampling:        16x
+  filters:
+    - lambda: return ( x * 1.8 ) + 32.0;
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bme280/tempF"
+        payload: !lambda |-
+                         return to_string( id( bme280_tempF ).state );
+pressure:
+  name: "BME280 Pressure"
+  id:                  bme280_pressure
+  unit_of_measurement: "hPa"
+  accuracy_decimals:   2
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bme280/pressure"
+        payload: !lambda |-
+                         return to_string( id( bme280_pressure ).state );
+humidity:
+  name: "BME280 Humidity"
+  id:                  bme280_humidity
+  unit_of_measurement: "%"
+  accuracy_decimals:   2
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bme280/humidity"
+        payload: !lambda |-
+                         return to_string( id( bme280_humidity ).state );
+address:         0x76  # BME280 I2C address
+update_interval: 20s
