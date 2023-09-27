@@ -11,23 +11,15 @@ esphome:
   board:    esp32dev
 
 i2c:
-  - <<: !include i2c_esp32.yaml
+  - !include i2c_esp32.yaml
 
 sensor:
   # Include the bme280.yaml file for the BME280 sensor configuration
-  - <<: !include bme280.yaml
+  - !include bme280.yaml
 
 # Include the wifi.yaml file for Wi-Fi configuration
 wifi:
   !include wifi.yaml
-#wifi:
-#  - !include wifi.yaml
-#  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
-#  networks:
-#    - ssid:     "Red5"
-#      password: "8012254722"
-#    - ssid:     "Red6"
-#      password: "8012254722"
 
 mqtt:
 #  broker: !secret broker_address
@@ -37,4 +29,4 @@ interval:
   !include interval.yaml
 
 text_sensor:
-  !include text-sensor.yaml
+  !include text_sensor.yaml

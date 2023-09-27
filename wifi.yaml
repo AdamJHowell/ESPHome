@@ -1,44 +1,8 @@
 # wifi.yaml
 id: component_wifi
 power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
-ssid:     "Red5"
-password: "8012254722"
-
-
-# wifi.yaml
-#wifi:
-#power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
-#networks:
-#  - ssid: "Red5"
-#    password: "8012254722"
-#  - ssid: "Red6"
-#    password: "8012254722"
-
-# Wi-Fi component package
-#
-# Contains my common Wi-Fi setup.
-#
-# https://esphome.io/components/wifi.html
-#
-#substitutions:
-#  wifi_ssid: !secret wifi_iot_ssid
-#  wifi_password: !secret wifi_iot_password
-#  wifi_ap_password: "esphome-${slug}"
-
-#wifi:
-#id: component_wifi
-#ssid: "Red5"
-#password: "8012254722"
-#reboot_timeout: 10min
-#  ap:
-#    ssid: "ESP-AP"
-#    password: "8012254722"
-
-#sensor:
-#  - <<: !include ../sensors/wifi_signal_percentage.yaml
-#  - <<: !include ../sensors/wifi_signal.yaml
-#    on_value:
-#      - component.update: sensor_wifi_signal_percentage
-#
-#text_sensor:
-#  - <<: !include ../text_sensors/wifi_info.yaml
+networks:
+  - ssid: "Red5"
+    password: "8012254722"
+  - ssid: "Red6"
+    password: "8012254722"
