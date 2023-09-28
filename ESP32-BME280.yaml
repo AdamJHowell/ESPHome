@@ -30,3 +30,7 @@ interval:
 
 text_sensor:
   !include text_sensor.yaml
+
+# Enable logging
+logger:
+  level: DEBUG
