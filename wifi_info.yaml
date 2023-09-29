@@ -1,5 +1,0 @@
-# wifi_info.yaml
-platform: wifi_info
-mac_address:
-  name: ${device_name_friendly} MAC Address
-  id:   text_sensor_mac_address

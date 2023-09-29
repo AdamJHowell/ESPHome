@@ -1,14 +1,15 @@
 # text_sensor.yaml
-  - platform: wifi_info
-    ip_address:
-      name: $device_name_friendly IP address
-      id:   text_sensor_ip_address
-    ssid:
-      name: $device_name_friendly connected SSID
-    bssid:
-      name: $device_name_friendly connected BSSID
-    mac_address:
-      name: $device_name_friendly MAC Address
-      id:   text_sensor_mac_address
-    scan_results:
-      name: $device_name_friendly scan results
+#text_sensor:
+platform: wifi_info
+ip_address:
+  name: $device_name_friendly IP address
+  id:   text_sensor_ip_address
+ssid:
+  name: $device_name_friendly connected SSID
+bssid:
+  name: $device_name_friendly connected BSSID
+mac_address:
+  name: $device_name_friendly MAC Address
+  id:   text_sensor_mac_address
+scan_results:
+  name: $device_name_friendly scan results

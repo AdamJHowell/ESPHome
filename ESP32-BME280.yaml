@@ -13,7 +13,7 @@ substitutions:
   broker_address: !secret   broker_address
   led_gpio:                 GPIO2
 
-# Root components
+# Root component.
 esphome:
   name:     ${name_of_device}
   platform: ESP32
@@ -46,10 +46,12 @@ mqtt:
 # Enable the BME280 sensor.
 sensor:
   - !include Components/Sensors/bme280.yaml
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
 
 # The text_sensor handles many MQTT publishing duties.
 text_sensor:
-  !include Components/Sensors/text_sensor.yaml
+  - !include Components/Sensors/text_sensor.yaml
 
 # The interval component handles many MQTT publishing duties.
 interval:
