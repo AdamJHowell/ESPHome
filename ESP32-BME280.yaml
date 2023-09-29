@@ -15,7 +15,7 @@ i2c:
 
 sensor:
   # Include the bme280.yaml file for the BME280 sensor configuration
-  - !include bme280.yaml
+  - !include Components/Sensors/bme280.yaml
 
 # Include the wifi.yaml file for Wi-Fi configuration
 wifi:
