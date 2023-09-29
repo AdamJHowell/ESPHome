@@ -1,0 +1,4 @@
+#status_led:
+pin:
+  number:   ${led_gpio}
+  inverted: true

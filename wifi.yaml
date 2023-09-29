@@ -1,8 +1,0 @@
-# wifi.yaml
-id: component_wifi
-power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
-networks:
-  - ssid: "Red5"
-    password: "8012254722"
-  - ssid: "Red6"
-    password: "8012254722"
