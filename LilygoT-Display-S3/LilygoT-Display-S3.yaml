@@ -1,5 +1,5 @@
 substitutions:
-  name: tdisplays3
+  name: t-displays3
   friendly_name: T-Display-S3
   mqtt_location: Mobile
 
@@ -18,10 +18,6 @@ esphome:
             id(disp).enable();
             id(disp).transfer_byte(0x11);
             id(disp).disable();
-    - priority: -100
-      then:
-        - switch.turn_off: backlight
-
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -65,15 +61,16 @@ font:
     id: fontocra
     size: 42
 
-switch:
-  - platform: gpio
-    pin:
-      number: GPIO10
-      mode:
-        output: True
-    name: "Display Backlight"
-    id: backlight
-    entity_category: diagnostic
+output:
+  - platform: ledc
+    pin: GPIO10
+    inverted: true
+    id: backlightdim
+
+light:
+  - platform: monochromatic
+    output: backlightdim
+    name: "Backlight"
 
 time:
   - platform: homeassistant
@@ -85,17 +82,16 @@ display:
     model: Custom
     width: 128
     height: 128
-    offset_width: 0
-    offset_height: 0
-    backlight_pin: GPIO10
+    offset_width: 1
+    offset_height: 2
     cs_pin: GPIO5
     dc_pin: GPIO6
     reset_pin: GPIO1
     id: disp
     rotation: 180
     lambda: |-
-      it.strftime( 0, 0, id( fontocra ), TextAlign::TOP_LEFT, "%H:%M", id( home_time ).now() );
-      it.line( 0, 50, 128, 50 );
+      it.strftime(0, 0, id(fontocra), TextAlign::TOP_LEFT, "%H:%M", id(home_time).now());
+      it.line(0, 50, 127, 50);
 
 mqtt:
   broker: !secret broker_address
