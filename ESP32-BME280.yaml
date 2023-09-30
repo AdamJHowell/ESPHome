@@ -55,7 +55,7 @@ text_sensor:
 
 # The interval component handles many MQTT publishing duties.
 interval:
-  !include interval.yaml
+  !include Components/Core/interval.yaml
 
 # Enable the onboard LED as diagnostic output.
 status_led:
