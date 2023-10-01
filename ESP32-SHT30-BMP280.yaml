@@ -44,10 +44,10 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key
+    key: !secret outdoor_esp32_sht30_bmp280_api
 
 ota:
-  password: !secret ota_password
+  password: !secret outdoor_esp32_sht30_bmp280_ota
 
 sensor:
   - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB

@@ -24,18 +24,15 @@ light:
 
 # Enable logging
 logger:
-  level: VERBOSE
-  logs:
-    mqtt.component: ERROR
-    mqtt.client:    ERROR
+  level: DEBUG
 
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key
+    key: !secret esp32_18650_api
 
 ota:
-  password: !secret ota_password
+  password: !secret esp32_18650_ota
 
 wifi:
   networks:

@@ -1,20 +1,20 @@
 substitutions:
-  devicename: backporch
+  devicename:    backporch
   friendly_name: Back porch
 #  ip_address: 192.168.55.84
 
 esphome:
-  name: $devicename
+  name:          $devicename
   friendly_name: $friendly_name
-  platform: ESP32
-  board: esp-wrover-kit
+  platform:      ESP32
+  board:         esp-wrover-kit
 
 wifi:
   networks:
-  - ssid: !secret wifi_ssid
-    password: !secret wifi_password
-  - ssid: !secret wifi_ssid_work
-    password: !secret wifi_pass_work
+    - ssid: !secret     wifi_ssid
+      password: !secret wifi_password
+    - ssid: !secret     wifi_ssid_work
+      password: !secret wifi_pass_work
 
 
 logger:
@@ -23,50 +23,50 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key_t_cam
+    key: !secret lilygo_t_camera_api
 
 ota:
-  password: !secret ota_password
+  password: !secret lilygo_t_camera_ota
 
 binary_sensor:
-  - platform: gpio
-    pin: GPIO19 #33
-    name: $friendly_name PIR
+  - platform:     gpio
+    pin:          GPIO19 #33
+    name:         $friendly_name PIR
     device_class: motion
 
   - platform: gpio
     pin:
-      number: GPIO15 #34
-#      mode: INPUT_PULLUP
+      number:   GPIO15 #34
+      #      mode: INPUT_PULLUP
       inverted: True
-    name: $friendly_name Button
+    name:     $friendly_name Button
 
   - platform: status
-    name: $friendly_name Status
+    name:     $friendly_name Status
 
 sensor:
-  - platform: wifi_signal
-    name: $friendly_name WiFi Signal
+  - platform:        wifi_signal
+    name:            $friendly_name WiFi Signal
     update_interval: 10s
   - platform: uptime
-    name: $friendly_name Uptime
+    name:     $friendly_name Uptime
 
 esp32_camera:
-  name: $friendly_name Camera
+  name:              $friendly_name Camera
   external_clock:
-    pin: GPIO4 #32 not sure!
+    pin:       GPIO4 #32 not sure!
     frequency: 20MHz
   i2c_pins:
     sda: GPIO18 #13
     scl: GPIO23 #12
   data_pins: [GPIO34, GPIO13, GPIO14, GPIO35, GPIO39, GPIO38, GPIO37, GPIO36] #[GPIO5, GPIO14, GPIO4, GPIO15, GPIO18, GPIO23, GPIO36, GPIO39]
-  vsync_pin: GPIO5 #27
-  href_pin: GPIO27 #25
-  pixel_clock_pin: GPIO25 #19
+  vsync_pin:         GPIO5 #27
+  href_pin:          GPIO27 #25
+  pixel_clock_pin:   GPIO25 #19
   # power_down_pin: GPIO26 No PWD GPIO existing
-  resolution: 800x600
-  jpeg_quality: 10
-  vertical_flip: true
+  resolution:        800x600
+  jpeg_quality:      10
+  vertical_flip:     true
   horizontal_mirror: false
 
 i2c:
@@ -75,24 +75,24 @@ i2c:
 
 font:
   - file: "fonts/times-new-roman.ttf"
-    id: tnr1
+    id:   tnr1
     size: 20
   - file: "fonts/times-new-roman.ttf"
-    id: tnr2
+    id:   tnr2
     size: 35
 
 time:
   - platform: homeassistant
-    id: homeassistant_time
+    id:       homeassistant_time
 
 display:
   - platform: ssd1306_i2c
-    model: "SSD1306 128x64"
-    address: 0x3C
+    model:    "SSD1306 128x64"
+    address:  0x3C
     rotation: 180°
-    lambda: |-
-      it.strftime(64, 0, id(tnr1), TextAlign::TOP_CENTER,"%Y-%m-%d", id(homeassistant_time).now());
-      it.strftime(64, 64, id(tnr2), TextAlign::BASELINE_CENTER, "%H:%M", id(homeassistant_time).now());
+    lambda:   |-
+              it.strftime(64, 0, id(tnr1), TextAlign::TOP_CENTER,"%Y-%m-%d", id(homeassistant_time).now());
+              it.strftime(64, 64, id(tnr2), TextAlign::BASELINE_CENTER, "%H:%M", id(homeassistant_time).now());
 
 text_sensor:
   - platform: wifi_info

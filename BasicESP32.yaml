@@ -1,11 +1,20 @@
 substitutions:
-  device_name:          basic-esp32
-  device_name_friendly: Basic-ESP32
-  mqtt_location:        "Mobile"
+  device_name:              basic-esp32
+  device_name_friendly:     Basic-ESP32
+  mqtt_location:            "Mobile"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     esphome_api
+  ota_password: !secret     esphome_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
 
 esphome:
-  name:                $device_name
-  friendly_name:       $device_name_friendly
+  name:          $device_name
+  friendly_name: $device_name_friendly
 
 esp32:
   board: nodemcu-32s
@@ -13,69 +22,43 @@ esp32:
     type:    arduino
     version: recommended
 
-light:
-  - platform: status_led
-    name:     "Onboard LED"
-    pin:
-      number:   GPIO2
-      inverted: true
+# Enable I2C communication.
+i2c:
+  - !include Components/Core/i2c_esp32.yaml
 
-# Enable logging
-logger:
-  level: VERBOSE
-  logs:
-    mqtt.component: ERROR
-    mqtt.client:    ERROR
-
-# Enable Home Assistant API
-api:
-  encryption:
-    key: !secret encryption_key
-
-ota:
-  password: !secret ota_password
-
+# Enable Wi-Fi.
 wifi:
-  id:              wifi_id
-  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
-  networks:
-    - ssid: !secret     wifi_ssid
-      password: !secret wifi_password
-    - ssid: !secret     wifi_ssid_work
-      password: !secret wifi_pass_work
+  !include Components/Core/wifi.yaml
 
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable MQTT publishing.
 mqtt:
-  broker: !secret broker_address
-  topic_prefix:   "$mqtt_location/$device_name_friendly"
+  !include Components/Core/mqtt.yaml
 
+# Enable the BME280 sensor.
 sensor:
-  - platform:        wifi_signal
-    name:            $device_name_friendly WiFi Signal
-    update_interval: 20s
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
 
+# The text_sensor handles many MQTT publishing duties.
 text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: $device_name_friendly IP address
-      id:   ip_address
-    ssid:
-      name: $device_name_friendly connected SSID
-    bssid:
-      name: $device_name_friendly connected BSSID
-    mac_address:
-      name: $device_name_friendly MAC Address
-      id:   text_sensor_mac_address
-    scan_results:
-      name: $device_name_friendly scan results
+  - !include Components/Sensors/text_sensor.yaml
 
+# The interval component handles many MQTT publishing duties.
 interval:
-  - interval: 1min
-    then:
-      - mqtt.publish:
-          topic:           "$mqtt_location/$device_name_friendly/mac"
-          payload: !lambda |-
-                           return to_string( id( text_sensor_mac_address ).state );
-      - mqtt.publish:
-          topic:           "$mqtt_location/$device_name_friendly/ip"
-          payload: !lambda |-
-                           return to_string( id( ip_address ).state );
+  !include Components/Core/interval.yaml
+
+# Enable the onboard LED as diagnostic output.
+status_led:
+  !include Components/Core/status_led.yaml

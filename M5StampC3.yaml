@@ -4,8 +4,8 @@ substitutions:
   device_name_friendly:     M5StampC3
   mqtt_location:            "GuestBedroom"
   mqtt_device:              $device_name_friendly
-  api_password: !secret     encryption_key
-  ota_password: !secret     ota_password
+  api_password: !secret     guest_m5stamp_api
+  ota_password: !secret     guest_m5stamp_ota
   wifi_ssid: !secret        wifi_ssid
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup

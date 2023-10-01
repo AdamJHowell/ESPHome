@@ -15,9 +15,10 @@ substitutions:
 
 # Root component.
 esphome:
-  name:     ${name_of_device}
-  platform: ESP32
-  board:    esp32dev
+  name:          ${name_of_device}
+  friendly_name: $device_name_friendly
+  platform:      ESP32
+  board:         esp32dev
 
 # Enable I2C communication.
 i2c:
