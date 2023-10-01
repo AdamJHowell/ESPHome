@@ -62,3 +62,7 @@ interval:
 # Enable the onboard LED as diagnostic output.
 status_led:
   !include Components/Core/status_led.yaml
+
+
+binary_sensor:
+  !include Components/Core/binary_sensor.yaml
