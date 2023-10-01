@@ -58,5 +58,6 @@ text_sensor:
 interval:
   !include Components/Core/interval.yaml
 
+# Expose the node state for Home Assistant.
 binary_sensor:
   !include Components/Core/binary_sensor.yaml
