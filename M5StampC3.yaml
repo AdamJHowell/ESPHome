@@ -1,121 +1,71 @@
 #The substitution block has all the configurable details
 substitutions:
-  name_of_device: m5stampc3
-  device_name_friendly: M5StampC3
+  name_of_device:           m5stampc3
+  device_name_friendly:     M5StampC3
+  mqtt_location:            "GuestBedroom"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     encryption_key
+  ota_password: !secret     ota_password
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
 
 esphome:
-  name: $name_of_device
+  name:          $name_of_device
   friendly_name: $device_name_friendly
   platformio_options:
     board_build.flash_mode: dio
 
 esp32:
-  board: esp32-c3-devkitm-1
+  board:   esp32-c3-devkitm-1
   variant: ESP32C3
   framework:
     # type: esp-idf
-    type: arduino
+    type:    arduino
     version: recommended
 
-logger:
-  level: VERBOSE
-
-# Enable Home Assistant API
-api:
-  encryption:
-    key: !secret encryption_key
-
-ota:
-  password: !secret ota_password
-
-wifi:
-  networks:
-  - ssid: !secret wifi_ssid
-    password: !secret wifi_password
-  - ssid: !secret wifi_ssid_backup
-    password: !secret wifi_password
-
-mqtt:
-  broker: !secret broker_address
-  topic_prefix: "$mqtt_location/{mac_address}"
-
-sensor:
-  - platform: wifi_signal
-    name: $device_name_friendly WiFi Signal
-    update_interval: 20s
-
-# ATH20
-  - platform: aht10
-    temperature:
-      name: $device_name_friendly AHT Temperature
-      id: inside_temp
-      unit_of_measurement: °F
-      accuracy_decimals: 2
-      on_value:
-        - mqtt.publish:
-            topic: "Kitchen/m5stamp/aht20/temperature"
-            payload: !lambda |-
-              return to_string( ( id( inside_temp ).state * 1.8 ) + 32 );
-    humidity:
-      name: $device_name_friendly AHT Humidity
-      id: inside_humidity
-      unit_of_measurement: "%"
-      accuracy_decimals: 2
-      on_value:
-        - mqtt.publish:
-            topic: "Kitchen/m5stamp/aht20/humidity"
-            payload: !lambda |-
-              return to_string( id( inside_humidity ).state );
-# BMP280
-  - platform: bmp280
-    temperature:
-      name: $device_name_friendly BMP Temperature
-      oversampling: 16x
-      id: inside_temperature
-      unit_of_measurement: °F
-      accuracy_decimals: 2
-      on_value:
-        - mqtt.publish:
-            topic: "Kitchen/m5stamp/bmp20/temperature"
-            payload: !lambda |-
-              return to_string( ( id( inside_temperature ).state * 1.8 ) + 32 );
-    pressure:
-      name: $device_name_friendly BMP Pressure
-      id: inside_pressure
-      unit_of_measurement: "hPa"
-      accuracy_decimals: 2
-      on_value:
-        - mqtt.publish:
-            topic: "Kitchen/m5stamp/bmp20/pressure"
-            payload: !lambda |-
-              return to_string( id( inside_pressure ).state );
-    address: 0x77
-    update_interval: 20s
-
+# Enable I2C communication.
 i2c:
-  sda: 18
-  scl: 19
-  scan: true
-  frequency: 400kHz
+  - !include Components/Core/i2c_m5stamp.yaml
 
+# Enable Wi-Fi.
+wifi:
+  !include Components/Core/wifi.yaml
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# Enable the BME280 sensor.
+sensor:
+  - !include Components/Sensors/aht20.yaml
+  - !include Components/Sensors/bmp280.yaml
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+
+# The text_sensor handles many MQTT publishing duties.
 text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: ESP IP Address
-    ssid:
-      name: ESP Connected SSID
-    bssid:
-      name: ESP Connected BSSID
-    mac_address:
-      name: $device_name_friendly MAC Address
-      id:   text_sensor_mac_address
-    scan_results:
-      name: ESP Latest Scan Results
+  - !include Components/Sensors/text_sensor.yaml
 
+# The interval component handles many MQTT publishing duties.
 interval:
-  - interval: 1min
-    then:
-      - mqtt.publish:
-          topic:           "$mqtt_location/$device_name_friendly/mac"
-          payload: !lambda |-
-                           return to_string( id( text_sensor_mac_address ).state );
+  !include Components/Core/interval.yaml
+
+# Enable the onboard LED as diagnostic output.
+status_led:
+  !include Components/Core/status_led.yaml

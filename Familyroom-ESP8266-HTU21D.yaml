@@ -1,11 +1,10 @@
-# Many of the substitutions are used solely to pass secrets to includes that are in subdirectories.
 substitutions:
-  name_of_device:           esp32-bme280-01
-  device_name_friendly:     ESP32-BME280-01
-  mqtt_location:            "MasterBedroom"
+  name_of_device:           familyroom8266
+  device_name_friendly:     FamilyRoom8266
+  mqtt_location:            "FamilyRoom"
   mqtt_device:              $device_name_friendly
-  api_password: !secret     master_esp32_bme280_api
-  ota_password: !secret     master_esp32_bme280_ota
+  api_password: !secret     family_room_esp8266_api
+  ota_password: !secret     family_room_esp8266_ota
   wifi_ssid: !secret        wifi_ssid
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup
@@ -13,15 +12,16 @@ substitutions:
   broker_address: !secret   broker_address
   led_gpio:                 GPIO2
 
-# Root component.
 esphome:
-  name:     ${name_of_device}
-  platform: ESP32
-  board:    esp32dev
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+
+esp8266:
+  board: nodemcuv2
 
 # Enable I2C communication.
 i2c:
-  - !include Components/Core/i2c_esp32.yaml
+  - !include Components/Core/i2c_esp8266.yaml
 
 # Enable Wi-Fi.
 wifi:
@@ -45,7 +45,7 @@ mqtt:
 
 # Enable the BME280 sensor.
 sensor:
-  - !include Components/Sensors/bme280.yaml
+  - !include Components/Sensors/htu21d.yaml
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
 

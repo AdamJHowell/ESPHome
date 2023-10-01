@@ -1,10 +1,17 @@
 substitutions:
-  name_of_device:       freenovecam-fc1
-  device_name_friendly: FreenoveCam-FC1
-  short_name:           cam_id
-  mqtt_location:        "Mobile"
-  mqtt_device:          $device_name_friendly
-  mqtt_sensor:          "sht30"
+  name_of_device:           freenovecam-fc1
+  device_name_friendly:     FreenoveCam-FC1
+  short_name:               cam_id
+  mqtt_location:            "Mobile"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     freenove_cam1_api
+  ota_password: !secret     freenove_cam1_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
 
 esphome:
   name:                $name_of_device
@@ -91,7 +98,7 @@ esp32_camera:
   i2c_pins:
     sda: GPIO26
     scl: GPIO27
-  data_pins: [ GPIO4, GPIO5, GPIO18, GPIO19, GPIO36, GPIO39, GPIO34, GPIO35 ]
+  data_pins: [GPIO4, GPIO5, GPIO18, GPIO19, GPIO36, GPIO39, GPIO34, GPIO35]
   vsync_pin:         GPIO25
   href_pin:          GPIO23
   pixel_clock_pin:   GPIO22
@@ -124,9 +131,9 @@ binary_sensor:
     pin:
       number: 32
       mode:
-        input: true
+        input:  true
         pullup: true
-    name: $device_name_friendly button
+    name:     $device_name_friendly button
 #    device_class: window
 
 sensor:

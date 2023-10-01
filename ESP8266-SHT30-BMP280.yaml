@@ -19,10 +19,10 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret encryption_key_8266_SHT_BMP
+    key: !secret family-room-esp8266-api
 
 ota:
-  password: !secret ota_password_8266_SHT_BMP
+  password: !secret family-room-esp8266-ota
 
 #deep_sleep:
 #  id:             "deep_sleep_2min"

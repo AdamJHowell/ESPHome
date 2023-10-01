@@ -1,7 +1,7 @@
 # bme280.yaml
 platform:        bme280
 temperature:
-  name: "BME280 Temperature"
+  name:                "BME280 Temperature"
   id:                  bme280_tempF
   unit_of_measurement: "°F"
   accuracy_decimals:   2
@@ -14,7 +14,7 @@ temperature:
         payload: !lambda |-
                          return to_string( id( bme280_tempF ).state );
 pressure:
-  name: "BME280 Pressure"
+  name:                "BME280 Pressure"
   id:                  bme280_pressure
   unit_of_measurement: "hPa"
   accuracy_decimals:   2
@@ -24,7 +24,7 @@ pressure:
         payload: !lambda |-
                          return to_string( id( bme280_pressure ).state );
 humidity:
-  name: "BME280 Humidity"
+  name:                "BME280 Humidity"
   id:                  bme280_humidity
   unit_of_measurement: "%"
   accuracy_decimals:   2

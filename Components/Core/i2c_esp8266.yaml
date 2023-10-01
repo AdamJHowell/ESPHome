@@ -1,4 +1,3 @@
----
 # I²C Bus
 #
 # This component sets up the I²C bus for the ESP8266.
