@@ -20,21 +20,6 @@ light:
     pin:
       number:   GPIO2
       inverted: true
-#  - platform: binary
-#    name:     "Built-in LED"
-#    output:   onboard_led
-#    id:       led_light
-
-#output:
-#  - platform: gpio
-#    pin:      2
-#    id:       onboard_led
-#
-
-#deep_sleep:
-#  id:             "deep_sleep_2min"
-#  run_duration:   '30s'
-#  sleep_duration: '2min'
 
 # Enable logging
 logger:
@@ -46,10 +31,10 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "O5I+AON66eIzuMGtYQFBYB5SA8rFwZc+qFJlRMIENuk="
+    key: !secret outdoor_esp32_sht30_api
 
 ota:
-  password: "930f4ae76dcbb47f18d72e27fc759ff5"
+  password: !secret outdoor_esp32_sht30_ota
 
 sensor:
   - platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
