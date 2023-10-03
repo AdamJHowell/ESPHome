@@ -1,9 +1,16 @@
 substitutions:
-  name_of_device:       back-porch
-  device_name_friendly: BackPorch-SHT30-06
-  mqtt_location:        "Outdoors"
-  mqtt_device:          "ESP32-06"
-  mqtt_sensor:          "sht30"
+  name_of_device:           back-porch
+  device_name_friendly:     BackPorch-SHT30-06
+  mqtt_location:            "Outdoors"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     outdoor_esp32_sht30_api
+  ota_password: !secret     outdoor_esp32_sht30_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
 
 esphome:
   name:          $name_of_device

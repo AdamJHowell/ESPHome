@@ -1,0 +1,3 @@
+# uptime.yaml
+platform: uptime
+name:     $device_name_friendly Uptime

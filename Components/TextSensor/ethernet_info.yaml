@@ -1,0 +1,6 @@
+# ethernet_info.yaml
+#text_sensor:
+platform: ethernet_info
+ip_address:
+  name: $device_name_friendly IP address
+  id:   text_sensor_ip_address

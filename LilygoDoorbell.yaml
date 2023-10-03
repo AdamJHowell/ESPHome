@@ -5,7 +5,7 @@ substitutions:
 
 esphome:
   name:          $devicename
-  friendly_name: $friendly_name
+  friendly_name: $device_name_friendly
   platform:      ESP32
   board:         esp-wrover-kit
 
@@ -31,7 +31,7 @@ ota:
 binary_sensor:
   - platform:     gpio
     pin:          GPIO19 #33
-    name:         $friendly_name PIR
+    name:         $device_name_friendly PIR
     device_class: motion
 
   - platform: gpio
@@ -39,20 +39,20 @@ binary_sensor:
       number:   GPIO15 #34
       #      mode: INPUT_PULLUP
       inverted: True
-    name:     $friendly_name Button
+    name:     $device_name_friendly Button
 
   - platform: status
-    name:     $friendly_name Status
+    name:     $device_name_friendly Status
 
 sensor:
   - platform:        wifi_signal
-    name:            $friendly_name WiFi Signal
+    name:            $device_name_friendly WiFi Signal
     update_interval: 10s
   - platform: uptime
-    name:     $friendly_name Uptime
+    name:     $device_name_friendly Uptime
 
 esp32_camera:
-  name:              $friendly_name Camera
+  name:              $device_name_friendly Camera
   external_clock:
     pin:       GPIO4 #32 not sure!
     frequency: 20MHz

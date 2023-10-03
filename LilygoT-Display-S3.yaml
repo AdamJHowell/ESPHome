@@ -107,10 +107,10 @@ interval:
   - interval: 1min
     then:
       - mqtt.publish:
-          topic:           "$mqtt_location/$friendly_name/mac"
+          topic:           "$mqtt_location/$device_name_friendly/mac"
           payload: !lambda |-
                            return to_string( id( text_sensor_mac_address ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$friendly_name/ip"
+          topic:           "$mqtt_location/$device_name_friendly/ip"
           payload: !lambda |-
                            return to_string( id( ip_address ).state );

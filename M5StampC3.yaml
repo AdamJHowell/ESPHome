@@ -57,10 +57,11 @@ sensor:
   - !include Components/Sensors/bmp280.yaml
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
 
 # The text_sensor handles many MQTT publishing duties.
 text_sensor:
-  - !include Components/Sensors/text_sensor.yaml
+  - !include Components/TextSensor/wifi_info.yaml
 
 # The interval component handles many MQTT publishing duties.
 interval:
@@ -72,4 +73,4 @@ status_led:
 
 # Expose the node state for Home Assistant.
 binary_sensor:
-  !include Components/Core/binary_sensor.yaml
+  !include Components/BinarySensors/status.yaml
