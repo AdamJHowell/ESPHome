@@ -58,6 +58,15 @@ mqtt:
       - light.turn_off: tx_light
   topic_prefix:   "$mqtt_location/$name_of_device"
 
+# The interval component publishes the IP address.
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ip"
+          payload: !lambda |-
+                           return to_string( id( text_sensor_ip_address ).state );
+
 # The text_sensor handles many MQTT publishing duties.
 text_sensor:
   - !include Components/TextSensor/ethernet_info.yaml
@@ -81,15 +90,6 @@ logger:
 # Enable various sensors.
 sensor:
   - !include Components/Sensors/uptime.yaml
-
-# The interval component publishes the IP address.
-interval:
-  - interval: 1min
-    then:
-      - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/ip"
-          payload: !lambda |-
-                           return to_string( id( text_sensor_ip_address ).state );
 
 # Enable the onboard LED as diagnostic output.
 status_led:

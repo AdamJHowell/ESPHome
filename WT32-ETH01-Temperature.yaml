@@ -62,22 +62,6 @@ dallas:
   - pin:             14
     update_interval: 20s
 
-# Enable I2C communication.
-i2c:
-  - !include Components/Core/i2c_esp32.yaml
-
-# Enable the Home Assistant native API.
-api:
-  !include Components/Core/api.yaml
-
-# Enable OTA updates.
-ota:
-  !include Components/Core/ota.yaml
-
-# Enable logging.
-logger:
-  !include Components/Core/logger.yaml
-
 # Enable various sensors.
 sensor:
   - !include Components/Sensors/uptime.yaml
@@ -96,6 +80,22 @@ sensor:
           topic:           "$mqtt_location/$name_of_device/water_heater_output"
           payload: !lambda |-
                            return to_string( id( wh_tempF ).state );
+
+# Enable I2C communication.
+i2c:
+  - !include Components/Core/i2c_esp32.yaml
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
 
 # The text_sensor handles many MQTT publishing duties.
 text_sensor:
