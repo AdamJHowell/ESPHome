@@ -1,7 +1,16 @@
 substitutions:
-  devicename:    backporch
-  friendly_name: Back porch
-#  ip_address: 192.168.55.84
+  name_of_device:           back-porch
+  device_name_friendly:     Back porch
+  mqtt_location:            "BackPorch"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     lilygo_t_camera_api
+  ota_password: !secret     lilygo_t_camera_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
 
 esphome:
   name:          $devicename
@@ -9,47 +18,17 @@ esphome:
   platform:      ESP32
   board:         esp-wrover-kit
 
-wifi:
-  networks:
-    - ssid: !secret     wifi_ssid
-      password: !secret wifi_password
-    - ssid: !secret     wifi_ssid_work
-      password: !secret wifi_pass_work
-
-
-logger:
-  level: VERBOSE
-
-# Enable Home Assistant API
-api:
-  encryption:
-    key: !secret lilygo_t_camera_api
-
-ota:
-  password: !secret lilygo_t_camera_ota
-
 binary_sensor:
+  - !include Components/BinarySensors/status.yaml
   - platform:     gpio
     pin:          GPIO19 #33
     name:         $device_name_friendly PIR
     device_class: motion
-
   - platform: gpio
     pin:
       number:   GPIO15 #34
-      #      mode: INPUT_PULLUP
       inverted: True
     name:     $device_name_friendly Button
-
-  - platform: status
-    name:     $device_name_friendly Status
-
-sensor:
-  - platform:        wifi_signal
-    name:            $device_name_friendly WiFi Signal
-    update_interval: 10s
-  - platform: uptime
-    name:     $device_name_friendly Uptime
 
 esp32_camera:
   name:              $device_name_friendly Camera
@@ -68,10 +47,6 @@ esp32_camera:
   jpeg_quality:      10
   vertical_flip:     true
   horizontal_mirror: false
-
-i2c:
-  sda: GPIO21
-  scl: GPIO22
 
 font:
   - file: "fonts/times-new-roman.ttf"
@@ -94,16 +69,44 @@ display:
               it.strftime(64, 0, id(tnr1), TextAlign::TOP_CENTER,"%Y-%m-%d", id(homeassistant_time).now());
               it.strftime(64, 64, id(tnr2), TextAlign::BASELINE_CENTER, "%H:%M", id(homeassistant_time).now());
 
-text_sensor:
-  - platform: wifi_info
-    mac_address:
-      name: $device_name_friendly MAC Address
-      id:   text_sensor_mac_address
+# Enable I2C communication.
+i2c:
+  - !include Components/Core/i2c_esp32.yaml
 
+# Enable Wi-Fi.
+wifi:
+  !include Components/Core/wifi.yaml
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# Enable various sensors.
+sensor:
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - !include Components/TextSensor/wifi_info.yaml
+
+# The interval component handles many MQTT publishing duties.
 interval:
-  - interval: 1min
-    then:
-      - mqtt.publish:
-          topic:           "$mqtt_location/$device_name_friendly/mac"
-          payload: !lambda |-
-                           return to_string( id( text_sensor_mac_address ).state );
+  !include Components/Core/interval.yaml
+
+# Enable the onboard LED as diagnostic output.
+status_led:
+  !include Components/Core/status_led.yaml

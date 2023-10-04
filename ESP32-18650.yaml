@@ -49,6 +49,7 @@ mqtt:
 sensor:
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
 
 # The text_sensor handles many MQTT publishing duties.
 text_sensor:
@@ -57,6 +58,10 @@ text_sensor:
 # The interval component handles many MQTT publishing duties.
 interval:
   !include Components/Core/interval.yaml
+
+# Enable the onboard LED as diagnostic output.
+status_led:
+  !include Components/Core/status_led.yaml
 
 # Expose the node state for Home Assistant.
 binary_sensor:

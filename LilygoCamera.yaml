@@ -98,9 +98,8 @@ logger:
 mqtt:
   !include Components/Core/mqtt.yaml
 
-# Enable the BME280 sensor.
+# Enable various sensors.
 sensor:
-  - !include Components/Sensors/bme280.yaml
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
   - !include Components/Sensors/uptime.yaml
