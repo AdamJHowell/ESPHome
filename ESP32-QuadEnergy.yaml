@@ -37,6 +37,49 @@ sensor:
   ################
   # ADC settings #
   ################
+  # Source sensor on GPIO 36
+  - platform:          adc
+    name:              "ADC-36"
+    pin:               36
+    id:                adc36
+    accuracy_decimals: 4
+    update_interval:   20s
+  # Output sensor for GPIO 36
+  - platform:          ct_clamp
+    sensor:            adc36
+    name:              "Measured Current 36"
+    accuracy_decimals: 4
+    update_interval:   20s
+
+  # Source sensor on GPIO 39
+  - platform:          adc
+    name:              "ADC-39"
+    pin:               39
+    id:                adc39
+    accuracy_decimals: 4
+    update_interval:   20s
+  # Output sensor for GPIO 39
+  - platform:          ct_clamp
+    sensor:            adc39
+    name:              "Measured Current 39"
+    accuracy_decimals: 4
+    update_interval:   20s
+
+  # Source sensor on GPIO 34
+  - platform:          adc
+    name:              "ADC-34"
+    pin:               34
+    id:                adc34
+    accuracy_decimals: 4
+    update_interval:   20s
+  # Output sensor for GPIO 34
+  - platform:          ct_clamp
+    sensor:            adc34
+    name:              "Measured Current 34"
+    accuracy_decimals: 4
+    update_interval:   20s
+
+
   - platform:        adc
     name:            "Phase 1 ADC"
     id:              adc_phase_1
@@ -69,7 +112,7 @@ sensor:
     update_interval: 10s
     on_value:
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-Office-raw"
+          topic:           "$mqtt_location/$mqtt_device/CT-3/ADC-Office-raw"
           payload: !lambda |-
                            return to_string( id( ct3_adc ).state );
 
@@ -81,7 +124,7 @@ sensor:
     update_interval: 10s
     on_value:
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/ADC-Office-raw"
+          topic:           "$mqtt_location/$mqtt_device/CT-4/ADC-Office-raw"
           payload: !lambda |-
                            return to_string( id( ct4_adc ).state );
 
@@ -253,39 +296,39 @@ interval:
           payload: !lambda |-
                            return to_string( id( ip_address ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase1_raw"
+          topic:           "$mqtt_location/$mqtt_device/Phase-1/phase1_raw"
           payload: !lambda |-
                            return to_string( id( phase1_raw ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase1_amps"
+          topic:           "$mqtt_location/$mqtt_device/Phase-1/phase1_amps"
           payload: !lambda |-
                            return to_string( id( phase1_amps ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase1_watts"
+          topic:           "$mqtt_location/$mqtt_device/Phase-1/phase1_watts"
           payload: !lambda |-
                            return to_string( id( phase1_watts ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase2_raw"
+          topic:           "$mqtt_location/$mqtt_device/Phase-2/phase2_raw"
           payload: !lambda |-
                            return to_string( id( phase2_raw ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase2_amps"
+          topic:           "$mqtt_location/$mqtt_device/Phase-2/phase2_amps"
           payload: !lambda |-
                            return to_string( id( phase2_amps ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/phase2_watts"
+          topic:           "$mqtt_location/$mqtt_device/Phase-2/phase2_watts"
           payload: !lambda |-
                            return to_string( id( phase2_watts ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/office_raw"
+          topic:           "$mqtt_location/$mqtt_device/CT-3/office_raw"
           payload: !lambda |-
                            return to_string( id( office_raw ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/office_amps"
+          topic:           "$mqtt_location/$mqtt_device/CT-3/office_amps"
           payload: !lambda |-
                            return to_string( id( office_amps ).state );
       - mqtt.publish:
-          topic:           "$mqtt_location/$mqtt_device/$mqtt_sensor/office_watts"
+          topic:           "$mqtt_location/$mqtt_device/CT-3/office_watts"
           payload: !lambda |-
                            return to_string( id( office_watts ).state );
 
