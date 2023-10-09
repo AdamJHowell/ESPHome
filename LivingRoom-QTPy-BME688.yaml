@@ -1,0 +1,102 @@
+# This script is for an Adafruit QTPy ESP32-S2: https://www.adafruit.com/product/5348
+# Pinout: https://cdn-learn.adafruit.com/assets/assets/000/107/493/original/adafruit_products_Adafruit_QT_Py_ESP32-S2_Pinout.png?1640130293
+
+# Many of the substitutions are used solely to pass secrets to includes that are in subdirectories.
+substitutions:
+  name_of_device:           livingroom-qtpy-bme688
+  device_name_friendly:     LivingRoom-QTPy-BME688
+  mqtt_location:            "LivingRoom"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     livingRoom_qtpy_bme688_api
+  ota_password: !secret     livingRoom_qtpy_bme688_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  neopixel_gpio:            GPIO39
+  neopixel_power:           GPIO38
+
+# Root component.
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  platform:      ESP32
+  board:         adafruit_qtpy_esp32s2
+
+# See: https://esphome.io/components/sensor/bme680_bsec.html
+#bme680_bsec:
+#  - id:                  bme680_internal
+#    address:             0x77
+#    temperature_offset:  0
+#    iaq_mode:            static
+#    sample_rate:         lp
+#    state_save_interval: 6h
+
+# Enable various sensors.
+sensor:
+  - !include Components/Sensors/bme680.yaml
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
+
+light:
+  - platform: neopixelbus
+    type:     GRB
+    variant:  WS2811
+    pin:      39
+    num_leds: 1
+    name:     "NeoPixel"
+
+#neopixel:
+#  pin:      $neopixel_gpio  # Specify the GPIO pin connected to the NeoPixels
+#  num_leds: 1  # Adjust the number of LEDs based on your setup
+#  id:       neopixel_status
+
+# Enable the onboard NeoPixel as diagnostic output.
+#script:
+#  - id: neo_error
+#    then:
+#      - light.turn_on:
+#          id:    neopixel_status
+#          red:   100%
+#          green: 0%
+#          blue:  0%
+
+# Enable I2C communication.
+i2c:
+  - !include Components/Core/i2c_qtpy_s2.yaml
+
+# Enable Wi-Fi.
+wifi:
+  !include Components/Core/wifi.yaml
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - !include Components/TextSensor/wifi_info.yaml
+#  - !include Components/TextSensor/bme680_accuracy.yaml
+#  - !include Components/TextSensor/bme680_air_quality.yaml
+
+# The interval component handles many MQTT publishing duties.
+interval:
+  !include Components/Core/interval.yaml
+
+# Expose the node state for Home Assistant.
+binary_sensor:
+  - !include Components/BinarySensors/status.yaml

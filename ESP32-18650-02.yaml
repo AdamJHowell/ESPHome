@@ -1,10 +1,10 @@
 substitutions:
-  name_of_device:           esp32-18650
-  device_name_friendly:     ESP32-18650
+  name_of_device:           esp32-18650-02
+  device_name_friendly:     ESP32-18650-02
   mqtt_location:            "Mobile"
   mqtt_device:              $device_name_friendly
-  api_password: !secret     esp32_18650_api
-  ota_password: !secret     esp32_18650_ota
+  api_password: !secret     esp32_18650_02_api
+  ota_password: !secret     esp32_18650_02_ota
   wifi_ssid: !secret        wifi_ssid
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup

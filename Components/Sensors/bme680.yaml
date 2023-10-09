@@ -1,0 +1,115 @@
+# bme680.yaml
+platform:        bme680
+temperature:
+  name:         "BME680 Temperature"
+  oversampling: 16x
+pressure:
+  name: "BME680 Pressure"
+humidity:
+  name: "BME680 Humidity"
+gas_resistance:
+  name: "BME680 Gas Resistance"
+address:         0x77
+update_interval: 60s
+
+
+
+
+#platform: bme68x
+#i2c_id:   bus_a
+#address:  0x77  # BME688 I2C address, adjust if needed
+#temperature:
+#  name:              "BME688 Temperature"
+#  id:                bme688_temperature
+#  accuracy_decimals: 2
+#humidity:
+#  name:              "BME688 Humidity"
+#  id:                bme688_humidity
+#  accuracy_decimals: 2
+#pressure:
+#  name:              "BME688 Pressure"
+#  id:                bme688_pressure
+#  accuracy_decimals: 2
+#air_quality:
+#  name:              "BME688 Air Quality"
+#  id:                bme688_air_quality
+#  accuracy_decimals: 2
+
+
+
+#platform:        bme680_bsec
+#bme680_bsec_id:  bme680_internal
+#temperature:
+#  name:                "BME680 Temperature"
+#  id:                  bme680_tempF
+#  sample_rate:         lp
+#  unit_of_measurement: "°F"
+#  accuracy_decimals:   2
+#  filters:
+#    - median:
+#        window_size:   3
+#        send_every:    1
+#        send_first_at: 1
+#    - lambda: return ( x * 1.8 ) + 32.0;
+#  on_value:
+#    - mqtt.publish:
+#        topic:           "$mqtt_location/$mqtt_device/bme680/tempF"
+#        payload: !lambda |-
+#                         return to_string( id( bme680_tempF ).state );
+#pressure:
+#  name:                "BME680 Pressure"
+#  id:                  bme680_pressure
+#  sample_rate:         lp
+#  unit_of_measurement: "hPa"
+#  accuracy_decimals:   2
+#  filters:
+#    - median:
+#        window_size:   3
+#        send_every:    1
+#        send_first_at: 1
+#  on_value:
+#    - mqtt.publish:
+#        topic:           "$mqtt_location/$mqtt_device/bme680/pressure"
+#        payload: !lambda |-
+#                         return to_string( id( bme680_pressure ).state );
+#humidity:
+#  name:                "BME680 Humidity"
+#  id:                  bme680_humidity
+#  sample_rate:         lp
+#  unit_of_measurement: "%"
+#  accuracy_decimals:   2
+#  filters:
+#    - median:
+#        window_size:   3
+#        send_every:    1
+#        send_first_at: 1
+#  on_value:
+#    - mqtt.publish:
+#        topic:           "$mqtt_location/$mqtt_device/bme680/humidity"
+#        payload: !lambda |-
+#                         return to_string( id( bme680_humidity ).state );
+#iaq:
+#  name: "BME680 IAQ"
+#  id:   iaq
+#  filters:
+#    - median:
+#        window_size:   3
+#        send_every:    1
+#        send_first_at: 1
+#co2_equivalent:
+#  name: "BME680 CO2 Equivalent"
+#  filters:
+#    - median:
+#        window_size:   3
+#        send_every:    1
+#        send_first_at: 1
+#breath_voc_equivalent:
+#  name: "BME680 Breath VOC Equivalent"
+#  filters:
+#    - median:
+#        window_size:   3
+#        send_every:    1
+#        send_first_at: 1
+
+#address:         0x77  # BME688 I2C address
+#update_interval: 20s
