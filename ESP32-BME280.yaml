@@ -2,7 +2,7 @@
 substitutions:
   name_of_device:           esp32-bme280-01
   device_name_friendly:     ESP32-BME280-01
-  mqtt_location:            "MasterBedroom"
+  mqtt_location:            "BackDeck"
   mqtt_device:              $device_name_friendly
   api_password: !secret     master_esp32_bme280_api
   ota_password: !secret     master_esp32_bme280_ota
