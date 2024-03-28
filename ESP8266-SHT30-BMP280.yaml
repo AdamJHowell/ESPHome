@@ -1,10 +1,10 @@
 substitutions:
   name_of_device:           8266-sht30-bmp280
   device_name_friendly:     8266-SHT30-BMP280
-  mqtt_location:            "Backyard"
+  mqtt_location:            "Garage"
   mqtt_device:              $device_name_friendly
-  api_password: !secret     family_room_esp8266_api
-  ota_password: !secret     family_room_esp8266_ota
+  api_password: !secret     8266_sht30_bmp280_api
+  ota_password: !secret     8266_sht30_bmp280_ota
   wifi_ssid: !secret        wifi_ssid
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup
