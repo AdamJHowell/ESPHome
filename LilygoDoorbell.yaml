@@ -13,7 +13,7 @@ substitutions:
   led_gpio:                 GPIO2
 
 esphome:
-  name:          $devicename
+  name:          $name_of_device
   friendly_name: $device_name_friendly
   platform:      ESP32
   board:         esp-wrover-kit
