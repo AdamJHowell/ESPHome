@@ -11,8 +11,7 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bme280/tempF"
-        payload: !lambda |-
-                         return to_string( id( bme280_tempF ).state );
+        payload: return to_string(id(bme280_tempF).state);
 pressure:
   name:                "BME280 Pressure"
   id:                  bme280_pressure
@@ -21,8 +20,7 @@ pressure:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bme280/pressure"
-        payload: !lambda |-
-                         return to_string( id( bme280_pressure ).state );
+        payload: return to_string( id( bme280_pressure ).state );
 humidity:
   name:                "BME280 Humidity"
   id:                  bme280_humidity
@@ -31,7 +29,6 @@ humidity:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bme280/humidity"
-        payload: !lambda |-
-                         return to_string( id( bme280_humidity ).state );
+        payload: return to_string( id( bme280_humidity ).state );
 address:         0x76  # BME280 I2C address
 update_interval: 20s

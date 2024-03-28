@@ -12,8 +12,7 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/htu21d/tempF"
-        payload: !lambda |-
-                         return to_string( id( htu21d_tempF ).state );
+        payload: return to_string( id( htu21d_tempF ).state );
 humidity:
   name:                "htu21d humidity"
   id:                  htu21d_humidity
@@ -23,5 +22,4 @@ humidity:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/htu21d/humidity"
-        payload: !lambda |-
-                         return to_string( id( htu21d_humidity ).state );
+        payload: return to_string( id( htu21d_humidity ).state );

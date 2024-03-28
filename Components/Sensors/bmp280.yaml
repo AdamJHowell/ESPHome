@@ -11,8 +11,7 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bmp280/tempF"
-        payload: !lambda |-
-                         return to_string( id( bmp280_tempF ).state );
+        payload: return to_string( id( bmp280_tempF ).state );
 pressure:
   name:                "BMP280 pressure"
   id:                  bmp280_pressure
@@ -21,7 +20,6 @@ pressure:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bmp280/pressure"
-        payload: !lambda |-
-                         return to_string( id( bmp280_pressure ).state );
+        payload: return to_string( id( bmp280_pressure ).state );
 address:         0x76
 update_interval: 20s
