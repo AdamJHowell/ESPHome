@@ -3,6 +3,7 @@ substitutions:
   device_name_friendly:     ESP32-Energy
   mqtt_location:            "FurnaceRoom"
   mqtt_device:              $device_name_friendly
+  mqtt_sensor:              energy
   api_password: !secret     furnace_esp32_energy_api
   ota_password: !secret     furnace_esp32_energy_ota
   wifi_ssid: !secret        wifi_ssid
