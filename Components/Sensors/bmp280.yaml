@@ -4,22 +4,24 @@ temperature:
   name:                "BMP280 temp"
   id:                  bmp280_tempF
   unit_of_measurement: "°F"
-  accuracy_decimals:   2
+  accuracy_decimals:   1
   oversampling:        16x
   filters:
     - lambda: return ( x * 1.8 ) + 32.0;
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bmp280/tempF"
-        payload: return to_string( id( bmp280_tempF ).state );
+        payload: !lambda |-
+          return to_string( id( bmp280_tempF ).state );
 pressure:
   name:                "BMP280 pressure"
   id:                  bmp280_pressure
   unit_of_measurement: "hPa"
-  accuracy_decimals:   2
+  accuracy_decimals:   1
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bmp280/pressure"
-        payload: return to_string( id( bmp280_pressure ).state );
+        payload: !lambda |-
+          return to_string( id( bmp280_pressure ).state );
 address:         0x76
 update_interval: 20s
