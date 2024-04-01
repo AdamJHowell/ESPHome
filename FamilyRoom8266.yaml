@@ -1,0 +1,148 @@
+substitutions:
+  name_of_device:           familyroom8266
+  device_name_friendly:     FamilyRoom8266
+  mqtt_location:            "FamilyRoom"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     family_room_esp8266_api
+  ota_password: !secret     family_room_esp8266_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+
+esp8266:
+  board: nodemcuv2
+
+# Enable I2C communication.
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+
+# Enable Wi-Fi.
+wifi:
+  id: component_wifi
+  power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
+  networks:
+    - ssid: ${wifi_ssid}
+      password: ${wifi_pass}
+    - ssid: ${wifi_ssid_backup}
+      password: ${wifi_pass_backup}
+
+# Enable the Home Assistant native API.
+api:
+  encryption:
+    key: ${api_password}
+
+# Enable OTA updates.
+ota:
+  safe_mode: true
+  password: ${ota_password}
+
+# Enable logging.
+logger:
+  level: DEBUG
+
+# Enable MQTT publishing.
+mqtt:
+  broker: ${broker_address}
+
+# Enable the BME280 sensor.
+sensor:
+  - platform: htu21d
+    address: 0x44
+    update_interval: 20s
+    temperature:
+      name: "htu21d temp"
+      id: htu21d_tempF
+      unit_of_measurement: "°F"
+      filters:
+        - filter_out: 998.00
+        - lambda: return ( x * 1.8 ) + 32.0;
+      on_value:
+        - mqtt.publish:
+            topic: "$mqtt_location/$mqtt_device/htu21d/tempF"
+            payload: return to_string( id( htu21d_tempF ).state );
+    humidity:
+      name: "htu21d humidity"
+      id: htu21d_humidity
+      unit_of_measurement: "%"
+      filters:
+        - filter_out: 998.00
+      on_value:
+        - mqtt.publish:
+            topic: "$mqtt_location/$mqtt_device/htu21d/humidity"
+            payload: return to_string( id( htu21d_humidity ).state );
+
+  - platform: wifi_signal # Reports the Wi-Fi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    unit_of_measurement: "dB"
+    accuracy_decimals: 2
+    update_interval: 30s
+    entity_category: "diagnostic"
+    on_value:
+      - mqtt.publish:
+          topic: "$mqtt_location/$mqtt_device/rssi"
+          payload: return to_string( id( wifi_signal_db ).state );
+
+  - platform: copy # Reports the Wi-Fi signal strength in %
+    source_id: wifi_signal_db
+    name: "WiFi Signal Percent"
+    id: wifi_signal_percent
+    filters:
+      - lambda: return min( max( 2 * ( x + 100.0 ), 0.0 ), 100.0 );
+    unit_of_measurement: "Signal %"
+    entity_category: "diagnostic"
+    on_value:
+      - mqtt.publish:
+          topic: "$mqtt_location/$mqtt_device/rssi%"
+          payload: return to_string( id( wifi_signal_percent ).state );
+
+  - platform: uptime
+    name: $device_name_friendly Uptime
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - platform: wifi_info
+    mac_address:
+      name: $device_name_friendly MAC Address
+      id: text_sensor_mac_address
+    ip_address:
+      name: $device_name_friendly IP address
+      id: text_sensor_ip_address
+    ssid:
+      name: $device_name_friendly connected SSID
+    bssid:
+      name: $device_name_friendly connected BSSID
+    scan_results:
+      name: $device_name_friendly scan results
+
+# The interval component handles many MQTT publishing duties.
+interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/mac"
+          payload: !lambda |-
+            return to_string( id( text_sensor_mac_address ).state );
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ip"
+          payload: !lambda |-
+            return to_string( id( text_sensor_ip_address ).state );
+
+# Enable the onboard LED as diagnostic output.
+status_led:
+  pin:
+    number:   ${led_gpio}
+    inverted: true
+
+# Expose the node state for Home Assistant.
+binary_sensor:
+  platform: status
+  name:     $device_name_friendly status

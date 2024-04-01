@@ -1,5 +1,5 @@
 # wifi_signal.yaml
-platform:            wifi_signal # Reports the WiFi signal strength/RSSI in dB
+platform:            wifi_signal # Reports the Wi-Fi signal strength/RSSI in dB
 name:                "WiFi Signal dB"
 id:                  wifi_signal_db
 unit_of_measurement: "dB"

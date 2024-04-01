@@ -1,5 +1,5 @@
 # wifi_signal_percent.yaml
-platform:            copy # Reports the WiFi signal strength in %
+platform:            copy # Reports the Wi-Fi signal strength in %
 source_id:           wifi_signal_db
 name:                "WiFi Signal Percent"
 id:                  wifi_signal_percent
