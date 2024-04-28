@@ -203,25 +203,25 @@ spi:
   mosi_pin: GPIO11  # Works on the e-paper
 
 image:
-  - file: https://smart-powermeter.readthedocs.io/en/v2r2/_images/Gauge.png
+  - file: Gauge.png
     id: gauge
 
-  - file: https://smart-powermeter.readthedocs.io/en/v2r2/_images/Gauge_1.png
+  - file: Gauge_1.png
     id: gauge_1
 
-  - file: mdi:home-lightning-bolt
+  - file: home-lightning-bolt.png
     id: power
     resize: 18x18
 
-  - file: mdi:cash-multiple
+  - file: cash-multiple.png
     id: cash
     resize: 18x18
 
-  - file: mdi:currency-eur
+  - file: currency-eur.png
     id: euro
     resize: 18x18
 
-  - file: mdi:lightning-bolt
+  - file: home-lightning-bolt.png
     id: bolt
     resize: 22x22
 
