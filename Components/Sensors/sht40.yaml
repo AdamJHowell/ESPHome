@@ -1,0 +1,23 @@
+# sht40.yaml
+platform:        sht4x
+temperature:
+  name:                "SHT40 temp"
+  id:                  sht40_tempF
+  unit_of_measurement: "°F"
+  accuracy_decimals:   2
+  filters:
+    - lambda: return ( x * 1.8 ) + 32.0;
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/sht40/tempF"
+        payload: return to_string( id( sht40_tempF ).state );
+humidity:
+  name:              "SHT40 humidity"
+  id:                sht40_humidity
+  accuracy_decimals: 2
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/sht40/humidity"
+        payload: return to_string( id( sht40_humidity ).state );
+address:         0x44
+update_interval: 20s
