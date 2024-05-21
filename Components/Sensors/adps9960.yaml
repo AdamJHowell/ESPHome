@@ -1,0 +1,71 @@
+# Example configuration entry
+apds9960:
+  address: 0x39
+  update_interval: 60s
+
+sensor:
+  - platform: apds9960
+    type: CLEAR
+    name: "APDS9960 Clear Channel"
+
+  - platform: apds9960
+    type: RED
+    name: "APDS9960 Red Channel"
+
+  - platform: apds9960
+    type: GREEN
+    name: "APDS9960 Green Channel"
+
+  - platform: apds9960
+    type: BLUE
+    name: "APDS9960 Blue Channel"
+
+  - platform: apds9960
+    type: PROXIMITY
+    name: "APDS9960 Proximity Channel"
+
+binary_sensor:
+  - platform: apds9960
+    direction: UP
+    name: "APDS960 Up Movement"
+    id: apds9960_up
+    on_state:
+      then:
+        - text_sensor.template.publish:
+            id: direction_state
+            state: "UP"
+
+  - platform: apds9960
+    direction: DOWN
+    name: "APDS960 Down Movement"
+    id: apds9960_down
+    on_state:
+      then:
+        - text_sensor.template.publish:
+            id: direction_state
+            state: "DOWN"
+
+  - platform: apds9960
+    direction: LEFT
+    name: "APDS960 Left Movement"
+    id: apds9960_left
+    on_state:
+      then:
+        - text_sensor.template.publish:
+            id: direction_state
+            state: "LEFT"
+
+  - platform: apds9960
+    direction: RIGHT
+    name: "APDS960 Right Movement"
+    id: apds9960_right
+    on_state:
+      then:
+        - text_sensor.template.publish:
+            id: direction_state
+            state: "RIGHT"
+
+text_sensor:
+  - platform: template
+    name: "direction_state"
+    id: direction_state
