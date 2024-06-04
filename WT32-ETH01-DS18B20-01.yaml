@@ -1,0 +1,84 @@
+substitutions:
+  device_name:              wt32-eth01-1st
+  device_name_friendly:     WT32-ETH01-DS18B20-01
+  mqtt_location:            "Office"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     wt32_eth01_01_api
+  ota_password: !secret     wt32_eth01_01_ota
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+  device_ip:                192.168.55.231
+  network_gateway:          192.168.55.1
+  network_subnet:           255.255.255.0
+
+esphome:
+  name:          $device_name
+  friendly_name: $device_name_friendly
+
+esp32:
+  board: wt32-eth01
+  framework:
+    type: arduino
+
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO0_IN
+  phy_addr: 1
+  power_pin: GPIO16
+  #Optional manual IP
+  manual_ip:
+    static_ip: $device_ip
+    gateway: $network_gateway
+    subnet: $network_subnet
+
+# Establish a hub which sensors will connect to.
+# This also an automatic printout of all addresses on the 1-wire bus.
+# https://esphome.io/components/sensor/dallas.html
+dallas:
+  - pin: GPIO04
+
+sensor:
+  - platform: dallas
+    address: 0xc70000000ed67928
+    name: "Office temp"
+    id: office_temp
+    unit_of_measurement: "°C"
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ds18b20/temp"
+          payload: !lambda |-
+            return to_string( id( office_temp ).state );
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable I2C communication.
+i2c:
+  - !include Components/Core/i2c_esp32.yaml
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - !include Components/TextSensor/ethernet_info.yaml
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# The interval component handles many MQTT publishing duties.
+interval:
+  !include Components/Core/interval_ip.yaml
+
+# Expose the node state for Home Assistant.
+binary_sensor:
+  !include Components/BinarySensors/status.yaml
