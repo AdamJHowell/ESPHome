@@ -1,0 +1,9 @@
+#sensor:
+platform: custom
+    lambda: |-
+      auto soil_sensor = new StemmaSoilSensor();
+      App.register_component(soil_sensor);
+      return {soil_sensor->temperature_sensor, soil_sensor->moisture_sensor};
+    sensors:
+      - name: "Plant Temperature"
+      - name: "Plant Moisture"
