@@ -3,12 +3,12 @@ substitutions:
   friendly_name: "Smart Powermeter"
   project_name: "smart.powermeter"
   project_version: "2.0"
-  ap_ssid: "Red5"
-  ap_pwd: "8012254722"
+  ap_ssid: !secret wifi_ssid
+  ap_pwd: !secret wifi_password
 
 esphome:
-  name: "${device_name}"
-  name_add_mac_suffix: false
+  name: "smart-powermeter"
+  friendly_name: $friendly_name
   project:
     name: "${project_name}"
     version: "${project_version}"
@@ -24,69 +24,68 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "2kf73Sjd3BGVSeOGLv8PYVwhuZYF8tBEP2ChZtA1yO0="
+    key: !secret smart_powermeter_api
 
-# Enable Over The Air updates
 ota:
-  password: "97e617bf98af52a8d3e77c5370af7f09"
+  password: !secret smart_powermeter_ota
 
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
 
+  # Enable fallback hotspot (captive portal) in case Wi-Fi connection fails
+  ap:
+    ssid: $device_name
+    password: !secret wifi_pass_hotspot
 
 #Public location of this yaml file
 dashboard_import:
   package_import_url: github://JGAguado/Smart_Powermeter/docs/source/files/configuration.yaml@V2R2
   import_full_config: true
 
-# Enable fallback hotspot (captive portal) in case wifi connection fails
+# Enable fallback hotspot (captive portal) in case Wi-Fi connection fails
 captive_portal:
-
-
-improv_serial:
-
-wifi:
-  ap:
-    ssid: "${ap_ssid}"
-    password: "${ap_pwd}"
 
 time:
   - platform: homeassistant
     id: esptime
 
+
 sensor:
   - platform: adc
     pin: GPIO1
     id: Input_1
-    attenuation: 11db
+    attenuation: 12db
     update_interval: 1s
 
   - platform: adc
     pin: GPIO2
     id: Input_2
-    attenuation: 11db
+    attenuation: 12db
     update_interval: 1s
 
   - platform: adc
     pin: GPIO3
     id: Input_3
-    attenuation: 11db
+    attenuation: 12db
     update_interval: 1s
 
   - platform: adc
     pin: GPIO4
     id: Input_4
-    attenuation: 11db
+    attenuation: 12db
     update_interval: 1s
 
   - platform: adc
     pin: GPIO5
     id: Input_5
-    attenuation: 11db
+    attenuation: 12db
     update_interval: 1s
 
   - platform: adc
     pin: GPIO6
     id: Input_6
-    attenuation: 11db
+    attenuation: 12db
     update_interval: 1s
 
   - platform: ct_clamp
@@ -155,17 +154,80 @@ sensor:
           - 0 -> 0
           - 0.022 -> 0.66
 
-  - platform: total_daily_energy
-    name: "Total Daily Power"
-    power_id: current_power
-    id: daily_power
-
   - platform: template
     id: current_power
     name: "Measured Power"
-    lambda: return (id(Probe_1).state + id(Probe_2).state + id(Probe_3).state) * 230.0 / 1000; #Power = Current * Voltage
+    lambda: return (id(Probe_1).state + id(Probe_2).state) * 115.0 / 1000;
+    device_class: power
+    state_class: measurement
     unit_of_measurement: 'kW'
     update_interval: 5s
+
+  - platform: total_daily_energy
+    id: daily_power
+    name: "Total Daily Energy"
+    power_id: current_power
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: 'kWh'
+
+  - platform: template
+    id: ac_total_current
+    name: "A/C Total Current"
+    lambda: return (id(Probe_5).state + id(Probe_6).state);
+    unit_of_measurement: 'ampere'
+    update_interval: 5s
+
+  - platform: template
+    id: ac_power
+    name: "A/C Power"
+    lambda: return id(ac_total_current)->state * 115.0 / 1000;
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+
+  - platform: total_daily_energy
+    id: daily_ac_power
+    name: "Daily A/C energy"
+    device_class: energy
+    state_class: total_increasing
+    power_id: ac_power
+    unit_of_measurement: 'kWh'
+
+  - platform: template
+    id: bath_power
+    name: "Bath Power"
+    lambda: return id(Probe_3)->state * 115.0 / 1000;
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+
+  - platform: total_daily_energy
+    id: daily_bath_power
+    name: "Daily bath energy"
+    device_class: energy
+    state_class: total_increasing
+    power_id: bath_power
+    unit_of_measurement: 'kWh'
+
+  - platform: template
+    id: bed_power
+    name: "Bed Power"
+    lambda: return id(Probe_4)->state * 115.0 / 1000;
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+
+  - platform: total_daily_energy
+    id: daily_bed_power
+    name: "Daily bed energy"
+    device_class: energy
+    state_class: total_increasing
+    power_id: bed_power
+    unit_of_measurement: 'kWh'
 
   # WiFi Signal
   - platform: wifi_signal
@@ -203,25 +265,25 @@ spi:
   mosi_pin: GPIO11  # Works on the e-paper
 
 image:
-  - file: Gauge.png
+  - file: https://smart-powermeter.readthedocs.io/en/v2r2/_images/Gauge.png
     id: gauge
 
-  - file: Gauge_1.png
+  - file: https://smart-powermeter.readthedocs.io/en/v2r2/_images/Gauge_1.png
     id: gauge_1
 
-  - file: home-lightning-bolt.png
+  - file: mdi:home-lightning-bolt
     id: power
     resize: 18x18
 
-  - file: cash-multiple.png
+  - file: mdi:cash-multiple
     id: cash
     resize: 18x18
 
-  - file: currency-eur.png
+  - file: mdi:currency-eur
     id: euro
     resize: 18x18
 
-  - file: home-lightning-bolt.png
+  - file: mdi:home-lightning-bolt
     id: bolt
     resize: 22x22
 
@@ -253,8 +315,7 @@ display:
           // Time
           int x_head = 260;
           int y_head = 2;
-          it.strftime(x_head, y_head, id(font_header), TextAlign::TOP_RIGHT, 
-          "%H:%M", id(esptime).now());     
+          it.strftime(x_head, y_head, id(font_header), TextAlign::TOP_RIGHT, "%H:%M", id(esptime).now());     
 
           // WiFi quality
           if(id(wifisignal).has_state ()) {
@@ -313,10 +374,8 @@ display:
           it.line(x2, y2, x0, y0);
           
           
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, 
-          "1");  
-          it.printf(xc, yc + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, 
-          "%.1fA", measured);  
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "1");  
+          it.printf(xc, yc + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
           
           // Probe 2
           min_range = 0; 
@@ -348,10 +407,8 @@ display:
           it.line(x2, y2, x0, y0);
           
           
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, 
-          "2");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, 
-          "%.1fA", measured);  
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "2");  
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
           
           // Probe 3
           min_range = 0; 
@@ -383,10 +440,8 @@ display:
           it.line(x2, y2, x0, y0);
           
           
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, 
-          "3");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, 
-          "%.1fA", measured);  
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "3");  
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
 
           // Probe 4
           min_range = 0; 
@@ -419,10 +474,8 @@ display:
           it.line(x2, y2, x0, y0);
           
           
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, 
-          "4");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, 
-          "%.1fA", measured);  
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "4");  
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
 
           // Probe 5
           min_range = 0; 
@@ -455,10 +508,8 @@ display:
           it.line(x2, y2, x0, y0);
           
           
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, 
-          "5");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, 
-          "%.1fA", measured);  
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "5");  
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
 
           // Probe 6
           min_range = 0; 
@@ -491,10 +542,8 @@ display:
           it.line(x2, y2, x0, y0);
           
           
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, 
-          "6");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, 
-          "%.1fA", measured);  
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "6");  
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
 
 
           // Total parameters
@@ -534,20 +583,16 @@ display:
           
           it.image(xc-11, yc-22, id(bolt));   
 
-          it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::BOTTOM_CENTER, 
-          "%.1fkW", measured);  
-          // it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::TOP_CENTER, 
-          // "kW");  
+          it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::BOTTOM_CENTER, "%.1fkW", measured);  
+          // it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::TOP_CENTER, "kW");  
 
-          // Derivated parameters:
+          // Derived parameters:
           measured = id(daily_power).state;
-          it.printf(290, 85, id(font_gauge), TextAlign::TOP_RIGHT, 
-          "%.0fkWh", measured);  
+          it.printf(290, 85, id(font_gauge), TextAlign::TOP_RIGHT, "%.0fkWh", measured);  
           it.image(200, 85, id(power));    
 
           measured = id(cost).state;
           it.image(200, 105, id(cash));          
           
-          it.printf(275, 105, id(font_gauge), TextAlign::TOP_RIGHT, 
-          "%.2f", measured);  
+          it.printf(275, 105, id(font_gauge), TextAlign::TOP_RIGHT, "%.2f", measured);  
           it.image(275, 105, id(euro));
