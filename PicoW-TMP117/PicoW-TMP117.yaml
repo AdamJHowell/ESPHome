@@ -1,0 +1,41 @@
+esphome:
+  name: pico-w-tmp117
+  friendly_name: PicoW_TMP117
+  platform: rp2040
+  board: rpipicow
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "LxaW0Ern5pgqqEvlq03KRnabJbr8Op5wWseFCrEjP/w="
+
+# Enable OTA updates
+ota:
+  - platform: esphome
+    password: "d4e04962c535072b615bd3c1d2ff67b9"
+
+# WiFi Configuration
+wifi:
+  ssid: "Red5"
+  password: "8012254722"
+
+  # Enable fallback hotspot (useful if no WiFi connection)
+  ap:
+    ssid: "Pico-W Fallback Hotspot"
+    password: "ajh14113"
+
+# I2C Configuration
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+  scan: true
+
+# TMP117 Sensor Configuration
+sensor:
+  - platform: tmp117
+    name: "TMP117 Temperature"
+    address: 0x48
+    update_interval: 10s

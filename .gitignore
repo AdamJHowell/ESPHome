@@ -1,9 +1,67 @@
-# Gitignore settings for ESPHome
-# This is an example and may include too much for your use-case.
-# You can modify this file to suit your needs.
-**/.esphome/
-/.vscode/
-/.idea/
+##############
+## My files ##
+##############
+.esphome/
+# Network password files
+[pP]rivate[iI]nfo.*
+network[vV]ariables.*
+work[nN]etwork[vV]ariables.*
+
+# CMake files
+cmake-build-*/
+
+# Arduino IDE files
+debug_custom.json
+esp*.svd
+
+# Visual Studio files
+.vscode/
+c_cpp_properties.json
+
+
+####################
+## JetBrains IDEs ##
+####################
+.idea/
 *.iml
-secrets.yaml
-privateInfo.*
+
+
+######################
+## Windows detritus ##
+######################
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+
+#############
+# Mac crap ##
+#############
+.DS_Store
+
+
+############
+## Python ##
+############
+*.py[co]
+venv/
+
+# Packages
+*.egg
+*.egg-info
+dist/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+
+# Installer logs
+pip-log.txt
