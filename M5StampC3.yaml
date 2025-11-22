@@ -1,11 +1,10 @@
-#The substitution block has all the configurable details
 substitutions:
   name_of_device:           m5stampc3
   device_name_friendly:     M5StampC3
-  mqtt_location:            "GuestBedroom"
+  mqtt_location:            "Mobile"
   mqtt_device:              $device_name_friendly
-  api_password: !secret     guest_m5stamp_api
-  ota_password: !secret     guest_m5stamp_ota
+  api_password: !secret     m5stamp_api
+  ota_password: !secret     m5stamp_ota
   wifi_ssid: !secret        wifi_ssid
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup
@@ -16,8 +15,8 @@ substitutions:
 esphome:
   name:          $name_of_device
   friendly_name: $device_name_friendly
-  platformio_options:
-    board_build.flash_mode: dio
+  comment:       "https://docs.m5stack.com/en/core/stamp_c3"
+  area:          $mqtt_location
 
 esp32:
   board:   esp32-c3-devkitm-1
@@ -27,13 +26,17 @@ esp32:
     type:    arduino
     version: recommended
 
-# Enable I2C communication.
-i2c:
-  - !include Components/Core/i2c_m5stamp.yaml
-
-# Enable Wi-Fi.
 wifi:
-  !include Components/Core/wifi.yaml
+  ssid:     !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "M5StampC3 Fallback"
+    password: "ajh14113"
+
+logger:
+  level: VERBOSE
 
 # Enable the Home Assistant native API.
 api:
@@ -43,34 +46,24 @@ api:
 ota:
   !include Components/Core/ota.yaml
 
-# Enable logging.
-logger:
-  !include Components/Core/logger.yaml
+# # Example LED (if you have one connected to a GPIO, or using the built in LED)
+# light:
+#   - platform: gpio
+#     name: "M5StampC3 LED"
+#     output: GPIO2
+#     id: my_led
 
-# Enable MQTT publishing.
-mqtt:
-  !include Components/Core/mqtt.yaml
+# # Example Binary Sensor (Button)
+# binary_sensor:
+#   - platform: gpio
+#     pin:
+#       number: GPIO3
+#       mode: INPUT_PULLUP
+#       inverted: true # Adjust if needed
+#     name: "M5StampC3 Button"
+#     on_press:
+#       - light.toggle: my_led
 
-# Enable the BME280 sensor.
 sensor:
-  - !include Components/Sensors/aht20.yaml
-  - !include Components/Sensors/bmp280.yaml
-  - !include Components/Sensors/wifi_signal.yaml
-  - !include Components/Sensors/wifi_signal_percent.yaml
-  - !include Components/Sensors/uptime.yaml
-
-# The text_sensor handles many MQTT publishing duties.
-text_sensor:
-  - !include Components/TextSensor/wifi_info.yaml
-
-# The interval component handles many MQTT publishing duties.
-interval:
-  !include Components/Core/interval.yaml
-
-# Enable the onboard LED as diagnostic output.
-status_led:
-  !include Components/Core/status_led.yaml
-
-# Expose the node state for Home Assistant.
-binary_sensor:
-  !include Components/BinarySensors/status.yaml
+  - platform: internal_temperature
+    name: "Internal Temperature"

@@ -1,0 +1,66 @@
+substitutions:
+  name_of_device:           pico-w-tmp117
+  device_name_friendly:     PicoW TMP117
+  mqtt_location:            "Office"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     pico_w_api
+  ota_password: !secret     pico_w_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  comment:       "https://www.adafruit.com/product/5526"
+  area:          $mqtt_location
+
+rp2040:
+  board: rpipicow
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable Wi-Fi.
+wifi:
+  !include Components/Core/wifi.yaml
+
+# Enable I2C communication.
+i2c:
+  - !include Components/Core/i2c_rp2040.yaml
+
+sensor:
+# TMP117 Sensor Configuration
+  - !include Components/Sensors/tmp117.yaml
+  # - platform: tmp117
+  #   name: "TMP117 Temperature"
+  #   address: 0x48
+  #   update_interval: 20s
+  # - platform: sht4x
+  #   update_interval: 20s
+  #   temperature:
+  #     name: "Temperature"
+  #   humidity:
+  #     name: "Relative Humidity"
+  - platform: adc
+    name: "Core Temperature"
+    update_interval: 20s
+    id: core_temperature
+    pin: TEMPERATURE
+    unit_of_measurement: "°C"
+    filters:
+      - lambda: return 27 - ( x - 0.706f ) / 0.001721f;
+  - platform: internal_temperature
+    name: "Internal Temperature"

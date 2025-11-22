@@ -9,6 +9,8 @@ substitutions:
 esphome:
   name: "smart-powermeter"
   friendly_name: $friendly_name
+  comment:       "https://smart-powermeter.readthedocs.io/en/v2r2/"
+  area:          $mqtt_location
   project:
     name: "${project_name}"
     version: "${project_version}"
@@ -27,7 +29,12 @@ api:
     key: !secret smart_powermeter_api
 
 ota:
+  platform: esphome
   password: !secret smart_powermeter_ota
+
+# Safe mode used to be part of the OTA component.
+safe_mode:
+  !include Components/Core/safe_mode.yaml
 
 wifi:
   ssid: !secret wifi_ssid
@@ -267,24 +274,30 @@ spi:
 image:
   - file: https://smart-powermeter.readthedocs.io/en/v2r2/_images/Gauge.png
     id: gauge
+    type: BINARY
 
   - file: https://smart-powermeter.readthedocs.io/en/v2r2/_images/Gauge_1.png
     id: gauge_1
+    type: BINARY
 
   - file: mdi:home-lightning-bolt
     id: power
+    type: BINARY
     resize: 18x18
 
   - file: mdi:cash-multiple
     id: cash
+    type: BINARY
     resize: 18x18
 
   - file: mdi:currency-eur
     id: euro
+    type: BINARY
     resize: 18x18
 
   - file: mdi:home-lightning-bolt
     id: bolt
+    type: BINARY
     resize: 22x22
 
 display:
@@ -302,34 +315,34 @@ display:
         lambda: |-
           #define H_LEFT_MARGIN 4
           #define H_RIGHT_MARGIN 280
-          #define H_CENTER 128 
+          #define H_CENTER 128
           #define V_WEATHER 0
           #define V_CLOCK 1
           #define V_WIFI 30
           #define V_VOLTAGE 60
           #define V_BATTERY  90
-          
+
           // WiFi quality
           // it.image(0, 0, id(background));
 
           // Time
           int x_head = 260;
           int y_head = 2;
-          it.strftime(x_head, y_head, id(font_header), TextAlign::TOP_RIGHT, "%H:%M", id(esptime).now());     
+          it.strftime(x_head, y_head, id(font_header), TextAlign::TOP_RIGHT, "%H:%M", id(esptime).now());
 
           // WiFi quality
           if(id(wifisignal).has_state ()) {
             if (id(wifisignal).state >= -50) {
-                // Excellent # mdi-wifi-strength-4 
+                // Excellent # mdi-wifi-strength-4
                 it.printf(x_head, y_head, id(font_icon), TextAlign::TOP_LEFT, "\U0000e1d8");
             } else if (id(wifisignal).state  >= -60) {
-                //Good # mdi-wifi-strength-3 
+                //Good # mdi-wifi-strength-3
                 it.printf(x_head, y_head, id(font_icon), TextAlign::TOP_LEFT, "\U0000ebe1");
             } else if (id(wifisignal).state  >= -67) {
-                //Fair # mdi-wifi-strength-2 
+                //Fair # mdi-wifi-strength-2
                 it.printf(x_head, y_head, id(font_icon), TextAlign::TOP_LEFT, "\U0000ebd6");
             } else if (id(wifisignal).state  >= -70) {
-                //Weak # mdi-wifi-strength-1 
+                //Weak # mdi-wifi-strength-1
                 it.printf(x_head, y_head, id(font_icon), TextAlign::TOP_LEFT, "\U0000ebe4");
             } else {
                 //Unlikely working mdi-wifi-strength-0
@@ -343,26 +356,26 @@ display:
           float alpha = 4.71238898038469; // Defined as the gauge angle in radians (270deg)
           float beta = 2*pi - alpha;
           int radius = 25;              // Radius of the gauge in pixels
-          int thick = 7;                // Size of the marker 
-          
+          int thick = 7;                // Size of the marker
+
           // Probe 1
-          int min_range = 0; 
+          int min_range = 0;
           int max_range = 10;
           int xc = 40;
           int yc = 33;
 
           it.image(xc-radius, yc-radius, id(gauge));
-          
+
           float measured = id(Probe_1).state;
-          
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          float val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          float val = (measured - min_range) / abs(max_range - min_range) * alpha;
           int x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           int y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           int x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -372,30 +385,30 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "1");  
-          it.printf(xc, yc + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
-          
+
+
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "1");
+          it.printf(xc, yc + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);
+
           // Probe 2
-          min_range = 0; 
+          min_range = 0;
           max_range = 10;
           xc = 100;
           yc = 33;
 
           it.image(xc-radius, yc-radius, id(gauge));
-          
-          
+
+
           measured = id(Probe_2).state;
-          
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          val = (measured - min_range) / abs(max_range - min_range) * alpha;
           x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -405,30 +418,30 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "2");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
-          
+
+
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "2");
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);
+
           // Probe 3
-          min_range = 0; 
+          min_range = 0;
           max_range = 10;
           xc = 160;
           yc = 33;
 
           it.image(xc-radius, yc-radius, id(gauge));
-          
-          
+
+
           measured = id(Probe_3).state;
-          
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          val = (measured - min_range) / abs(max_range - min_range) * alpha;
           x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -438,31 +451,31 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "3");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
+
+
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "3");
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);
 
           // Probe 4
-          min_range = 0; 
+          min_range = 0;
           max_range = 10;
           xc = 40;
           yc = 95;
 
           it.image(xc-radius, yc-radius, id(gauge));
-          
-          
+
+
           measured = id(Probe_4).state;
-          
-          
+
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          val = (measured - min_range) / abs(max_range - min_range) * alpha;
           x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -472,31 +485,31 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "4");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
+
+
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "4");
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);
 
           // Probe 5
-          min_range = 0; 
+          min_range = 0;
           max_range = 10;
           xc = 100;
           yc = 95;
 
           it.image(xc-radius, yc-radius, id(gauge));
-          
-          
+
+
           measured = id(Probe_5).state;
-          
-          
+
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          val = (measured - min_range) / abs(max_range - min_range) * alpha;
           x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -506,31 +519,31 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "5");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
+
+
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "5");
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);
 
           // Probe 6
-          min_range = 0; 
+          min_range = 0;
           max_range = 10;
           xc = 160;
           yc = 95;
 
           it.image(xc-radius, yc-radius, id(gauge));
-          
-          
+
+
           measured = id(Probe_6).state;
-          
-          
+
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          val = (measured - min_range) / abs(max_range - min_range) * alpha;
           x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -540,10 +553,10 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "6");  
-          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);  
+
+
+          it.printf(xc, yc, id(font_gauge), TextAlign::CENTER, "6");
+          it.printf(xc, yc  + radius*0.75, id(font_gauge), TextAlign::TOP_CENTER, "%.1fA", measured);
 
 
           // Total parameters
@@ -551,25 +564,25 @@ display:
           alpha = pi; // Defined as the gauge angle in radians (270deg)
           beta = 2*pi - alpha;
           radius = 40;              // Radius of the gauge in pixels
-          thick = 7;    
+          thick = 7;
 
-          min_range = 0; 
+          min_range = 0;
           max_range = 5;
           xc = 245;
           yc = 65;
 
           it.image(xc-radius, yc-radius, id(gauge_1));
-          
+
           measured = id(current_power).state;
-          
+
           if (measured < min_range) {
             measured = min_range;
-          } 
+          }
           if (measured > max_range) {
             measured = max_range;
-          } 
-          
-          val = (measured - min_range) / abs(max_range - min_range) * alpha;        
+          }
+
+          val = (measured - min_range) / abs(max_range - min_range) * alpha;
           x0 = static_cast<int>(xc + radius * cos(pi / 2 + beta / 2 + val));
           y0 = static_cast<int>(yc + radius * sin(pi / 2 + beta / 2 + val));
           x1 = static_cast<int>(xc + (radius+thick) * cos(pi / 2 + beta / 2 + val + 0.1));
@@ -579,20 +592,20 @@ display:
           it.line(x0, y0, x1, y1);
           it.line(x1, y1, x2, y2);
           it.line(x2, y2, x0, y0);
-          
-          
-          it.image(xc-11, yc-22, id(bolt));   
 
-          it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::BOTTOM_CENTER, "%.1fkW", measured);  
-          // it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::TOP_CENTER, "kW");  
+
+          it.image(xc-11, yc-22, id(bolt));
+
+          it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::BOTTOM_CENTER, "%.1fkW", measured);
+          // it.printf(xc, yc + radius/2, id(font_gauge), TextAlign::TOP_CENTER, "kW");
 
           // Derived parameters:
           measured = id(daily_power).state;
-          it.printf(290, 85, id(font_gauge), TextAlign::TOP_RIGHT, "%.0fkWh", measured);  
-          it.image(200, 85, id(power));    
+          it.printf(290, 85, id(font_gauge), TextAlign::TOP_RIGHT, "%.0fkWh", measured);
+          it.image(200, 85, id(power));
 
           measured = id(cost).state;
-          it.image(200, 105, id(cash));          
-          
-          it.printf(275, 105, id(font_gauge), TextAlign::TOP_RIGHT, "%.2f", measured);  
+          it.image(200, 105, id(cash));
+
+          it.printf(275, 105, id(font_gauge), TextAlign::TOP_RIGHT, "%.2f", measured);
           it.image(275, 105, id(euro));

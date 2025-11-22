@@ -2,7 +2,7 @@ substitutions:
   name_of_device:           t-displays3
   device_name_friendly:     T-Display-S3
   mqtt_location:            "Mobile"
-  mqtt_device:              $device_name_friendly
+  mqtt_device:              ${device_name_friendly}
   api_password: !secret     lilygo_t_display_s3_api
   ota_password: !secret     lilygo_t_display_s3_ota
   wifi_ssid: !secret        wifi_ssid
@@ -15,28 +15,139 @@ substitutions:
 esphome:
   name:          ${name_of_device}
   friendly_name: $device_name_friendly
+  comment:       "https://lilygo.cc/products/t-display-s3"
+  area:          $mqtt_location
   platformio_options:
-    board_build.mcu:                 esp32s3
-    board_build.name:                "Espressif ESP32-S3-T-QT"
-    board_build.upload.flash_size:   "4MB"
-    board_build.upload.maximum_size: 4194304
-    board_build.vendor:              "LilyGO"
-  on_boot:
-    - priority: 800
-      then:
-        - lambda: |-
-                  id(disp).enable();
-                  id(disp).transfer_byte(0x11);
-                  id(disp).disable();
+    build_unflags: -Werror=all
+    board_build.flash_mode: dio
 
 esp32:
   board: esp32-s3-devkitc-1
+  variant: esp32s3
   framework:
-    type: arduino
+    type: esp-idf
 
+# Enable the Home Assistant native API.
+api:
+  #encryption:
+    #key: "XXXXX"
+  !include Components/Core/api.yaml
+
+ota:
+  #- platform: esphome
+    #password: "XXXXX"
+  !include Components/Core/ota.yaml
+
+wifi:
+  #ssid: !secret wifi_ssid
+  #password: !secret wifi_password
+  !include Components/Core/wifi.yaml
+
+  #ap:
+    #ssid: "S3 Fallback Hotspot"
+    #password: "XXXXX"
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+logger:
+  #level: WARN
+  !include Components/Core/logger.yaml
+
+# Define QSPI interface for the AMOLED
 spi:
-  clk_pin:  GPIO3
-  mosi_pin: GPIO2
+  id: qspi_bus
+  type: quad
+  clk_pin: GPIO47
+  data_pins:
+    - GPIO18  # TFT_D0
+    - GPIO7   # TFT_D1
+    - GPIO48  # TFT_D2
+    - GPIO5   # TFT_D3
+
+# Configuration for the RM67162 AMOLED display
+display:
+  - platform: qspi_dbi
+    model: RM67162
+    id: s3_display
+    update_interval: 10s
+    dimensions:
+      height: 320
+      width: 170
+    color_order: rgb
+    brightness: 255
+    cs_pin: GPIO6
+    reset_pin: GPIO17
+    rotation: 270
+    pages:
+      - id: page1
+        lambda: |-
+          it.printf(10, 100, id(audiowide_font), Color(255, 255, 255), "Hello SmartHomeScene!");
+
+      - id: page2
+        lambda: |-
+          int screen_height = it.get_height();
+          it.image(20, (screen_height - 88) / 2, id(logo));
+          it.image(260, 40, id(temperature_icon));
+          it.printf(320, 40, id(audiowide_font), Color(255, 255, 255), "%.1f°F", id(sht4x_temp).state);
+          it.image(260, 140, id(humidity_icon));
+          it.printf(320, 140, id(audiowide_font), Color(255, 255, 255), "%.1f%%", id(sht4x_humidity).state);
+
+      - id: page3
+        lambda: |-
+            // CPU Usage
+            it.image(20, 20, id(cpu_icon));  // CPU icon
+            it.printf(100, 20, id(audiowide_font), Color(255, 255, 255), "CPU: %.1f%%", id(system_monitor_processor_use).state);
+
+            // Memory Usage
+            it.image(20, 100, id(memory_icon));  // Memory icon
+            it.printf(100, 100, id(audiowide_font), Color(255, 255, 255), "RAM: %.1fMB", id(system_monitor_memory_use).state);
+
+            // Disk Usage
+            it.image(20, 180, id(harddisk_icon));  // Disk icon
+            it.printf(100, 180, id(audiowide_font), Color(255, 255, 255), "DISK: %.1fGB", id(system_monitor_disk_use).state);
+
+
+binary_sensor:
+  - platform: gpio
+    pin: GPIO21  # Button on GPIO21
+    name: "Page Switch Button"
+    on_press:
+      then:
+        - display.page.show_next: s3_display
+        - component.update: s3_display
+
+font:
+  - file: "gfonts://Audiowide"
+    id: audiowide_font
+    size: 40
+image:
+  - file: mdi:thermometer
+    id: temperature_icon
+    type: BINARY
+    resize: 60x60
+  - file: mdi:water
+    id: humidity_icon
+    type: BINARY
+    resize: 60x60
+  - file: mdi:home
+    id: logo
+    resize: 200x88
+    type: RGB
+    transparency: alpha_channel
+  - file: mdi:tape-drive
+    id: harddisk_icon
+    type: BINARY
+    resize: 60x60
+  - file: mdi:memory
+    id: memory_icon
+    type: BINARY
+    resize: 60x60
+  - file: mdi:cpu-64-bit
+    id: cpu_icon
+    type: BINARY
+    resize: 60x60
 
 i2c:
   sda:       43
@@ -44,81 +155,40 @@ i2c:
   scan:      true
   frequency: 400kHz
 
-font:
-  - file: "fonts/OCRAEXT.ttf"
-    id:   fontocra
-    size: 42
-
-output:
-  - platform: ledc
-    pin:      GPIO10
-    inverted: true
-    id:       backlightdim
-
-light:
-  - platform: monochromatic
-    output:   backlightdim
-    name:     "Backlight"
-
-time:
-  - platform: homeassistant
-    id:       home_time
-    timezone: America/Denver
-
-display:
-  - platform:      st7789v
-    model:         Custom
-    width:         128
-    height:        128
-    offset_width:  1
-    offset_height: 2
-    cs_pin:        GPIO5
-    dc_pin:        GPIO6
-    reset_pin:     GPIO1
-    id:            disp
-    rotation:      180
-    lambda:        |-
-                   it.strftime(0, 0, id(fontocra), TextAlign::TOP_LEFT, "%H:%M", id(home_time).now());
-                   it.line(0, 50, 127, 50);
-
-# Enable Wi-Fi.
-wifi:
-  !include Components/Core/wifi.yaml
-
-# Enable the Home Assistant native API.
-api:
-  !include Components/Core/api.yaml
-
-# Enable OTA updates.
-ota:
-  !include Components/Core/ota.yaml
-
-# Enable logging.
-logger:
-  !include Components/Core/logger.yaml
-
-# Enable MQTT publishing.
-mqtt:
-  !include Components/Core/mqtt.yaml
-
-# Enable various sensors.
 sensor:
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
   - !include Components/Sensors/uptime.yaml
+  - !include Components/Sensors/sht4x.yaml
+  - platform: homeassistant
+    entity_id: sensor.sht40_tempF
+    id: office_temperature
+    name: "Office Temperature"
+  - platform: homeassistant
+    entity_id: sensor.sht40_humidity
+    id: office_humidity
+    name: "Office Humidity"
+  - platform: homeassistant
+    entity_id: sensor.system_monitor_processor_use
+    id: system_monitor_processor_use
+    name: "CPU Usage"
+  - platform: homeassistant
+    entity_id: sensor.system_monitor_memory_use
+    id: system_monitor_memory_use
+    name: "Memory Usage"
+  - platform: homeassistant
+    entity_id: sensor.system_monitor_disk_use
+    id: system_monitor_disk_use
+    name: "Disk Usage"
+  - platform: internal_temperature
+    name: "Internal Temperature"
 
-# The text_sensor handles many MQTT publishing duties.
-text_sensor:
-  - !include Components/TextSensor/wifi_info.yaml
-
-# The interval component handles many MQTT publishing duties.
-interval:
-  !include Components/Core/interval.yaml
-
-# Enable the onboard LED as diagnostic output.
-status_led:
-  !include Components/Core/status_led.yaml
-
-# Expose the node state for Home Assistant.
-binary_sensor:
-  - !include Components/BinarySensors/status.yaml
+#Toggle green LED under the left button
+light:
+  - platform: binary #Toggle green LED under the left button
+    name: "Green LED"
+    output: green_led
+output:
+  - platform: gpio
+    pin: GPIO38
+    id: green_led
