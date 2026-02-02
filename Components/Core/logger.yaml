@@ -1,0 +1,3 @@
+# logger.yaml
+# https://esphome.io/components/logger/
+level: DEBUG

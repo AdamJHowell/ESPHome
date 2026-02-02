@@ -1,0 +1,130 @@
+# https://esphome.io/components/substitutions/
+substitutions:
+  name: esp32-air-quality
+  friendly_name: ESP32 Air Quality
+  mqtt_location:            "Office"
+  mqtt_device:              ${friendly_name}
+  api_password: !secret     air_quality_api
+  ota_password: !secret     air_quality_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+
+# https://esphome.io/components/esphome/
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+
+# https://esphome.io/components/esp32/
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+
+# Enable logging.
+# https://esphome.io/components/logger/
+logger:
+
+
+# Enable the Home Assistant native API.
+# https://esphome.io/components/api/
+api:
+  encryption:
+    key: "RkVP7XqM5Uok9+zwY3quYVFKu4F3jDFtR/UBotFKbho="
+
+
+# Enable Over-The-Air updates.
+# https://esphome.io/components/ota/
+ota:
+  - platform: esphome
+    password: "87c54d07f70e00bd8f1ba66559031a29"
+
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_pass}
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32-Air-Quality"
+    password: "YskmIt5ic13g"
+
+
+# https://esphome.io/components/captive_portal/
+captive_portal:
+
+
+# Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+
+# Setup I2C Bus
+# https://esphome.io/components/i2c/
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+  id: bus_a
+  frequency: 100kHz  # Lower frequency improves stability on combo boards
+
+
+# https://esphome.io/components/sensor/
+sensor:
+  # ---------------------------------------------------------
+  # ESP32 Internal Temperature
+  # ---------------------------------------------------------
+  - platform: internal_temperature
+    name: "Internal Temperature"
+
+  # ---------------------------------------------------------
+  # AHT21 (Temperature & Humidity)
+  # ---------------------------------------------------------
+  - platform: aht10
+    variant: AHT20  # AHT21 is backward compatible with AHT20
+    i2c_id: bus_a
+    address: 0x38
+    update_interval: 20s
+    
+    temperature:
+      name: "Room Temperature"
+      id: temp_sensor
+      # OPTIONAL: Uncomment lines below if the sensor runs hot
+      # filters:
+      #   - offset: -4.0 
+    
+    humidity:
+      name: "Room Humidity"
+      id: hum_sensor
+
+  # ---------------------------------------------------------
+  # ENS160 (Air Quality: eCO2, TVOC, AQI)
+  # ---------------------------------------------------------
+  - platform: ens160_i2c
+    i2c_id: bus_a
+    address: 0x53
+    update_interval: 20s
+    
+    # Internal Compensation: 
+    # Feeds AHT data into ENS160 for accurate calculation
+    compensation:
+      temperature: temp_sensor
+      humidity: hum_sensor
+
+    eco2:
+      name: "Estimated CO2"
+      id: eco2_val
+    
+    tvoc:
+      name: "TVOC"
+      id: tvoc_val
+
+    aqi:
+      name: "Air Quality Index"
+      id: aqi_val

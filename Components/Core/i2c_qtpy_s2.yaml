@@ -1,0 +1,11 @@
+# I²C Bus
+# https://esphome.io/components/i2c/
+#
+# This component sets up the I²C bus for the Adafruit QTPy ESP32-S2.
+#
+# https://esphome.io/components/i2c.html
+#
+sda:       41
+scl:       40
+scan:      true
+frequency: 400kHz

@@ -1,0 +1,31 @@
+# sht4x.yaml
+# https://esphome.io/components/sensor/sht4x/
+# sensor:
+platform:        sht4x
+
+temperature:
+  name:                "SHT4x temp"
+  id:                  sht4x_temp
+  device_class:        "temperature"
+  unit_of_measurement: "°C"
+  accuracy_decimals:   1
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/sht4x/temp"
+        payload:         |- 
+           return to_string( id( sht4x_temp ).state );
+
+humidity:
+  name:                "SHT4x humidity"
+  id:                  sht4x_humidity
+  device_class:        "humidity"
+  unit_of_measurement: "%"
+  accuracy_decimals:   1
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/sht4x/humidity"
+        payload:         |- 
+           return to_string( id( sht4x_humidity ).state );
+
+address:         0x44
+update_interval: 20s

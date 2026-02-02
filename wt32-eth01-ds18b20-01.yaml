@@ -1,0 +1,145 @@
+# https://esphome.io/components/substitutions/
+substitutions:
+  device_name:              wt32-eth01-1st
+  device_name_friendly:     WT32-ETH01-DS18B20-01
+  mqtt_location:            "FurnaceRoom"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     wt32_eth01_01_api
+  ota_password: !secret     wt32_eth01_01_ota
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO5
+  device_ip:                192.168.55.231
+  network_gateway:          192.168.55.1
+  network_subnet:           255.255.255.0
+
+
+# https://esphome.io/components/esphome/
+esphome:
+  name:          $device_name
+  friendly_name: $device_name_friendly
+  comment:       "https://en.wireless-tag.com/product-item-2.html"
+  area:          $mqtt_location
+
+
+# https://esphome.io/components/esp32/
+esp32:
+  board: wt32-eth01
+  framework:
+    type: arduino
+
+
+# https://esphome.io/components/ethernet/
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk:
+    pin: GPIO0
+    mode: CLK_EXT_IN
+  phy_addr: 1
+  power_pin: GPIO16
+
+
+# Configure the 1-wire bus.
+# This enables an automatic logging of all addresses on the 1-wire bus.
+# https://esphome.io/components/one_wire/
+one_wire:
+  # https://esphome.io/components/one_wire/gpio/
+  - platform: gpio
+    pin: GPIO04
+
+
+# https://esphome.io/components/sensor/
+sensor:
+# https://esphome.io/components/sensor/dallas_temp.html
+  - platform: dallas_temp
+    address: 0xca0000000adb5a28
+    name: "Furnace Out"
+    id: ds18b20_1
+    unit_of_measurement: "°C"
+    update_interval: 20s
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ds18b20/FurnaceOut"
+          payload: !lambda |-
+            return to_string( id( ds18b20_1 ).state );
+  - platform: dallas_temp
+    address: 0xae0000000c2e0b28
+    name: "Furnace In"
+    id: ds18b20_2
+    unit_of_measurement: "°C"
+    update_interval: 20s
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ds18b20/FurnaceIn"
+          payload: !lambda |-
+            return to_string( id( ds18b20_2 ).state );
+  - platform: dallas_temp
+    address: 0x300722829eb6f728
+    name: "Water heater output"
+    id: ds18b20_3
+    unit_of_measurement: "°C"
+    update_interval: 20s
+    on_value:
+      - mqtt.publish:
+          topic:           "$mqtt_location/$mqtt_device/ds18b20/WaterHeaterOut"
+          payload: !lambda |-
+            return to_string( id( ds18b20_3 ).state );
+  # https://esphome.io/components/sensor/internal_temperature/
+  - platform: internal_temperature
+    name: "Internal Temperature"
+
+
+# Enable the Home Assistant native API.
+# https://esphome.io/components/api/
+api:
+  !include Components/Core/api.yaml
+
+
+# Enable Over-The-Air updates.
+# https://esphome.io/components/ota/
+ota:
+  !include Components/Core/ota.yaml
+
+
+# Enable logging.
+# https://esphome.io/components/logger/
+logger:
+  !include Components/Core/logger.yaml
+
+
+# Enable I2C communication.
+# https://esphome.io/components/i2c/
+# Note that the original i2c_esp32.yaml file uses GPIO21 which is not allowed for the WT32-ETH01 anymore.
+# i2c:
+#   - !include Components/Core/i2c_esp32.yaml
+
+
+# The text_sensor handles many MQTT publishing duties.
+# https://esphome.io/components/text_sensor/
+text_sensor:
+  - !include Components/TextSensor/ethernet_info.yaml
+
+
+# Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+
+# The interval component handles many MQTT publishing duties.
+# https://esphome.io/components/interval/
+interval:
+  !include Components/Core/interval_ip.yaml
+
+
+# Expose the node state for Home Assistant.
+# https://esphome.io/components/binary_sensor/
+binary_sensor:
+  !include Components/BinarySensors/status.yaml
+
+
+# Safe mode used to be part of the OTA component.
+# https://esphome.io/components/safe_mode/
+safe_mode:
+  !include Components/Core/safe_mode.yaml

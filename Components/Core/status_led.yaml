@@ -1,0 +1,5 @@
+#status_led:
+# https://esphome.io/components/status_led/
+pin:
+  number:   ${led_gpio}
+  inverted: true

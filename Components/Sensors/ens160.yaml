@@ -1,0 +1,55 @@
+# ENS160 over I2C
+platform: ens160_i2c
+eco2:
+  name: "ENS160 eCO2"
+  id:                  ens160_eco2
+#   on_value:
+#     - mqtt.publish:
+#         topic:           "$mqtt_location/$mqtt_device/ens160/eCO2"
+#         # payload: !lambda |-
+#                         #   return to_string( id( ens160_eco2 ).state );
+#         payload: !lambda |-
+#           return to_string( id( ens160_eco2 ).state );
+  on_value:
+    - mqtt.publish:
+      topic:           "$mqtt_location/$mqtt_device/ens160/eCO2"
+      payload:         |- 
+         return to_string( id( ens160_eco2 ).state );
+
+tvoc:
+  name: "ENS160 Total Volatile Organic Compounds"
+  id:                  ens160_tvoc
+#   on_value:
+#     - mqtt.publish:
+#         topic:           "$mqtt_location/$mqtt_device/ens160/tvoc"
+#         # payload: !lambda |-
+#                         #   return to_string( id( ens160_tvoc ).state );
+#         payload: !lambda |-
+#           return to_string( id( ens160_tvoc ).state );
+  on_value:
+    - mqtt.publish:
+      topic:           "$mqtt_location/$mqtt_device/ens160/tvoc"
+      payload:         |- 
+         return to_string( id( ens160_tvoc ).state );
+
+aqi:
+  name: "ENS160 Air Quality Index"
+  id: ens160_air_quality_index
+#   on_value:
+#     - mqtt.publish:
+#         topic:           "$mqtt_location/$mqtt_device/ens160/aqi"
+#         # payload: !lambda |-
+#                         #   return to_string( id( ens160_air_quality_index ).state );
+#         payload: !lambda |-
+#           return to_string( id( ens160_air_quality_index ).state );
+  on_value:
+    - mqtt.publish:
+      topic:           "$mqtt_location/$mqtt_device/ens160/aqi"
+      payload:         |- 
+         return to_string( id( ens160_air_quality_index ).state );
+
+update_interval: 20s
+address: 0x53
+compensation:
+  temperature: aht21_temp
+  humidity: aht21_humidity

@@ -1,0 +1,4 @@
+# uptime.yaml
+# https://esphome.io/components/sensor/uptime/
+platform: uptime
+name:     $device_name_friendly Uptime

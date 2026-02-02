@@ -1,0 +1,148 @@
+substitutions:
+  name_of_device:           lilygo-camera
+  device_name_friendly:     Lilygo Camera
+  mqtt_location:            "Dining Room"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     lilygo_t_camera_api
+  ota_password: !secret     lilygo_t_camera_ota
+  wifi_ssid: !secret        iot_no_internet
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  comment:       "https://github.com/Xinyuan-LilyGO/LilyGo-Camera-Series/blob/master/docs/T_CarmerV162.md"
+  area:          $mqtt_location
+  # platform:      ESP32
+  # board:         esp-wrover-kit
+
+esp32:
+  board: esp-wrover-kit
+  framework:
+        type: esp-idf
+
+# Define an I2C bus for the esp32_camera component to use.
+i2c:
+  sda: GPIO18
+  scl: GPIO23
+  scan: true
+  id: bus_a
+
+# https://esphome.io/components/psram/
+psram:
+  mode: quad
+  speed: 80MHz
+
+# https://esphome.io/components/esp32_camera/
+esp32_camera:
+  name:          $device_name_friendly
+  external_clock:
+    pin:       GPIO4
+    frequency: 20MHz
+  # The new I2C setting.
+  i2c_id: bus_a
+  # The old I2C setting.
+  # i2c_pins:
+  #   sda: GPIO18
+  #   scl: GPIO23
+  data_pins: [GPIO34, GPIO13, GPIO14, GPIO35, GPIO39, GPIO38, GPIO37, GPIO36]
+  vsync_pin:         GPIO5
+  href_pin:          GPIO27
+  pixel_clock_pin:   GPIO25
+  # power_down_pin: GPIO26 No PWD GPIO existing
+  resolution:        1600x1200
+  jpeg_quality:      10
+  brightness:        0
+  contrast:          0
+  saturation:        0
+  vertical_flip:     true
+  horizontal_mirror: true
+
+display:
+  - platform:        ssd1306_i2c
+    model:           "SSD1306 128x64"
+    address:         0x3C
+    rotation:        0°
+    update_interval: 20s
+    lambda:          |-
+                     it.strftime( 64, 0, id( tnr1 ), TextAlign::TOP_CENTER,"%Y-%m-%d", id( homeassistant_time ).now() );
+                     it.strftime( 64, 64, id( tnr2 ), TextAlign::BASELINE_CENTER, "%H:%M", id( homeassistant_time ).now() );
+
+binary_sensor:
+  # Expose the node state for Home Assistant.
+  - !include Components/BinarySensors/status.yaml
+  # Establish GPIO19 as a PIR sensor.
+  - platform:     gpio
+    pin:          GPIO19
+    name:         $device_name_friendly PIR
+    device_class: motion
+  # Establish GPIO19 as a button.
+  - platform: gpio
+    pin:
+      number:   GPIO15
+      inverted: True
+    name:     $device_name_friendly Button
+
+font:
+  - file: "fonts/times-new-roman.ttf"
+    id:   tnr1
+    size: 20
+  - file: "fonts/times-new-roman.ttf"
+    id:   tnr2
+    size: 35
+
+time:
+  - platform: homeassistant
+    id:       homeassistant_time
+
+# Enable I2C communication.
+# i2c:
+#   - !include Components/Core/i2c_esp32.yaml
+
+# Enable Wi-Fi.
+wifi:
+  !include Components/Core/wifi.yaml
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Safe mode used to be part of the OTA component.
+safe_mode:
+  !include Components/Core/safe_mode.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# Enable various sensors.
+sensor:
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
+  - platform: internal_temperature
+    name: "Internal Temperature"
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - !include Components/TextSensor/wifi_info.yaml
+
+# The interval component handles many MQTT publishing duties.
+interval:
+  !include Components/Core/interval.yaml
+
+# Enable the onboard LED as diagnostic output.
+status_led:
+  !include Components/Core/status_led.yaml

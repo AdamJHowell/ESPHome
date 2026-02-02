@@ -1,0 +1,13 @@
+# interval.yaml
+# https://esphome.io/components/interval/
+# interval:
+  - interval: 1min
+    then:
+      - mqtt.publish:
+          topic:   "$mqtt_location/$mqtt_device/mac"
+          payload: |-
+            return id( text_sensor_mac_address ).state;
+      - mqtt.publish:
+          topic:   "$mqtt_location/$mqtt_device/ip"
+          payload: |-
+            return id( text_sensor_ip_address ).state;

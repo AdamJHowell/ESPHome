@@ -1,0 +1,20 @@
+# wifi_signal.yaml
+# https://esphome.io/components/sensor/wifi_signal/
+# Reports the WiFi signal strength/RSSI in dB
+platform:            wifi_signal
+name:                "WiFi Signal dB"
+id:                  wifi_signal_db
+unit_of_measurement: "dB"
+accuracy_decimals:   1
+update_interval:     30s
+entity_category:     "diagnostic"
+# on_value:
+#   - mqtt.publish:
+#       topic:         "$mqtt_location/$mqtt_device/rssi"
+#       payload: !lambda |-
+#         return to_string( id( wifi_signal_db ).state );
+on_value:
+- mqtt.publish:
+    topic:           "$mqtt_location/$mqtt_device/rssi"
+    payload:         |- 
+      return to_string( id( wifi_signal_db ).state );

@@ -1,0 +1,6 @@
+# bme680_accuracy.yaml
+# https://esphome.io/components/sensor/bme680_bsec/
+#text_sensor:
+platform: bme680_bsec
+iaq_accuracy:
+  name: "BME680 IAQ Accuracy"

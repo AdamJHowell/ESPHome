@@ -1,0 +1,32 @@
+# htu21d.yaml
+platform:        htu21d
+
+temperature:
+  name:                "htu21d temp"
+  id:                  htu21d_temp
+  device_class:        "temperature"
+  unit_of_measurement: "°C"
+  accuracy_decimals:   1
+  filters:
+    - filter_out: 998.00
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/htu21d/temp"
+        payload:         |- 
+                           return to_string( id( htu21d_temp ).state );
+
+humidity:
+  name:                "htu21d humidity"
+  id:                  htu21d_humidity
+  unit_of_measurement: "%"
+  accuracy_decimals:   1
+  filters:
+    - filter_out: 998.00
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/htu21d/humidity"
+        payload:         |- 
+                           return to_string( id( htu21d_humidity ).state );
+
+address:         0x44
+update_interval: 20s

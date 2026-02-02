@@ -1,0 +1,4 @@
+# api.yaml
+# https://esphome.io/components/api/
+encryption:
+  key: ${api_password}

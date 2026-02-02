@@ -1,0 +1,17 @@
+# apds9960.yaml
+# sensor:
+  - platform: apds9960
+    type: CLEAR
+    name: "APDS9960 Clear Channel"
+  - platform: apds9960
+    type: RED
+    name: "APDS9960 Red Channel"
+  - platform: apds9960
+    type: GREEN
+    name: "APDS9960 Green Channel"
+  - platform: apds9960
+    type: BLUE
+    name: "APDS9960 Blue Channel"
+  - platform: apds9960
+    type: PROXIMITY
+    name: "APDS9960 Proximity Channel"

@@ -1,0 +1,30 @@
+# aht20.yaml
+# https://esphome.io/components/sensor/aht10/
+platform:        aht10
+temperature:
+  name:                $device_name_friendly AHT Temperature
+  id:                  aht20_temp
+  device_class:        "temperature"
+  unit_of_measurement: "°C"
+  accuracy_decimals:   1
+#   filters:
+    # - lambda: return ( x * 1.8 ) + 32.0;
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/aht20/temp"
+        payload:         |- 
+                           return to_string( id( aht20_temp ).state );
+
+humidity:
+  name:                $device_name_friendly AHT Humidity
+  id:                  aht20_humidity
+  device_class:        "humidity"
+  unit_of_measurement: "%"
+  accuracy_decimals:   1
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/aht20/humidity"
+        payload:         |- 
+                           return to_string( id( aht20_humidity ).state );
+
+update_interval: 20s

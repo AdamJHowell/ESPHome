@@ -1,0 +1,72 @@
+substitutions:
+  device_name:              esp32-s3-eth
+  device_name_friendly:     ESP32-S3-ETH-01
+  mqtt_location:            "Office"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     esp32_s3_eth_api
+  ota_password: !secret     esp32_s3_eth_ota
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO21
+  device_ip:                192.168.55.231
+  network_gateway:          192.168.55.1
+  network_subnet:           255.255.255.0
+
+esphome:
+  name:          $device_name
+  friendly_name: $device_name_friendly
+  comment:       "https://www.waveshare.com/wiki/ESP32-S3-ETH"
+  area:          "Office"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+ethernet:
+  type: W5500
+  clk_pin: GPIO13
+  mosi_pin: GPIO11
+  miso_pin: GPIO12
+  cs_pin: GPIO14
+  interrupt_pin: GPIO10
+  reset_pin: GPIO9
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable logging.
+logger:
+  !include Components/Core/logger.yaml
+
+# Enable I2C communication.
+# i2c:
+#   - !include Components/Core/i2c_esp32.yaml
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - !include Components/TextSensor/ethernet_info.yaml
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# The interval component handles many MQTT publishing duties.
+interval:
+  !include Components/Core/interval_ip.yaml
+
+# Expose the node state for Home Assistant.
+binary_sensor:
+  !include Components/BinarySensors/status.yaml
+
+# Safe mode used to be part of the OTA component.
+safe_mode:
+  !include Components/Core/safe_mode.yaml
+
+sensor:
+  - platform: internal_temperature
+    name: "Internal Temperature"

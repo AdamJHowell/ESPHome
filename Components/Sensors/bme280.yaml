@@ -1,0 +1,59 @@
+# bme280.yaml
+# https://esphome.io/components/sensor/bme280/
+platform:        bme280_i2c
+temperature:
+  name:                "BME280 Temperature"
+  id:                  bme280_temp
+  device_class:        "temperature"
+  unit_of_measurement: "°C"
+  accuracy_decimals:   1
+  oversampling:        16x
+#   on_value:
+#     - mqtt.publish:
+#         topic:         "$mqtt_location/$mqtt_device/bme280/temp"
+#         payload: !lambda |-
+#           return to_string( id( bme280_temp ).state );
+#     - lambda: |-
+#         ESP_LOGD( "BME280", "Temperature: %.2f", id( bme280_temp ).state );
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bme280/temp"
+        payload:         |- 
+                           return to_string( id( bme280_temp ).state );
+
+pressure:
+  name:                "BME280 Pressure"
+  id:                  bme280_pressure
+  device_class:        "atmospheric_pressure"
+  unit_of_measurement: "hPa"
+  accuracy_decimals:   1
+#   on_value:
+#     - mqtt.publish:
+#         topic:         "$mqtt_location/$mqtt_device/bme280/pressure"
+#         payload: !lambda |-
+#           return to_string( id( bme280_pressure ).state );
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bme280/pressure"
+        payload:         |- 
+                           return to_string( id( bme280_pressure ).state );
+
+humidity:
+  name:                "BME280 Humidity"
+  id:                  bme280_humidity
+  device_class:        "humidity"
+  unit_of_measurement: "%"
+  accuracy_decimals:   1
+#   on_value:
+#     - mqtt.publish:
+#         topic:         "$mqtt_location/$mqtt_device/bme280/humidity"
+#         payload: !lambda |-
+#           return to_string( id( bme280_humidity ).state );
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bme280/humidity"
+        payload:         |- 
+                           return to_string( id( bme280_humidity ).state );
+
+address:         0x76  # BME280 I2C address
+update_interval: 20s

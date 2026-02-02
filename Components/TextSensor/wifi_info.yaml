@@ -1,0 +1,16 @@
+# wifi_info.yaml
+# https://esphome.io/components/text_sensor/wifi_info/
+#text_sensor:
+platform: wifi_info
+mac_address:
+  name: $device_name_friendly MAC Address
+  id:   text_sensor_mac_address
+ip_address:
+  name: $device_name_friendly IP address
+  id:   text_sensor_ip_address
+ssid:
+  name: $device_name_friendly connected SSID
+bssid:
+  name: $device_name_friendly connected BSSID
+scan_results:
+  name: $device_name_friendly scan results

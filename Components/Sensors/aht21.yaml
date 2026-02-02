@@ -1,0 +1,31 @@
+# AHT21
+platform: aht10
+variant: AHT10
+
+temperature:
+  name: "Living Room Temperature"
+  id:                  aht21_temp
+  device_class:        "temperature"
+  unit_of_measurement: "°C"
+  accuracy_decimals:   1
+#   filters:
+    # - lambda: return ( x * 1.8 ) + 32.0;
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/aht21/temp"
+        payload:         |- 
+                           return to_string( id( aht21_temp ).state );
+
+humidity:
+  name: "Living Room Humidity"
+  id:                  aht21_humidity
+  device_class:        "humidity"
+  unit_of_measurement: "%"
+  accuracy_decimals:   1
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/aht21/humidity"
+        payload:         |- 
+                           return to_string( id( aht21_humidity ).state );
+
+update_interval: 20s

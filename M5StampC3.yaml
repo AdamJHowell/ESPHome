@@ -1,0 +1,172 @@
+# This device is a M5Stack M5Stamp C3 (not the C3U).
+# https://docs.m5stack.com/en/core/stamp_c3
+# The sentor is a 2-in-1 combination sensor with an AHT20 (temperature and humidity) and a BMP280 (temperature and barometric pressure).
+# The sensor has a safe voltage range from 2.8 volts to 5 volts.
+# It has a 4 pin GROVE cable connector.
+# A link to an identical sensor: https://www.aliexpress.us/item/3256810031009383.html?gatewayAdapt=glo2usa4itemAdapt
+
+
+# https://esphome.io/components/substitutions/
+substitutions:
+  name_of_device:           m5stampc3
+  device_name_friendly:     M5StampC3
+  mqtt_location:            "Mobile"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     m5stamp_api
+  ota_password: !secret     m5stamp_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+
+# https://esphome.io/components/esphome/
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  comment:       "https://docs.m5stack.com/en/core/stamp_c3"
+  area:          $mqtt_location
+
+
+# https://esphome.io/components/esp32/
+esp32:
+  board:   esp32-c3-devkitm-1
+  variant: ESP32C3
+  framework:
+    type:    arduino
+    version: recommended
+
+
+# https://esphome.io/components/wifi/
+wifi:
+  ssid:     !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "M5StampC3 Fallback"
+    password: "ajh14113"
+
+
+# https://esphome.io/components/captive_portal/
+captive_portal:
+
+
+# https://esphome.io/components/logger/
+logger:
+  level: VERBOSE
+  baud_rate: 115200
+  hardware_uart: UART0 # [Fix] Send logs to the USB cable, not internal JTAG.
+
+
+# Integrated Status Logic
+# https://esphome.io/components/api/
+api:
+  #!include Components/Core/api.yaml 
+  on_client_connected:
+    - light.turn_on:
+        id: status_led
+        red: 0%
+        green: 100%
+        blue: 0%
+        brightness: 40%
+  # Turns LED Red and starts Pulsing when connection is lost.
+  on_client_disconnected:
+    - light.turn_on:
+        id: status_led
+        effect: "Slow Pulse"
+        red: 100%
+        green: 0%
+        blue: 0%
+        brightness: 80%
+
+
+# https://esphome.io/components/ota/
+ota:
+  !include Components/Core/ota.yaml
+
+
+# RGB LED configuration.
+# https://esphome.io/components/light/
+light:
+  - platform: esp32_rmt_led_strip
+    id: status_led
+    name: "${device_name_friendly} LED"
+    pin: $led_gpio
+    num_leds: 1
+    rgb_order: GRB
+    chipset: SK6812
+    restore_mode: ALWAYS_OFF
+    # Defining the visual effects here.
+    effects:
+      - pulse:
+          name: "Slow Pulse"
+          transition_length: 1s
+          update_interval: 1s
+      - strobe:
+          name: "Fast Flash"
+          colors:
+            - state: true
+              brightness: 100%
+              red: 100%
+              green: 0%
+              blue: 0%
+              duration: 500ms
+            - state: false
+              duration: 500ms
+
+
+# https://esphome.io/components/binary_sensor/
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO3
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "${device_name_friendly} Button"
+    on_press:
+      - light.toggle: status_led
+
+
+# https://esphome.io/components/i2c/
+i2c:
+  sda: GPIO18
+  scl: GPIO19
+  frequency: 100kHz
+  scan: true
+  id: bus_a
+  sda_pullup_enabled: true
+  scl_pullup_enabled: true
+
+
+# https://esphome.io/components/sensor/
+sensor:
+  # 1. Internal Temperature.
+  # https://esphome.io/components/sensor/internal_temperature/
+  - platform: internal_temperature
+    name: "Internal Temperature"
+    update_interval: 20s
+
+  # 2. BMP280 (Pressure & Temperature).
+  # https://esphome.io/components/sensor/bmp280/
+  - platform: bmp280_i2c
+    i2c_id: bus_a
+    address: 0x77
+    temperature:
+      name: "BMP280 Temperature"
+      id: "bmp280_temp"
+    pressure:
+      name: "BMP280 Pressure"
+      id: "bmp280_pressure"
+    update_interval: 20s
+
+  # 3. AHT20 (Humidity & Temperature).
+  # https://esphome.io/components/sensor/aht10/
+  - platform: aht10
+    variant: AHT20
+    i2c_id: bus_a
+    temperature:
+      name: "AHT20 Temperature"
+    humidity:
+      name: "AHT20 Humidity"
+    update_interval: 20s

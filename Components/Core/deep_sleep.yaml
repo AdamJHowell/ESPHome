@@ -1,0 +1,6 @@
+# deep_sleep.yaml
+# https://esphome.io/components/deep_sleep/
+deep_sleep:
+  id:             deep_sleep
+  run_duration:   30s
+  sleep_duration: 2min

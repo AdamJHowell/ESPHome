@@ -1,0 +1,116 @@
+substitutions:
+  name_of_device:           esp32-sht41
+  device_name_friendly:     ESP32-SHT41
+  mqtt_location:            "FamilyRoom"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     esp32_sht41_api
+  ota_password: !secret     esp32_sht41_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  comment:       "https://www.espboards.dev/esp32/hiletgo-esp-wroom-32/"
+  area:          $mqtt_location
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Enable debugging output. Set to WARN or ERROR for less verbose logs.
+logger:
+  # Level of logging.
+  level: INFO
+
+# Enable the Home Assistant native API.
+api:
+  !include Components/Core/api.yaml
+
+# Enable OTA updates.
+ota:
+  !include Components/Core/ota.yaml
+
+# Enable Wi-Fi.
+wifi:
+  !include Components/Core/wifi.yaml
+
+captive_portal:
+
+# Enable MQTT publishing.
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+# Configure the I2C bus. The SHT41 communicates over I2C.
+# Default SDA for ESP32 is GPIO21, default SCL is GPIO22.
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: True
+  frequency: 100kHz # Slower frequency for more stability
+
+# The ADPS9960 component is required by its sensor component and by its binary_sensor component.
+apds9960:
+  address: 0x39
+  update_interval: 10s
+
+# Configure the SHT41 temperature and humidity sensor.
+# This component uses the I2C bus configured above.
+sensor:
+  - !include Components/Sensors/sht4x.yaml
+  - !include Components/Sensors/bme280.yaml
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
+  # - !include Components/Sensors/apds9960.yaml
+  - platform: apds9960
+    type: CLEAR
+    name: "APDS9960 Clear Channel"
+  - platform: apds9960
+    type: RED
+    name: "APDS9960 Red Channel"
+  - platform: apds9960
+    type: GREEN
+    name: "APDS9960 Green Channel"
+  - platform: apds9960
+    type: BLUE
+    name: "APDS9960 Blue Channel"
+  - platform: apds9960
+    type: PROXIMITY
+    name: "APDS9960 Proximity Channel"
+  - platform: internal_temperature
+    name: "Internal Temperature"
+
+
+# The text_sensor handles many MQTT publishing duties.
+text_sensor:
+  - !include Components/TextSensor/wifi_info.yaml
+
+# Binary sensors.
+binary_sensor:
+  - !include Components/BinarySensors/status.yaml
+  # - !include Components/BinarySensors/adps9960_binary.yaml
+  - platform: apds9960
+    direction: UP
+    name: "APDS960 Up Movement"
+  - platform: apds9960
+    direction: DOWN
+    name: "APDS960 Down Movement"
+  - platform: apds9960
+    direction: LEFT
+    name: "APDS960 Left Movement"
+  - platform: apds9960
+    direction: RIGHT
+    name: "APDS960 Right Movement"
+
+# The interval component handles many MQTT publishing duties.
+interval:
+  !include Components/Core/interval.yaml
+
+# Safe mode used to be part of the OTA component.
+safe_mode:
+  !include Components/Core/safe_mode.yaml

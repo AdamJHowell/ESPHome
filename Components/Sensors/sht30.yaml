@@ -1,0 +1,31 @@
+# sht30.yaml
+platform:        sht3xd
+
+temperature:
+  name:                "SHT30 temp"
+  id:                  sht30_temp
+  device_class:        "temperature"
+  unit_of_measurement: "°C"
+  accuracy_decimals:   1
+  filters:
+    - lambda: return ( x * 1.8 ) + 32.0;
+  on_value:
+    - mqtt.publish:
+        topic:         "$mqtt_location/$mqtt_device/sht30/temp"
+        payload:       |- 
+                         return to_string( id( sht30_temp ).state );
+
+humidity:
+  name:                "SHT30 humidity"
+  id:                  sht30_humidity
+  device_class:        "humidity"
+  unit_of_measurement: "%"
+  accuracy_decimals:   1
+  on_value:
+    - mqtt.publish:
+        topic:         "$mqtt_location/$mqtt_device/sht30/humidity"
+        payload:       |- 
+                         return to_string( id( sht30_humidity ).state );
+
+address:         0x44
+update_interval: 20s

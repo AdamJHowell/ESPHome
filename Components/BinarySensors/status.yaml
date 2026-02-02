@@ -1,0 +1,4 @@
+#status.yaml
+# https://esphome.io/components/binary_sensor/status/
+platform: status
+name:     $device_name_friendly status

@@ -1,0 +1,11 @@
+# I²C Bus
+# https://esphome.io/components/i2c/
+#
+# This component sets up the I²C bus for the M5StampC3.
+#
+# https://esphome.io/components/i2c.html
+#
+sda:       18
+scl:       19
+scan:      true
+frequency: 400kHz

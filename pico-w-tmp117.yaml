@@ -1,0 +1,89 @@
+# This board is a RP2040 https://www.adafruit.com/product/4864
+# It is mounted on an Adafruit PiCowbell https://www.adafruit.com/product/5200
+# The primary sensor is an Adafruit TMP117 https://www.adafruit.com/product/4821
+
+# https://esphome.io/components/substitutions/
+substitutions:
+  name_of_device:           pico-w-tmp117
+  device_name_friendly:     PicoW TMP117
+  mqtt_location:            "Office"
+  mqtt_device:              $device_name_friendly
+  api_password: !secret     pico_w_api
+  ota_password: !secret     pico_w_ota
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
+esphome:
+  name:          $name_of_device
+  friendly_name: $device_name_friendly
+  comment:       "https://www.adafruit.com/product/5526"
+  area:          $mqtt_location
+
+
+# https://esphome.io/components/rp2040/
+rp2040:
+  board: rpipicow
+
+
+# Enable logging.
+# https://esphome.io/components/logger/
+logger:
+  !include Components/Core/logger.yaml
+
+
+# Enable the Home Assistant native API.
+# https://esphome.io/components/api/
+api:
+  !include Components/Core/api.yaml
+
+
+# Enable Over-The-Air updates.
+# https://esphome.io/components/ota/
+ota:
+  !include Components/Core/ota.yaml
+
+
+# Wi-Fi on the RP2040 does not support min_auth_mode or power_save_mode.
+# So it cannot use my Components/Core/wifi.yaml file.
+# https://esphome.io/components/wifi/
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # This sets up a fallback access point on t3he RP2040.
+  # But since the RP2040 does not currently support captive_portal, no web page will be served.
+  # New firmware can be uploaded using a command similar to this:
+  # esphome run pico-w-tmp117.yaml --device 192.168.4.1
+  ap:
+    ssid: "PicoW TMP117"
+    password: !secret default_password
+
+
+# Enable I2C communication for the RP2040.
+# https://esphome.io/components/i2c/
+i2c:
+  - !include Components/Core/i2c_rp2040.yaml
+
+
+# https://esphome.io/components/sensor/
+sensor:
+# TMP117 Sensor Configuration
+# https://esphome.io/components/sensor/tmp117.html
+  - !include Components/Sensors/tmp117.yaml
+  - platform: adc
+    name: "Core Temperature"
+    update_interval: 20s
+    id: core_temperature
+    pin: TEMPERATURE
+    unit_of_measurement: "°C"
+    filters:
+      - lambda: return 27 - ( x - 0.706f ) / 0.001721f;
+  - platform: internal_temperature
+    name: "Internal Temperature"

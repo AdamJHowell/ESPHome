@@ -1,0 +1,33 @@
+# bmp280.yaml
+platform: bmp280_i2c
+
+temperature:
+  name:                "BMP280 temp"
+  id:                  bmp280_temp
+  unit_of_measurement: "°C"
+  device_class:        "temperature"
+  accuracy_decimals:   1
+  oversampling:        16x
+#   filters:
+    # - lambda: return ( x * 1.8 ) + 32.0;
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bmp280/temp"
+        payload:         |- 
+                           return to_string( id( bmp280_temp ).state );
+
+pressure:
+  name:                "BMP280 pressure"
+  id:                  bmp280_pressure
+  unit_of_measurement: "hPa"
+  device_class:        "atmospheric_pressure"
+  accuracy_decimals:   1
+  on_value:
+    - mqtt.publish:
+        topic:           "$mqtt_location/$mqtt_device/bmp280/pressure"
+        payload:         |- 
+                           return to_string( id( bmp280_pressure ).state );
+
+# Most BMP280s use 0x77, but some use 0x76. ESPHome can auto-detect.
+# address:         0x76
+update_interval: 20s
