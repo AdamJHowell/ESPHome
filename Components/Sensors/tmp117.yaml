@@ -1,5 +1,6 @@
 # tmp117.yaml
 # TMP117 Sensor Configuration
+# https://esphome.io/components/sensor/tmp117.html
 platform:            tmp117
 name:                "TMP117 Temperature"
 address:             0x48
@@ -8,10 +9,9 @@ id:                  tmp117_temp
 device_class:        "temperature"
 unit_of_measurement: "°C"
 accuracy_decimals:   1
-on_value:
-  - mqtt.publish:
-      topic:   "$mqtt_location/$mqtt_device/tmp117/temp"
-      payload: return to_string( id( tmp117_temp ).state );
 
-# address:         0x48
-# update_interval: 20s
+# MQTT is removed because I currently have this only on a RP2040 which doesn't support MQTT in ESPHome.
+#on_value:
+#  - mqtt.publish:
+#      topic:   "$mqtt_location/$mqtt_device/tmp117/temp"
+#      payload: return to_string( id( tmp117_temp ).state );
