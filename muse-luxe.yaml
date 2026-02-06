@@ -124,13 +124,17 @@ wifi:
     password: "12345678"
 
 
-# The captive portal component causes the device to set up an access point if it3 fails to connect to Wi-Fi.
-# This access point will serve a webpage that allows fwor Wi-Fi credential changes and even firmware uploads.
+# The captive portal component causes the device to set up an access point if it fails to connect to Wi-Fi.
+# This access point will serve a webpage that allows Wi-Fi credential changes and even firmware uploads.
 # https://esphome.io/components/captive_portal/
 captive_portal:
 
+
+# https://esphome.io/components/improv_serial/
 improv_serial:  # Disable during debugging to free UART0 for logs
 
+
+# https://esphome.io/components/logger/
 logger:
   level:         DEBUG
   baud_rate:     115200
@@ -138,24 +142,36 @@ logger:
   logs:
     media_player: WARN
 
-##########
-# Hardware Configuration
+
+##########################
+# Hardware Configuration #
+##########################
+
+# https://esphome.io/components/audio_dac/es8388/
 es8388:
   id: my_es8388
 
+
+# https://esphome.io/components/psram/
 psram:
   mode:  quad
   speed: 80MHz
 
-#######
-# Buses Configuration
+#######################
+# Buses Configuration #
+#######################
+
+# https://esphome.io/components/i2c/
 i2c:
   sda: GPIO18
   scl: GPIO23
 
 
-#####################
-# Internal Components
+#######################
+# Internal Components #
+#######################
+
+# https://esphome.io/components/output/
 output:
   - platform: gpio
     id:       dac_mute
@@ -166,6 +182,7 @@ output:
         output: true
 
 
+# https://esphome.io/components/globals/
 globals:
   - id:            Vol
     type:          float
@@ -192,6 +209,8 @@ globals:
     type:          float
     initial_value: '-1.0'
 
+
+# https://esphome.io/components/interval/
 interval:
   - interval: 0.1sec
     then:
@@ -229,6 +248,7 @@ interval:
             - lambda: id(audio_started) = true;
 
 
+# https://esphome.io/components/sensor/
 sensor:
   - platform:            adc
     pin:                 GPIO33
@@ -294,9 +314,7 @@ sensor:
       - lambda: return clamp(x, 0.0f, 100.0f);
 
 
-
-
-
+# https://esphome.io/components/binary_sensor/
 binary_sensor:
   - platform: gpio
     pin:
@@ -371,6 +389,7 @@ binary_sensor:
             - media_player.stop:
 
 
+# https://esphome.io/components/light/
 light:
   - platform:                  esp32_rmt_led_strip
     name:                      None
@@ -393,12 +412,15 @@ light:
           update_interval:   2s
 
 
+# https://esphome.io/components/i2s_audio/
 i2s_audio:
   id:            i2s0
   i2s_lrclk_pin: GPIO25
   i2s_bclk_pin:  GPIO5
   i2s_mclk_pin:  GPIO0
 
+
+# https://esphome.io/components/microphone/
 microphone:
   - platform:        i2s_audio
     id:              luxe_mic
@@ -409,6 +431,8 @@ microphone:
     channel:         stereo
     adc_type:        external
 
+
+# https://esphome.io/components/speaker/
 speaker:
   - platform:        i2s_audio
     id:              luxe_speaker
@@ -420,6 +444,8 @@ speaker:
     num_channels:    2
     buffer_duration: 100ms
 
+
+# https://esphome.io/components/media_player/
 media_player:
   - platform: speaker
     name:     None
@@ -485,6 +511,8 @@ media_player:
             - output.turn_off: dac_mute
             - lambda: id(muteH) = false;
 
+
+# https://esphome.io/components/select/
 select:
   - platform:        template
     name:            "Wake word sensitivity"
@@ -514,6 +542,7 @@ select:
               }
 
 
+# https://esphome.io/components/voice_assistant/
 voice_assistant:
   id:                      va
   microphone:              luxe_mic
@@ -567,12 +596,12 @@ voice_assistant:
     - script.execute: update_led
 
 
-#########
-# Scripts
+###########
+# Scripts #
+###########
 
+# https://esphome.io/components/script/
 script:
-
-
   - id: jack_detect_high
     then:
       - logger.log: "Jack detect high -> route to speaker"
@@ -665,7 +694,6 @@ script:
                                         id(phase) = 1;
                               - script.execute: update_led
 
-
   - id: update_led
     then:
       - if:
@@ -716,7 +744,6 @@ script:
       - voice_assistant.stop:
       - micro_wake_word.start:
 
-
   - id: listening
     then:
       - light.turn_on:
@@ -745,7 +772,6 @@ script:
           red:    80%
           green:  40%
           blue:   0%
-
 
   - id: mute_on
     then:
