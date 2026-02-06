@@ -11,7 +11,7 @@ substitutions:
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  device_name:   ${device_name}
+  name:          ${device_name}
   friendly_name: ${device_name_friendly}
   area:          ${mqtt_location}
   comment:       "https://smart-powermeter.readthedocs.io/en/v2r2/"

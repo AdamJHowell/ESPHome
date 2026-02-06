@@ -17,7 +17,7 @@ substitutions:
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  device_name:   ${device_name}
+  name:          ${device_name}
   friendly_name: ${device_name_friendly}
   area:          ${mqtt_location}
   comment:       "https://github.com/Xinyuan-LilyGO/LilyGo-Camera-Series/blob/master/docs/T_CarmerV162.md"
