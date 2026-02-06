@@ -1,9 +1,10 @@
+# Note that !secret is parsed before substitutions, so it is safe to use !secret here.
 # https://esphome.io/components/substitutions/
 substitutions:
-  name_of_device:           qtpy-bme688
-  device_name_friendly:     QTPy BME688
+  device_name:              qtpy-bme688
+  device_name_friendly:     "QTPy BME688"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Kitchen"
-  mqtt_device:              $device_name_friendly
+  mqtt_device:              ${name}
   api_password: !secret     qtpy_bme688_api
   ota_password: !secret     qtpy_bme688_ota
   wifi_ssid: !secret        wifi_ssid
@@ -17,7 +18,7 @@ substitutions:
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  name:          ${name_of_device}
+  name:          ${device_name}
   friendly_name: ${device_name_friendly}
   comment:       "https://www.adafruit.com/product/5325"
   area:          ${mqtt_location}

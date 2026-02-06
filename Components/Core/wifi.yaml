@@ -9,7 +9,7 @@ networks:
   - ssid:     ${wifi_ssid_backup}
     password: ${wifi_pass_backup}
 
-# Enable fallback hotspot (captive portal) in case wifi connection fails
+# Enable fallback hotspot (captive portal) in case Wi-Fi connection fails.
 ap:
-  ssid:             ${device_name_friendly}
-  password: !secret default_password
+  ssid:     ${device_name_friendly}
+  password: ${wifi_pass}

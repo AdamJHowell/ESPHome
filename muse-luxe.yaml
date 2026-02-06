@@ -6,7 +6,7 @@
 # https://esphome.io/components/substitutions/
 substitutions:
   name:                     muse-luxe
-  friendly_name:            Raspiaudio Muse Luxe
+  friendly_name:            "Raspiaudio Muse Luxe"  # Quoted to ensure spaces are handled correctly.
   #States
   P_starting:               "0"
   P_waiting:                "1"
@@ -15,7 +15,7 @@ substitutions:
   P_answering:              "4"
   # My standard substitutions
   mqtt_location:            "Office"
-  mqtt_device:              ${friendly_name}
+  mqtt_device:              ${name}
   api_password: !secret     muse_luxe_api
   ota_password: !secret     muse_luxe_ota
   wifi_ssid: !secret        wifi_ssid
@@ -46,7 +46,13 @@ esphome:
       - lambda: id(muteH) = true;
       - lambda: id(phase) = 0;
       - script.execute: update_led
+
+
+# Import community components from the internet.
+# https://esphome.io/components/external_components/
 external_components:
+  # Download the es8388 audio codec driver from the RASPIAUDIO GitHub repository.
+  # This driver is used for audio output and headphone jack detection.
   - source:  github://RASPIAUDIO/esphomeLuxe@main
     components: [ es8388 ]
     refresh: 0s
