@@ -5,7 +5,7 @@
 #
 # https://esphome.io/components/i2c.html
 #
-sda: GPIO4
-scl: GPIO5
-scan: true
+sda:       GPIO4
+scl:       GPIO5
+scan:      true
 frequency: 50000

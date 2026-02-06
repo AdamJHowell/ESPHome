@@ -1,15 +1,15 @@
 # adps9960_binary.yaml
 # https://esphome.io/components/sensor/apds9960/
 # sensor:
-  - platform: apds9960
+  - platform:  apds9960
     direction: UP
-    name: "APDS960 Up Movement"
-  - platform: apds9960
+    name:      "APDS960 Up Movement"
+  - platform:  apds9960
     direction: DOWN
-    name: "APDS960 Down Movement"
-  - platform: apds9960
+    name:      "APDS960 Down Movement"
+  - platform:  apds9960
     direction: LEFT
-    name: "APDS960 Left Movement"
-  - platform: apds9960
+    name:      "APDS960 Left Movement"
+  - platform:  apds9960
     direction: RIGHT
-    name: "APDS960 Right Movement"
+    name:      "APDS960 Right Movement"

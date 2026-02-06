@@ -11,9 +11,9 @@ temperature:
     - filter_out: 998.00
   on_value:
     - mqtt.publish:
-        topic:           "$mqtt_location/$mqtt_device/htu21d/temp"
-        payload:         |- 
-                           return to_string( id( htu21d_temp ).state );
+        topic:   "$mqtt_location/$mqtt_device/htu21d/temp"
+        payload: |-
+                 return to_string( id( htu21d_temp ).state );
 
 humidity:
   name:                "htu21d humidity"
@@ -24,9 +24,9 @@ humidity:
     - filter_out: 998.00
   on_value:
     - mqtt.publish:
-        topic:           "$mqtt_location/$mqtt_device/htu21d/humidity"
-        payload:         |- 
-                           return to_string( id( htu21d_humidity ).state );
+        topic:   "$mqtt_location/$mqtt_device/htu21d/humidity"
+        payload: |-
+                 return to_string( id( htu21d_humidity ).state );
 
 address:         0x44
 update_interval: 20s

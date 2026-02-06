@@ -1,5 +1,5 @@
 # wifi_signal_percent.yaml
-# Reports the WiFi signal strength in %
+# Reports the Wi-Fi signal strength in %
 platform:            copy
 source_id:           wifi_signal_db
 name:                "WiFi Signal Percent"
@@ -8,13 +8,8 @@ filters:
   - lambda: return min( max( 2 * ( x + 100.0 ), 0.0 ), 100.0 );
 unit_of_measurement: "Signal %"
 entity_category:     "diagnostic"
-# on_value:
-#   - mqtt.publish:
-#       topic:         "$mqtt_location/$mqtt_device/rssi%"
-#       payload: !lambda |-
-#         return to_string( id( wifi_signal_percent ).state );
 on_value:
-- mqtt.publish:
-    topic:           "$mqtt_location/$mqtt_device/rssi%"
-    payload:         |- 
-      return to_string( id( wifi_signal_percent ).state );
+  - mqtt.publish:
+      topic:   "$mqtt_location/$mqtt_device/rssi%"
+      payload: |-
+               return to_string( id( wifi_signal_percent ).state );

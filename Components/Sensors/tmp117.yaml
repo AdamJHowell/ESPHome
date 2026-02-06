@@ -1,6 +1,6 @@
 # tmp117.yaml
 # TMP117 Sensor Configuration
-platform: tmp117
+platform:            tmp117
 name:                "TMP117 Temperature"
 address:             0x48
 update_interval:     20s
@@ -8,10 +8,10 @@ id:                  tmp117_temp
 device_class:        "temperature"
 unit_of_measurement: "°C"
 accuracy_decimals:   1
-# on_value:
-#   - mqtt.publish:
-    #   topic:           "$mqtt_location/$mqtt_device/tmp117/temp"
-    #   payload: return to_string( id( tmp117_temp ).state );
+on_value:
+  - mqtt.publish:
+      topic:   "$mqtt_location/$mqtt_device/tmp117/temp"
+      payload: return to_string( id( tmp117_temp ).state );
 
 # address:         0x48
 # update_interval: 20s
