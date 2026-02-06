@@ -19,8 +19,8 @@ substitutions:
 esphome:
   name:          ${device_name}
   friendly_name: ${device_name_friendly}
-  comment:       "https://www.adafruit.com/product/5325"
   area:          ${mqtt_location}
+  comment:       "https://www.adafruit.com/product/5325"
   on_boot:
     - output.turn_on: neopixel_power
 

@@ -13,12 +13,13 @@ substitutions:
   network_subnet:           255.255.255.0
 
 
+# The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  name:          $device_name
-  friendly_name: $device_name_friendly
+  device_name:   ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://en.wireless-tag.com/product-item-2.html"
-  area:          $mqtt_location
 
 
 # https://esphome.io/components/esp32/
@@ -30,13 +31,13 @@ esp32:
 
 # https://esphome.io/components/ethernet/
 ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
+  type:      LAN8720
+  mdc_pin:   GPIO23
+  mdio_pin:  GPIO18
   clk:
-    pin: GPIO0
+    pin:  GPIO0
     mode: CLK_EXT_IN
-  phy_addr: 1
+  phy_addr:  1
   power_pin: GPIO16
 
 
@@ -46,48 +47,48 @@ ethernet:
 one_wire:
   # https://esphome.io/components/one_wire/gpio/
   - platform: gpio
-    pin: GPIO04
+    pin:      GPIO04
 
 
 # https://esphome.io/components/sensor/
 sensor:
-# https://esphome.io/components/sensor/dallas_temp.html
-  - platform: dallas_temp
-    address: 0xca0000000adb5a28
-    name: "Furnace Out"
-    id: ds18b20_1
+  # https://esphome.io/components/sensor/dallas_temp.html
+  - platform:            dallas_temp
+    address:             0xca0000000adb5a28
+    name:                "Furnace Out"
+    id:                  ds18b20_1
     unit_of_measurement: "°C"
-    update_interval: 20s
+    update_interval:     20s
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/ds18b20/FurnaceOut"
           payload: !lambda |-
-            return to_string( id( ds18b20_1 ).state );
-  - platform: dallas_temp
-    address: 0xae0000000c2e0b28
-    name: "Furnace In"
-    id: ds18b20_2
+                           return to_string( id( ds18b20_1 ).state );
+  - platform:            dallas_temp
+    address:             0xae0000000c2e0b28
+    name:                "Furnace In"
+    id:                  ds18b20_2
     unit_of_measurement: "°C"
-    update_interval: 20s
+    update_interval:     20s
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/ds18b20/FurnaceIn"
           payload: !lambda |-
-            return to_string( id( ds18b20_2 ).state );
-  - platform: dallas_temp
-    address: 0x300722829eb6f728
-    name: "Water heater output"
-    id: ds18b20_3
+                           return to_string( id( ds18b20_2 ).state );
+  - platform:            dallas_temp
+    address:             0x300722829eb6f728
+    name:                "Water heater output"
+    id:                  ds18b20_3
     unit_of_measurement: "°C"
-    update_interval: 20s
+    update_interval:     20s
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/ds18b20/WaterHeaterOut"
           payload: !lambda |-
-            return to_string( id( ds18b20_3 ).state );
+                           return to_string( id( ds18b20_3 ).state );
   # https://esphome.io/components/sensor/internal_temperature/
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"
 
 
 # Enable the Home Assistant native API.

@@ -1,6 +1,7 @@
+# https://esphome.io/components/substitutions/
 substitutions:
-  name_of_device:           t-displays3
-  device_name_friendly:     T-Display-S3
+  device_name:              t-displays3
+  device_name_friendly:     "T-Display-S3"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Mobile"
   mqtt_device:              ${device_name_friendly}
   api_password: !secret     lilygo_t_display_s3_api
@@ -12,40 +13,35 @@ substitutions:
   broker_address: !secret   broker_address
   led_gpio:                 GPIO2
 
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
 esphome:
-  name:          ${name_of_device}
-  friendly_name: $device_name_friendly
+  device_name:   ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://lilygo.cc/products/t-display-s3"
-  area:          $mqtt_location
   platformio_options:
-    build_unflags: -Werror=all
+    build_unflags:          -Werror=all
     board_build.flash_mode: dio
 
 esp32:
-  board: esp32-s3-devkitc-1
+  board:   esp32-s3-devkitc-1
   variant: esp32s3
   framework:
     type: esp-idf
 
 # Enable the Home Assistant native API.
 api:
-  #encryption:
-    #key: "XXXXX"
   !include Components/Core/api.yaml
 
 ota:
-  #- platform: esphome
-    #password: "XXXXX"
   !include Components/Core/ota.yaml
 
 wifi:
-  #ssid: !secret wifi_ssid
-  #password: !secret wifi_password
   !include Components/Core/wifi.yaml
 
-  #ap:
-    #ssid: "S3 Fallback Hotspot"
-    #password: "XXXXX"
+captive_portal:
 
 # Enable MQTT publishing.
 mqtt:
@@ -57,8 +53,8 @@ logger:
 
 # Define QSPI interface for the AMOLED
 spi:
-  id: qspi_bus
-  type: quad
+  id:      qspi_bus
+  type:    quad
   clk_pin: GPIO47
   data_pins:
     - GPIO18  # TFT_D0
@@ -68,51 +64,51 @@ spi:
 
 # Configuration for the RM67162 AMOLED display
 display:
-  - platform: qspi_dbi
-    model: RM67162
-    id: s3_display
+  - platform:        qspi_dbi
+    model:           RM67162
+    id:              s3_display
     update_interval: 10s
     dimensions:
       height: 320
-      width: 170
-    color_order: rgb
-    brightness: 255
-    cs_pin: GPIO6
-    reset_pin: GPIO17
-    rotation: 270
+      width:  170
+    color_order:     rgb
+    brightness:      255
+    cs_pin:          GPIO6
+    reset_pin:       GPIO17
+    rotation:        270
     pages:
-      - id: page1
+      - id:     page1
         lambda: |-
-          it.printf(10, 100, id(audiowide_font), Color(255, 255, 255), "Hello SmartHomeScene!");
+                it.printf(10, 100, id(audiowide_font), Color(255, 255, 255), "Hello SmartHomeScene!");
 
-      - id: page2
+      - id:     page2
         lambda: |-
-          int screen_height = it.get_height();
-          it.image(20, (screen_height - 88) / 2, id(logo));
-          it.image(260, 40, id(temperature_icon));
-          it.printf(320, 40, id(audiowide_font), Color(255, 255, 255), "%.1f°F", id(sht4x_temp).state);
-          it.image(260, 140, id(humidity_icon));
-          it.printf(320, 140, id(audiowide_font), Color(255, 255, 255), "%.1f%%", id(sht4x_humidity).state);
+                int screen_height = it.get_height();
+                it.image(20, (screen_height - 88) / 2, id(logo));
+                it.image(260, 40, id(temperature_icon));
+                it.printf(320, 40, id(audiowide_font), Color(255, 255, 255), "%.1f°F", id(sht4x_temp).state);
+                it.image(260, 140, id(humidity_icon));
+                it.printf(320, 140, id(audiowide_font), Color(255, 255, 255), "%.1f%%", id(sht4x_humidity).state);
 
-      - id: page3
+      - id:     page3
         lambda: |-
-            // CPU Usage
-            it.image(20, 20, id(cpu_icon));  // CPU icon
-            it.printf(100, 20, id(audiowide_font), Color(255, 255, 255), "CPU: %.1f%%", id(system_monitor_processor_use).state);
-
-            // Memory Usage
-            it.image(20, 100, id(memory_icon));  // Memory icon
-            it.printf(100, 100, id(audiowide_font), Color(255, 255, 255), "RAM: %.1fMB", id(system_monitor_memory_use).state);
-
-            // Disk Usage
-            it.image(20, 180, id(harddisk_icon));  // Disk icon
-            it.printf(100, 180, id(audiowide_font), Color(255, 255, 255), "DISK: %.1fGB", id(system_monitor_disk_use).state);
+                // CPU Usage
+                it.image(20, 20, id(cpu_icon));  // CPU icon
+                it.printf(100, 20, id(audiowide_font), Color(255, 255, 255), "CPU: %.1f%%", id(system_monitor_processor_use).state);
+                
+                // Memory Usage
+                it.image(20, 100, id(memory_icon));  // Memory icon
+                it.printf(100, 100, id(audiowide_font), Color(255, 255, 255), "RAM: %.1fMB", id(system_monitor_memory_use).state);
+                
+                // Disk Usage
+                it.image(20, 180, id(harddisk_icon));  // Disk icon
+                it.printf(100, 180, id(audiowide_font), Color(255, 255, 255), "DISK: %.1fGB", id(system_monitor_disk_use).state);
 
 
 binary_sensor:
   - platform: gpio
-    pin: GPIO21  # Button on GPIO21
-    name: "Page Switch Button"
+    pin:      GPIO21  # Button on GPIO21
+    name:     "Page Switch Button"
     on_press:
       then:
         - display.page.show_next: s3_display
@@ -120,33 +116,34 @@ binary_sensor:
 
 font:
   - file: "gfonts://Audiowide"
-    id: audiowide_font
+    id:   audiowide_font
     size: 40
+
 image:
-  - file: mdi:thermometer
-    id: temperature_icon
-    type: BINARY
+  - file:   mdi:thermometer
+    id:     temperature_icon
+    type:   BINARY
     resize: 60x60
-  - file: mdi:water
-    id: humidity_icon
-    type: BINARY
+  - file:   mdi:water
+    id:     humidity_icon
+    type:   BINARY
     resize: 60x60
-  - file: mdi:home
-    id: logo
-    resize: 200x88
-    type: RGB
+  - file:         mdi:home
+    id:           logo
+    resize:       200x88
+    type:         RGB
     transparency: alpha_channel
-  - file: mdi:tape-drive
-    id: harddisk_icon
-    type: BINARY
+  - file:   mdi:tape-drive
+    id:     harddisk_icon
+    type:   BINARY
     resize: 60x60
-  - file: mdi:memory
-    id: memory_icon
-    type: BINARY
+  - file:   mdi:memory
+    id:     memory_icon
+    type:   BINARY
     resize: 60x60
-  - file: mdi:cpu-64-bit
-    id: cpu_icon
-    type: BINARY
+  - file:   mdi:cpu-64-bit
+    id:     cpu_icon
+    type:   BINARY
     resize: 60x60
 
 i2c:
@@ -160,35 +157,36 @@ sensor:
   - !include Components/Sensors/wifi_signal_percent.yaml
   - !include Components/Sensors/uptime.yaml
   - !include Components/Sensors/sht4x.yaml
-  - platform: homeassistant
+  - platform:  homeassistant
     entity_id: sensor.sht40_tempF
-    id: office_temperature
-    name: "Office Temperature"
-  - platform: homeassistant
+    id:        office_temperature
+    name:      "Office Temperature"
+  - platform:  homeassistant
     entity_id: sensor.sht40_humidity
-    id: office_humidity
-    name: "Office Humidity"
-  - platform: homeassistant
+    id:        office_humidity
+    name:      "Office Humidity"
+  - platform:  homeassistant
     entity_id: sensor.system_monitor_processor_use
-    id: system_monitor_processor_use
-    name: "CPU Usage"
-  - platform: homeassistant
+    id:        system_monitor_processor_use
+    name:      "CPU Usage"
+  - platform:  homeassistant
     entity_id: sensor.system_monitor_memory_use
-    id: system_monitor_memory_use
-    name: "Memory Usage"
-  - platform: homeassistant
+    id:        system_monitor_memory_use
+    name:      "Memory Usage"
+  - platform:  homeassistant
     entity_id: sensor.system_monitor_disk_use
-    id: system_monitor_disk_use
-    name: "Disk Usage"
+    id:        system_monitor_disk_use
+    name:      "Disk Usage"
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"
 
 #Toggle green LED under the left button
 light:
   - platform: binary #Toggle green LED under the left button
-    name: "Green LED"
-    output: green_led
+    name:     "Green LED"
+    output:   green_led
+
 output:
   - platform: gpio
-    pin: GPIO38
-    id: green_led
+    pin:      GPIO38
+    id:       green_led

@@ -1,6 +1,7 @@
+# https://esphome.io/components/substitutions/
 substitutions:
-  name_of_device:           lilygo-camera
-  device_name_friendly:     Lilygo Camera
+  device_name:              lilygo-camera
+  device_name_friendly:     "Lilygo Camera"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Dining Room"
   mqtt_device:              $device_name_friendly
   api_password: !secret     lilygo_t_camera_api
@@ -12,44 +13,45 @@ substitutions:
   broker_address: !secret   broker_address
   led_gpio:                 GPIO2
 
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
+  device_name:   ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://github.com/Xinyuan-LilyGO/LilyGo-Camera-Series/blob/master/docs/T_CarmerV162.md"
-  area:          $mqtt_location
-  # platform:      ESP32
-  # board:         esp-wrover-kit
 
 esp32:
   board: esp-wrover-kit
   framework:
-        type: esp-idf
+    type: esp-idf
 
 # Define an I2C bus for the esp32_camera component to use.
 i2c:
-  sda: GPIO18
-  scl: GPIO23
+  sda:  GPIO18
+  scl:  GPIO23
   scan: true
-  id: bus_a
+  id:   bus_a
 
 # https://esphome.io/components/psram/
 psram:
-  mode: quad
+  mode:  quad
   speed: 80MHz
 
 # https://esphome.io/components/esp32_camera/
 esp32_camera:
-  name:          $device_name_friendly
+  name:              $device_name_friendly
   external_clock:
     pin:       GPIO4
     frequency: 20MHz
   # The new I2C setting.
-  i2c_id: bus_a
+  i2c_id:            bus_a
   # The old I2C setting.
   # i2c_pins:
   #   sda: GPIO18
   #   scl: GPIO23
-  data_pins: [GPIO34, GPIO13, GPIO14, GPIO35, GPIO39, GPIO38, GPIO37, GPIO36]
+  data_pins: [ GPIO34, GPIO13, GPIO14, GPIO35, GPIO39, GPIO38, GPIO37, GPIO36 ]
   vsync_pin:         GPIO5
   href_pin:          GPIO27
   pixel_clock_pin:   GPIO25
@@ -133,7 +135,7 @@ sensor:
   - !include Components/Sensors/wifi_signal_percent.yaml
   - !include Components/Sensors/uptime.yaml
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"
 
 # The text_sensor handles many MQTT publishing duties.
 text_sensor:

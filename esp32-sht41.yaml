@@ -1,6 +1,7 @@
+# https://esphome.io/components/substitutions/
 substitutions:
-  name_of_device:           esp32-sht41
-  device_name_friendly:     ESP32-SHT41
+  device_name:              esp32-sht41
+  device_name_friendly:     "ESP32-SHT41"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "FamilyRoom"
   mqtt_device:              $device_name_friendly
   api_password: !secret     esp32_sht41_api
@@ -11,11 +12,14 @@ substitutions:
   wifi_pass_backup: !secret wifi_password
   broker_address: !secret   broker_address
 
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
+  device_name:   ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://www.espboards.dev/esp32/hiletgo-esp-wroom-32/"
-  area:          $mqtt_location
 
 esp32:
   board: esp32dev
@@ -48,14 +52,14 @@ mqtt:
 # Configure the I2C bus. The SHT41 communicates over I2C.
 # Default SDA for ESP32 is GPIO21, default SCL is GPIO22.
 i2c:
-  sda: GPIO21
-  scl: GPIO22
-  scan: True
+  sda:       GPIO21
+  scl:       GPIO22
+  scan:      True
   frequency: 100kHz # Slower frequency for more stability
 
 # The ADPS9960 component is required by its sensor component and by its binary_sensor component.
 apds9960:
-  address: 0x39
+  address:         0x39
   update_interval: 10s
 
 # Configure the SHT41 temperature and humidity sensor.
@@ -68,22 +72,22 @@ sensor:
   - !include Components/Sensors/uptime.yaml
   # - !include Components/Sensors/apds9960.yaml
   - platform: apds9960
-    type: CLEAR
-    name: "APDS9960 Clear Channel"
+    type:     CLEAR
+    name:     "APDS9960 Clear Channel"
   - platform: apds9960
-    type: RED
-    name: "APDS9960 Red Channel"
+    type:     RED
+    name:     "APDS9960 Red Channel"
   - platform: apds9960
-    type: GREEN
-    name: "APDS9960 Green Channel"
+    type:     GREEN
+    name:     "APDS9960 Green Channel"
   - platform: apds9960
-    type: BLUE
-    name: "APDS9960 Blue Channel"
+    type:     BLUE
+    name:     "APDS9960 Blue Channel"
   - platform: apds9960
-    type: PROXIMITY
-    name: "APDS9960 Proximity Channel"
+    type:     PROXIMITY
+    name:     "APDS9960 Proximity Channel"
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"
 
 
 # The text_sensor handles many MQTT publishing duties.
@@ -94,18 +98,18 @@ text_sensor:
 binary_sensor:
   - !include Components/BinarySensors/status.yaml
   # - !include Components/BinarySensors/adps9960_binary.yaml
-  - platform: apds9960
+  - platform:  apds9960
     direction: UP
-    name: "APDS960 Up Movement"
-  - platform: apds9960
+    name:      "APDS960 Up Movement"
+  - platform:  apds9960
     direction: DOWN
-    name: "APDS960 Down Movement"
-  - platform: apds9960
+    name:      "APDS960 Down Movement"
+  - platform:  apds9960
     direction: LEFT
-    name: "APDS960 Left Movement"
-  - platform: apds9960
+    name:      "APDS960 Left Movement"
+  - platform:  apds9960
     direction: RIGHT
-    name: "APDS960 Right Movement"
+    name:      "APDS960 Right Movement"
 
 # The interval component handles many MQTT publishing duties.
 interval:

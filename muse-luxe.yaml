@@ -5,8 +5,8 @@
 
 # https://esphome.io/components/substitutions/
 substitutions:
-  name:                     muse-luxe
-  friendly_name:            "Raspiaudio Muse Luxe"  # Quoted to ensure spaces are handled correctly.
+  device_name:              muse-luxe
+  device_name_friendly:     "Raspiaudio Muse Luxe"  # Quoted to ensure spaces are handled correctly.
   #States
   P_starting:               "0"
   P_waiting:                "1"
@@ -15,7 +15,7 @@ substitutions:
   P_answering:              "4"
   # My standard substitutions
   mqtt_location:            "Office"
-  mqtt_device:              ${name}
+  mqtt_device:              ${device_name}
   api_password: !secret     muse_luxe_api
   ota_password: !secret     muse_luxe_ota
   wifi_ssid: !secret        wifi_ssid
@@ -29,8 +29,10 @@ substitutions:
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  name:                ${name}
-  friendly_name:       ${friendly_name}
+  name:                ${device_name}
+  friendly_name:       ${device_name_friendly}
+  area:                ${mqtt_location}
+  comment:             "https://raspiaudio.com/product/esp-muse-luxe/"
   min_version:         2025.2.0
   name_add_mac_suffix: false
   platformio_options:

@@ -4,8 +4,8 @@
 
 # https://esphome.io/components/substitutions/
 substitutions:
-  name_of_device:           pico-w-tmp117
-  device_name_friendly:     PicoW TMP117
+  device_name:              pico-w-tmp117
+  device_name_friendly:     "PicoW TMP117"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Office"
   mqtt_device:              $device_name_friendly
   api_password: !secret     pico_w_api
@@ -21,10 +21,10 @@ substitutions:
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
+  name:          ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://www.adafruit.com/product/5526"
-  area:          $mqtt_location
 
 
 # https://esphome.io/components/rp2040/
@@ -54,7 +54,7 @@ ota:
 # So it cannot use my Components/Core/wifi.yaml file.
 # https://esphome.io/components/wifi/
 wifi:
-  ssid: !secret wifi_ssid
+  ssid: !secret     wifi_ssid
   password: !secret wifi_password
 
   # This sets up a fallback access point on t3he RP2040.
@@ -62,7 +62,7 @@ wifi:
   # New firmware can be uploaded using a command similar to this:
   # esphome run pico-w-tmp117.yaml --device 192.168.4.1
   ap:
-    ssid: "PicoW TMP117"
+    ssid:             "PicoW TMP117"
     password: !secret default_password
 
 
@@ -74,16 +74,16 @@ i2c:
 
 # https://esphome.io/components/sensor/
 sensor:
-# TMP117 Sensor Configuration
-# https://esphome.io/components/sensor/tmp117.html
+  # TMP117 Sensor Configuration
+  # https://esphome.io/components/sensor/tmp117.html
   - !include Components/Sensors/tmp117.yaml
-  - platform: adc
-    name: "Core Temperature"
-    update_interval: 20s
-    id: core_temperature
-    pin: TEMPERATURE
+  - platform:            adc
+    name:                "Core Temperature"
+    update_interval:     20s
+    id:                  core_temperature
+    pin:                 TEMPERATURE
     unit_of_measurement: "°C"
     filters:
       - lambda: return 27 - ( x - 0.706f ) / 0.001721f;
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"

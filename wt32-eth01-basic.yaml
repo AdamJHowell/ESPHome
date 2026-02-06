@@ -12,12 +12,13 @@ substitutions:
   network_gateway:          192.168.55.1
   network_subnet:           255.255.255.0
 
+# The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  name:          $device_name
-  friendly_name: $device_name_friendly
+  device_name:   ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://en.wireless-tag.com/product-item-2.html"
-  area:          $mqtt_location
 
 # https://esphome.io/components/esp32/
 esp32:
@@ -27,14 +28,14 @@ esp32:
 
 # https://esphome.io/components/ethernet/
 ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
+  type:      LAN8720
+  mdc_pin:   GPIO23
+  mdio_pin:  GPIO18
   # clk_mode: GPIO0_IN
   clk:
-    pin: GPIO0
+    pin:  GPIO0
     mode: CLK_EXT_IN
-  phy_addr: 1
+  phy_addr:  1
   power_pin: GPIO16
   #Optional manual IP
   # manual_ip:
@@ -44,10 +45,10 @@ ethernet:
 
 # https://esphome.io/components/esp32_ble_tracker/
 esp32_ble_tracker:
-  # Optional: For better reception, you can set interval and window equal
-  # scan_parameters:
-  #   interval: 1100ms
-  #   window: 1100ms
+# Optional: For better reception, you can set interval and window equal
+# scan_parameters:
+#   interval: 1100ms
+#   window: 1100ms
 
 # https://esphome.io/components/bluetooth_proxy/
 bluetooth_proxy:
@@ -93,7 +94,7 @@ interval:
       - mqtt.publish:
           topic:   "$mqtt_location/$mqtt_device/mac"
           payload: |-
-            return id( text_sensor_mac_address ).state;
+                   return id( text_sensor_mac_address ).state;
 
 # Expose the node state for Home Assistant.
 # https://esphome.io/components/binary_sensor/
@@ -109,4 +110,4 @@ safe_mode:
 sensor:
   # https://esphome.io/components/sensor/internal_temperature/
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"

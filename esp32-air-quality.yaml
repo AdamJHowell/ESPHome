@@ -14,10 +14,13 @@ substitutions:
   led_gpio:                 GPIO2
 
 
+# The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
   device_name:   ${device_name}
   friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
+  comment:       "https://docs.m5stack.com/en/core/stamp_c3"
 
 
 # https://esphome.io/components/esp32/

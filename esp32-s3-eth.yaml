@@ -13,12 +13,13 @@ substitutions:
   network_subnet:           255.255.255.0
 
 
+# The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
   device_name:   ${device_name}
   friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
   comment:       "https://www.waveshare.com/wiki/ESP32-S3-ETH"
-  area:          "Office"
 
 esp32:
   board: esp32-s3-devkitc-1
