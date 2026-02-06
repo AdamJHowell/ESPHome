@@ -66,6 +66,12 @@ wifi:
     password: !secret default_password
 
 
+# Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+
 # Enable I2C communication for the RP2040.
 # https://esphome.io/components/i2c/
 i2c:
