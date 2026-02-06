@@ -13,7 +13,7 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bmp280/temp"
-        payload:         |- 
+        payload:         |-
                            return to_string( id( bmp280_temp ).state );
 
 pressure:
@@ -25,7 +25,7 @@ pressure:
   on_value:
     - mqtt.publish:
         topic:           "$mqtt_location/$mqtt_device/bmp280/pressure"
-        payload:         |- 
+        payload:         |-
                            return to_string( id( bmp280_pressure ).state );
 
 # Most BMP280s use 0x77, but some use 0x76. ESPHome can auto-detect.
