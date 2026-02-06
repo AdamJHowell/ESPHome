@@ -17,10 +17,10 @@ substitutions:
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/
 esphome:
-  name:          $name_of_device
-  friendly_name: $device_name_friendly
+  name:          ${name_of_device}
+  friendly_name: ${device_name_friendly}
   comment:       "https://www.adafruit.com/product/5325"
-  area:          $mqtt_location
+  area:          ${mqtt_location}
   on_boot:
     - output.turn_on: neopixel_power
 

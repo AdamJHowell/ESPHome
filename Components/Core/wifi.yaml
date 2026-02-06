@@ -1,15 +1,15 @@
 # wifi.yaml
 # https://esphome.io/components/wifi/
 id:              component_wifi
-min_auth_mode: WPA2  # Reject WPA-only networks
+min_auth_mode:   WPA2  # Reject WPA-only networks
 power_save_mode: NONE  # Options are NONE, LIGHT, and HIGH, with HIGH saving the most power.
 networks:
   - ssid:     ${wifi_ssid}
     password: ${wifi_pass}
-#   - ssid:     ${wifi_ssid_backup}
-#     password: ${wifi_pass_backup}
+  - ssid:     ${wifi_ssid_backup}
+    password: ${wifi_pass_backup}
 
 # Enable fallback hotspot (captive portal) in case wifi connection fails
 ap:
-    ssid: "$device_name_friendly"
-    password: !secret default_password
+  ssid:             ${device_name_friendly}
+  password: !secret default_password
