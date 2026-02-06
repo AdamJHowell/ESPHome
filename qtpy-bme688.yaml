@@ -1,4 +1,3 @@
-# Note that !secret is parsed before substitutions, so it is safe to use !secret here.
 # https://esphome.io/components/substitutions/
 substitutions:
   device_name:              qtpy-bme688

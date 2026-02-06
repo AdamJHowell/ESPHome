@@ -1,3 +1,4 @@
+# https://esphome.io/components/substitutions/
 substitutions:
   device_name:              esp32-s3-eth
   device_name_friendly:     ESP32-S3-ETH-01
@@ -11,9 +12,11 @@ substitutions:
   network_gateway:          192.168.55.1
   network_subnet:           255.255.255.0
 
+
+# https://esphome.io/components/esphome/
 esphome:
-  name:          $device_name
-  friendly_name: $device_name_friendly
+  device_name:   ${device_name}
+  friendly_name: ${device_name_friendly}
   comment:       "https://www.waveshare.com/wiki/ESP32-S3-ETH"
   area:          "Office"
 
@@ -23,13 +26,13 @@ esp32:
     type: esp-idf
 
 ethernet:
-  type: W5500
-  clk_pin: GPIO13
-  mosi_pin: GPIO11
-  miso_pin: GPIO12
-  cs_pin: GPIO14
+  type:          W5500
+  clk_pin:       GPIO13
+  mosi_pin:      GPIO11
+  miso_pin:      GPIO12
+  cs_pin:        GPIO14
   interrupt_pin: GPIO10
-  reset_pin: GPIO9
+  reset_pin:     GPIO9
 
 # Enable the Home Assistant native API.
 api:
@@ -69,4 +72,4 @@ safe_mode:
 
 sensor:
   - platform: internal_temperature
-    name: "Internal Temperature"
+    name:     "Internal Temperature"
