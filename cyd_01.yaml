@@ -1,0 +1,267 @@
+# ESP32-2432S028R - CYD
+esphome:
+  name: cyd-display
+  friendly_name: "CYD Display"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret cyd_api
+
+# Allow OTA updates
+ota:
+  platform: esphome
+  password: !secret cyd_ota
+
+# WiFi setup using secrets
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Fallback hotspot in case WiFi fails
+  ap:
+    ssid: "CYD Fallback"
+    password: "fallbackpassword"
+
+captive_portal:
+
+# --- COLORS & FONTS ---
+color:
+  - id: color_black
+    hex: "000000"
+  - id: color_gray
+    hex: "AAAAAA"
+
+font:
+  - file: "gfonts://Roboto"
+    id: font_large
+    size: 48
+  - file: "gfonts://Roboto"
+    id: font_medium
+    size: 24
+
+# --- TIME ---
+time:
+  - platform: homeassistant
+    id: ha_time
+
+# --- SENSORS ---
+# https://esphome.io/components/sensor/
+sensor:
+  # Home Assistant Thermostat Temperature
+  - platform: homeassistant
+    id: thermostat_temperature
+    entity_id: sensor.thermostat_temperature
+    internal: true
+
+  # Onboard LDR (Luminosity)
+  - platform: adc
+    pin: GPIO34
+    name: "CYD Luminosity"
+    id: luminosity
+    update_interval: 1s
+    attenuation: 12db
+    # Auto-dimming logic
+    on_value:
+      then:
+        - light.turn_on:
+            id: display_backlight
+            # The CYD LDR usually reads a lower voltage when it's bright out and higher when dark.
+            # This lambda maps the raw voltage to a brightness percentage (0.1 to 1.0).
+            brightness: !lambda |-
+              float b = 1.0 - x; 
+              if (b < 0.1) return 0.1; // Clamp to 10% so the screen never turns completely off
+              if (b > 1.0) return 1.0; // Clamp to 100% max brightness
+              return b;
+
+  # https://esphome.io/components/sensor/bme680/
+  - platform: bme680
+    address: 0x77
+    update_interval: 20s
+    temperature:
+      id: bme_temperature
+      name: "BME680 Temperature"
+      oversampling: 16x
+      filters:
+        - lambda: return x * ( 9.0 / 5.0 ) + 32.0;
+        - offset:
+            0.0
+        - delta:
+            max_value: 20
+    pressure:
+      id: bme_pressure
+      name: "BME680 Pressure"
+    humidity:
+      id: bme_humidity
+      name: "BME680 Humidity"
+    gas_resistance:
+      id: bme_gas_resistance
+      name: "BME680 Gas Resistance"
+  - platform: template
+    name: "BME680 Indoor Air Quality"
+    id: iaq
+    icon: "mdi:gauge"
+    # calculation: comp_gas = log(R_gas[ohm]) + 0.04 log(Ohm)/%rh * hum[%rh]
+    lambda: |-
+      return log( id( bme_gas_resistance ).state ) + 0.04 *  id( bme_humidity ).state;
+    state_class: "measurement"
+
+
+# https://esphome.io/components/text_sensor/
+text_sensor:
+  - platform: template
+    name: "BME680 IAQ Classification"
+    icon: "mdi:checkbox-marked-circle-outline"
+    lambda: |-
+      if (int(id(iaq).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq).state) <= 500) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"unknown"};
+      }
+
+
+# --- HARDWARE BUS ---
+# https://esphome.io/components/i2c/
+i2c:
+  - id: i2c_02
+    scl: GPIO22
+    sda: GPIO27
+
+# https://esphome.io/components/spi/
+spi:
+  - id: tft
+    clk_pin: GPIO14
+    mosi_pin: GPIO13
+    miso_pin:
+      number: GPIO12
+      ignore_strapping_warning: true
+  - id: touch
+    clk_pin: GPIO25
+    mosi_pin: GPIO32
+    miso_pin: GPIO39
+
+
+# --- TOUCHSCREEN ---
+# https://esphome.io/components/touchscreen/
+touchscreen:
+  # https://esphome.io/components/touchscreen/xpt2046/
+  platform: xpt2046
+  id: esp_touchscreen
+  spi_id: touch
+  cs_pin: GPIO33
+  interrupt_pin: GPIO36
+  update_interval: 50ms
+  threshold: 400
+  calibration:
+    x_min: 360
+    x_max: 3860
+    y_min: 280
+    y_max: 3860
+  transform:
+    swap_xy: true
+    mirror_y: true
+
+
+# --- DISPLAY ---
+# https://esphome.io/components/display/
+display:
+  # https://esphome.io/components/display/ili9xxx/
+  - platform: ili9xxx
+    model: ili9341
+    id: my_display
+    spi_id: tft
+    cs_pin: 
+      number: GPIO15
+      ignore_strapping_warning: true
+    dc_pin:
+      number: GPIO2
+      ignore_strapping_warning: true
+    rotation: 180
+    invert_colors: false
+    color_palette: 8bit
+    dimensions:
+      width: 320
+      height: 240
+    lambda: |-
+      // Background
+      it.fill(id(color_black));
+
+      // Time & Date
+      it.strftime(10, 10, id(font_large), id(color_gray), TextAlign::TOP_LEFT, "%H:%M", id(ha_time).now());
+      it.strftime(10, 60, id(font_medium), id(color_gray), TextAlign::TOP_LEFT, "%A, %B %d", id(ha_time).now());
+
+      // Luminosity (Raw Voltage from the ADC)
+      it.printf(10, 120, id(font_medium), id(color_gray), "Luminosity: %.2f V", id(luminosity).state);
+
+      // Thermostat temperature in Fahrenheit
+      if (id(thermostat_temperature).has_state()) {
+        it.printf(10, 160, id(font_medium), id(color_gray), "Temp: %.1f °F", id(thermostat_temperature).state);
+      } else {
+        it.print(10, 160, id(font_medium), id(color_gray), "Temp: -- °F");
+      }
+
+      // BME 680 Temperature in Fahrenheit
+      if ( id( bme_temperature ).has_state() ) {
+        it.printf(10, 200, id( font_medium ), id( color_gray ), "Temp: %.1f °F", id( bme_temperature ).state);
+      } else {
+        it.print(10, 200, id( font_medium ), id( color_gray ), "Temp: -- °F");
+      }
+
+
+output:
+  # --- BACKLIGHT ---
+  - platform: ledc
+    pin: GPIO21
+    id: backlight_pwm
+  # --- ONBOARD RGB LED ---
+  - platform: ledc
+    pin: GPIO4
+    id: led_r
+    inverted: true
+  - platform: ledc
+    pin: GPIO16
+    id: led_g
+    inverted: true
+  - platform: ledc
+    pin: GPIO17
+    id: led_b
+    inverted: true
+
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: "Display Backlight"
+    id: display_backlight # ID added so the LDR sensor can target it
+    restore_mode: ALWAYS_ON
+  - platform: rgb
+    name: "CYD Onboard LED"
+    red: led_r
+    green: led_g
+    blue: led_b

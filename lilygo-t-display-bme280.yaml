@@ -1,0 +1,169 @@
+# Lilygo T-Display v1.1
+# https://github.com/Xinyuan-LilyGO/TTGO-T-Display
+# Retail link: https://lilygo.cc/en-us/products/t-display
+
+# https://esphome.io/components/substitutions/
+substitutions:
+  device_name:              lilygo-t-display-bme280
+  device_name_friendly:     "Lilygo T-Display BME280"  # Quoted to ensure spaces are handled correctly.
+  mqtt_location:            "Kitchen"
+  mqtt_device:              ${device_name}
+  api_password:             "fbRnqpfGN2okpZCzpt81hhwyV4a/M0MkgsXOhnE4404="
+  ota_password:             "e9b15f8a7cb21363e85cd83ea911c283"
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
+esphome:
+  name:          ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
+  comment:       "https://github.com/Xinyuan-LilyGO/TTGO-T-Display"
+  # on_boot:
+  #     priority: 600
+  #     then:
+  #       - light.turn_on: back_light
+
+
+# https://esphome.io/components/esp32/
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+
+time:
+  - platform: homeassistant
+    id: esptime
+
+
+# Enable logging.
+# https://esphome.io/components/logger/
+logger:
+  !include Components/Core/logger.yaml
+
+
+# Enable the Home Assistant native API.
+# https://esphome.io/components/api/
+api:
+  !include Components/Core/api.yaml
+
+
+# Enable Over-The-Air updates.
+# https://esphome.io/components/ota/
+ota:
+  !include Components/Core/ota.yaml
+
+
+# Enable Wi-Fi.
+# https://esphome.io/components/wifi/
+wifi:
+  !include Components/Core/wifi.yaml
+
+
+# https://esphome.io/components/captive_portal/
+captive_portal:
+
+
+# Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+
+# https://esphome.io/components/i2c/
+i2c:
+  sda: 21
+  scl: 22
+
+
+# https://esphome.io/components/sensor/
+sensor:
+  # - !include Components/Sensors/bme280.yaml
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
+  - platform: internal_temperature
+    name:     "Internal Temperature"
+  # https://esphome.io/components/sensor/bme280/
+  - platform: bme280_i2c
+    temperature:
+      name: "Temperature"
+      id: room_temp
+    humidity:
+      name: "Humidity"
+      id: room_humidity
+    pressure:
+      name: "Pressure"
+      id: room_pressure
+    address: 0x76
+
+
+# https://esphome.io/components/spi/
+spi:
+  clk_pin: 18
+  mosi_pin: 19
+
+
+# https://esphome.io/components/display/
+display:
+  # https://esphome.io/components/display/st7789v/
+  - platform: st7789v
+    model: TTGO TDisplay 135x240
+    width: 240
+    height: 135
+    rotation: 90
+    cs_pin:
+      number: GPIO5
+      ignore_strapping_warning: true
+    dc_pin:
+      number: GPIO15
+      ignore_strapping_warning: true
+    reset_pin: GPIO23
+    backlight_pin: GPIO4
+    lambda: |-
+      it.print(0, 0, id(roboto_20), "Hello World!");
+    # lambda: |-
+    #   it.print( 0, 0, id( roboto_24 ), "Environment" );
+    #   it.printf( 0, 40, id( roboto_20 ), "Temp: %.1f°C", id( room_temp ).state );
+    #   it.printf( 0, 80, id( roboto_20 ), "Hum: %.1f%%", id( room_humidity ).state );
+
+
+# https://esphome.io/components/font/
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_24
+    size: 24
+  - file: "gfonts://Roboto"
+    id: roboto_20
+    size: 20
+
+
+# handle built-in display backlight:
+# use a separate "light" component to enable dimming rather than
+# using the "display" property for backlight gpio
+# https://esphome.io/components/output/
+# output:
+#   - platform: ledc
+#     pin: GPIO4
+#     id: display_backlight_pwm
+
+
+# https://esphome.io/components/light/
+# light:
+#   - platform: monochromatic
+#     output: display_backlight_pwm
+#     name: "Display Backlight"
+#     id: back_light
+#     restore_mode: RESTORE_AND_ON
+#     effects:
+#       - pulse:
+#           name: noWifiConnection
+#           min_brightness: 60%
+#           max_brightness: 80%

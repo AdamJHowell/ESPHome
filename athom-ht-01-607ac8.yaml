@@ -1,0 +1,29 @@
+substitutions:
+  name: athom-ht-01-607ac8
+  friendly_name: Athom HT 01
+
+
+packages:
+  China Athom Technology.Temperature Humidity Sensor: github://athom-tech/esp32-configs/athom-sht40-sensor.yaml
+
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+
+
+api:
+  encryption:
+    # key: HMjhYsKsVtz66stwIUGe77nJ3RX/qm1RWur4Q9n9ZM8=
+    key: "7DrAlZ5kc4bqT+ZW4vRHwwJrbiL0+Z++GRpa4IpEIqE="
+
+
+ota:
+  - platform: esphome
+    password: "4f7509e636d1e51b527679d0867d28c5"
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
