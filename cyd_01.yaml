@@ -222,16 +222,16 @@ display:
 
       // Thermostat temperature in Fahrenheit
       if (id(thermostat_temperature).has_state()) {
-        it.printf(10, 160, id(font_medium), id(color_gray), "Temp: %.1f °F", id(thermostat_temperature).state);
+        it.printf(10, 160, id(font_medium), id(color_gray), "Thermostat: %.1f °F", id(thermostat_temperature).state);
       } else {
-        it.print(10, 160, id(font_medium), id(color_gray), "Temp: -- °F");
+        it.print(10, 160, id(font_medium), id(color_gray), "Thermostat: -- °F");
       }
 
       // BME 680 Temperature in Fahrenheit
       if ( id( bme_temperature ).has_state() ) {
-        it.printf(10, 200, id( font_medium ), id( color_gray ), "Temp: %.1f °F", id( bme_temperature ).state);
+        it.printf(10, 200, id( font_medium ), id( color_gray ), "BME680 temp: %.1f °F", id( bme_temperature ).state);
       } else {
-        it.print(10, 200, id( font_medium ), id( color_gray ), "Temp: -- °F");
+        it.print(10, 200, id( font_medium ), id( color_gray ), "BME680 temp: -- °F");
       }
 
 
