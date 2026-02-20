@@ -38,6 +38,7 @@ esp32:
     type: esp-idf
 
 
+# https://esphome.io/components/time/
 time:
   - platform: homeassistant
     id: esptime

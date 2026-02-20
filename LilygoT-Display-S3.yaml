@@ -1,3 +1,5 @@
+# https://devices.esphome.io/devices/lilygo-tdisplay-s3/
+
 # https://esphome.io/components/substitutions/
 substitutions:
   device_name:              t-displays3
@@ -21,172 +23,182 @@ esphome:
   friendly_name: ${device_name_friendly}
   area:          ${mqtt_location}
   comment:       "https://lilygo.cc/products/t-display-s3"
-  platformio_options:
-    build_unflags:          -Werror=all
-    board_build.flash_mode: dio
 
+
+# https://esphome.io/components/esp32/
 esp32:
-  board:   esp32-s3-devkitc-1
   variant: esp32s3
   framework:
     type: esp-idf
+  flash_size: 16MB
 
-# Enable the Home Assistant native API.
+
+# https://esphome.io/components/api/
 api:
   !include Components/Core/api.yaml
 
+
+# https://esphome.io/components/ota/
 ota:
   !include Components/Core/ota.yaml
 
+
+# https://esphome.io/components/wifi/
 wifi:
   !include Components/Core/wifi.yaml
 
+
+# https://esphome.io/components/captive_portal/
 captive_portal:
 
+
 # Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
 mqtt:
   !include Components/Core/mqtt.yaml
 
+
+# https://esphome.io/components/logger/
 logger:
   #level: WARN
   !include Components/Core/logger.yaml
 
-# Define QSPI interface for the AMOLED
-spi:
-  id:      qspi_bus
-  type:    quad
-  clk_pin: GPIO47
-  data_pins:
-    - GPIO18  # TFT_D0
-    - GPIO7   # TFT_D1
-    - GPIO48  # TFT_D2
-    - GPIO5   # TFT_D3
 
-# Configuration for the RM67162 AMOLED display
-display:
-  - platform:        qspi_dbi
-    model:           RM67162
-    id:              s3_display
-    update_interval: 10s
-    dimensions:
-      height: 320
-      width:  170
-    color_order:     rgb
-    brightness:      255
-    cs_pin:          GPIO6
-    reset_pin:       GPIO17
-    rotation:        270
-    pages:
-      - id:     page1
-        lambda: |-
-                it.printf(10, 100, id(audiowide_font), Color(255, 255, 255), "Hello SmartHomeScene!");
-
-      - id:     page2
-        lambda: |-
-                int screen_height = it.get_height();
-                it.image(20, (screen_height - 88) / 2, id(logo));
-                it.image(260, 40, id(temperature_icon));
-                it.printf(320, 40, id(audiowide_font), Color(255, 255, 255), "%.1f°F", id(sht4x_temp).state);
-                it.image(260, 140, id(humidity_icon));
-                it.printf(320, 140, id(audiowide_font), Color(255, 255, 255), "%.1f%%", id(sht4x_humidity).state);
-
-      - id:     page3
-        lambda: |-
-                // CPU Usage
-                it.image(20, 20, id(cpu_icon));  // CPU icon
-                it.printf(100, 20, id(audiowide_font), Color(255, 255, 255), "CPU: %.1f%%", id(system_monitor_processor_use).state);
-                
-                // Memory Usage
-                it.image(20, 100, id(memory_icon));  // Memory icon
-                it.printf(100, 100, id(audiowide_font), Color(255, 255, 255), "RAM: %.1fMB", id(system_monitor_memory_use).state);
-                
-                // Disk Usage
-                it.image(20, 180, id(harddisk_icon));  // Disk icon
-                it.printf(100, 180, id(audiowide_font), Color(255, 255, 255), "DISK: %.1fGB", id(system_monitor_disk_use).state);
-
-
-binary_sensor:
-  - platform: gpio
-    pin:      GPIO21  # Button on GPIO21
-    name:     "Page Switch Button"
-    on_press:
-      then:
-        - display.page.show_next: s3_display
-        - component.update: s3_display
-
-font:
-  - file: "gfonts://Audiowide"
-    id:   audiowide_font
-    size: 40
-
-image:
-  - file:   mdi:thermometer
-    id:     temperature_icon
-    type:   BINARY
-    resize: 60x60
-  - file:   mdi:water
-    id:     humidity_icon
-    type:   BINARY
-    resize: 60x60
-  - file:         mdi:home
-    id:           logo
-    resize:       200x88
-    type:         RGB
-    transparency: alpha_channel
-  - file:   mdi:tape-drive
-    id:     harddisk_icon
-    type:   BINARY
-    resize: 60x60
-  - file:   mdi:memory
-    id:     memory_icon
-    type:   BINARY
-    resize: 60x60
-  - file:   mdi:cpu-64-bit
-    id:     cpu_icon
-    type:   BINARY
-    resize: 60x60
-
+# The QWIIC port next to the USB-C port.
+# https://esphome.io/components/i2c/
 i2c:
-  sda:       43
-  scl:       44
+  sda:       GPIO43
+  scl:       GPIO44
   scan:      true
   frequency: 400kHz
 
+
+# https://esphome.io/components/sensor/
 sensor:
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
   - !include Components/Sensors/uptime.yaml
+  # I have an Adafruit SHT40 plugged into the QWIIC port next to the USB-C port.
+  # This sht4x.yaml file requires MQTT because it calls mqtt.publish with every on_value.
+  # https://esphome.io/components/sensor/sht4x/
   - !include Components/Sensors/sht4x.yaml
-  - platform:  homeassistant
-    entity_id: sensor.sht40_tempF
-    id:        office_temperature
-    name:      "Office Temperature"
-  - platform:  homeassistant
-    entity_id: sensor.sht40_humidity
-    id:        office_humidity
-    name:      "Office Humidity"
-  - platform:  homeassistant
-    entity_id: sensor.system_monitor_processor_use
-    id:        system_monitor_processor_use
-    name:      "CPU Usage"
-  - platform:  homeassistant
-    entity_id: sensor.system_monitor_memory_use
-    id:        system_monitor_memory_use
-    name:      "Memory Usage"
-  - platform:  homeassistant
-    entity_id: sensor.system_monitor_disk_use
-    id:        system_monitor_disk_use
-    name:      "Disk Usage"
+  # https://next.esphome.io/components/sensor/internal_temperature/
   - platform: internal_temperature
     name:     "Internal Temperature"
+    update_interval: 20s
 
-#Toggle green LED under the left button
-light:
-  - platform: binary #Toggle green LED under the left button
-    name:     "Green LED"
-    output:   green_led
 
-output:
+# https://esphome.io/components/binary_sensor/
+binary_sensor:
   - platform: gpio
-    pin:      GPIO38
-    id:       green_led
+    pin:
+      # Obviously this is the "boot" button on the left when USB is down.
+      number: GPIO0
+      ignore_strapping_warning: true
+      inverted: true
+    name: "Button 1"
+  - platform: gpio
+    pin:
+      # Button on the right when USB is down.
+      number: GPIO14
+      inverted: true
+    name: "Button 2"
+
+
+# https://esphome.io/components/output/
+output:
+  - platform: ledc
+    frequency: 2000
+    pin: GPIO38
+    id: backlight_output
+
+
+# https://esphome.io/components/light/
+light:
+  - platform: monochromatic
+    output: backlight_output
+    name: LCD Backlight
+    id: led
+    restore_mode: ALWAYS_ON
+    default_transition_length: 0s
+
+
+# https://esphome.io/components/spi/
+spi:
+  type: octal
+  clk_pin: GPIO8
+  data_pins:
+    - GPIO39
+    - GPIO40
+    - GPIO41
+    - GPIO42
+    - ignore_strapping_warning: true
+      number: GPIO45
+    - ignore_strapping_warning: true
+      number: GPIO46
+    - GPIO47
+    - GPIO48
+
+
+# https://esphome.io/components/psram/
+psram:
+  speed: 80MHz
+  mode: octal
+
+
+# https://esphome.io/components/time/
+time:
+  - platform: homeassistant
+    id: ha_time
+
+
+# https://esphome.io/components/font/
+font:
+  - file: "gfonts://Roboto"
+    id: font_large
+    size: 30
+  - file: "gfonts://Roboto"
+    id: font_medium
+    size: 20
+
+
+# https://esphome.io/components/color/
+color:
+  - id: color_black
+    hex: "000000"
+  - id: color_gray
+    hex: "AAAAAA"
+
+
+# https://esphome.io/components/image/
+image:
+  - file: mdi:thermometer
+    id: temperature_icon
+    resize: 30x30
+    type: rgb
+  - file: mdi:water-percent
+    id: humidity_icon
+    resize: 30x30
+    type: rgb
+
+
+# https://esphome.io/components/display/
+display:
+  # https://esphome.io/components/display/mipi_spi/
+  - platform: mipi_spi
+    # This model is a ST7789 with a 170x320 resolution.
+    model: t-display-s3
+    # 270 has the USB port on the left.
+    rotation: 90
+    show_test_card: false
+    lambda: |-
+          int screen_height = it.get_height();
+
+          // Time & Date
+          it.strftime( 10, 10, id( font_large ), id( color_gray ), TextAlign::TOP_LEFT, "%H:%M", id( ha_time ).now() );
+          it.strftime( 10, 60, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
+
+          it.image( 10, 90, id( temperature_icon ) );
+          it.printf( 80, 90, id( font_medium ), Color( color_gray ), "%.1f°C", id( sht4x_temp ).state );
+          it.image( 10, 120, id( humidity_icon ) );
+          it.printf( 80, 120, id( font_medium ), Color( color_gray ), "%.1f%%", id( sht4x_humidity ).state );
