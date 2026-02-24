@@ -1,0 +1,226 @@
+# Lilygo T-Display v1.1
+# https://github.com/Xinyuan-LilyGO/TTGO-T-Display
+# Retail link: https://lilygo.cc/en-us/products/t-display
+# Display: ST7789
+# Resolution: 135 x 240
+
+# https://esphome.io/components/substitutions/
+substitutions:
+  device_name:              "t-display-bme280"
+  device_name_friendly:     "T-Display BME280"  # Quoted to ensure spaces are handled correctly.
+  mqtt_location:            "Kitchen"
+  mqtt_device:              ${device_name}
+  api_password:             "fbRnqpfGN2okpZCzpt81hhwyV4a/M0MkgsXOhnE4404="
+  ota_password:             "e9b15f8a7cb21363e85cd83ea911c283"
+  wifi_ssid: !secret        wifi_ssid
+  wifi_pass: !secret        wifi_password
+  wifi_ssid_backup: !secret wifi_ssid_backup
+  wifi_pass_backup: !secret wifi_password
+  broker_address: !secret   broker_address
+  led_gpio:                 GPIO2
+
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
+esphome:
+  name:          ${device_name}
+  friendly_name: ${device_name_friendly}
+  area:          ${mqtt_location}
+  comment:       "https://github.com/Xinyuan-LilyGO/TTGO-T-Display"
+
+
+# https://esphome.io/components/esp32/
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+
+# https://esphome.io/components/time/
+time:
+  - platform: homeassistant
+    id: ha_time
+
+
+# Enable logging.
+# https://esphome.io/components/logger/
+logger:
+  !include Components/Core/logger.yaml
+
+
+# Enable the Home Assistant native API.
+# https://esphome.io/components/api/
+api:
+  !include Components/Core/api.yaml
+
+
+# Enable Over-The-Air updates.
+# https://esphome.io/components/ota/
+ota:
+  !include Components/Core/ota.yaml
+
+
+# Enable Wi-Fi.
+# https://esphome.io/components/wifi/
+wifi:
+  !include Components/Core/wifi.yaml
+
+
+# https://esphome.io/components/captive_portal/
+captive_portal:
+
+
+# Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
+mqtt:
+  !include Components/Core/mqtt.yaml
+
+
+# https://esphome.io/components/sensor/
+sensor:
+  - !include Components/Sensors/wifi_signal.yaml
+  - !include Components/Sensors/wifi_signal_percent.yaml
+  - !include Components/Sensors/uptime.yaml
+  - platform: internal_temperature
+    name:     "Internal Temperature"
+  # https://esphome.io/components/sensor/bme280/
+  - platform: bme280_i2c
+    temperature:
+      name: "Temperature"
+      id: room_temp
+    humidity:
+      name: "Humidity"
+      id: room_humidity
+    pressure:
+      name: "Pressure"
+      id: room_pressure
+    address: 0x76
+  - platform: adc
+    name: "Battery Raw"
+    pin: GPIO34
+    attenuation: 11db
+    id: "VCC"
+    update_interval: 10s
+    internal: false  
+    entity_category: diagnostic
+  - platform: template
+    name: "Battery"
+    id: "vccp"
+    unit_of_measurement: '%'
+    update_interval: 10s
+    entity_category: diagnostic
+    lambda: |-
+       return ((id(VCC).state / 2.47) * 100);
+  # Home Assistant Thermostat Temperature
+  - platform: homeassistant
+    id: thermostat_temperature
+    entity_id: sensor.thermostat_temperature
+    internal: true
+
+
+# https://esphome.io/components/binary_sensor/
+binary_sensor:
+  - platform: gpio
+    pin:
+      # Obviously this is the "boot" button on the left when USB is down.
+      number: GPIO0
+      ignore_strapping_warning: true
+      inverted: true
+    name: "Button 1"
+  - platform: gpio
+    pin:
+      # Button on the right when USB is down.
+      number: GPIO35
+      inverted: true
+    name: "Button 2"
+
+
+# https://esphome.io/components/output/
+output:
+  - platform: ledc
+    pin: GPIO4
+    id: gpio_04_backlight_pwm
+
+
+# https://esphome.io/components/light/
+light:
+  - platform: monochromatic
+    output: gpio_04_backlight_pwm
+    name: "Display Backlight"
+    id: back_light
+    restore_mode: ALWAYS_ON
+
+
+# https://esphome.io/components/spi/
+spi:
+  clk_pin: GPIO18
+  mosi_pin: GPIO19
+
+
+# https://esphome.io/components/i2c/
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+
+
+# Include custom fonts
+font:
+  - file: "gfonts://Roboto"
+    id: font_small
+    size: 20
+  - file: "gfonts://Roboto"
+    id: font_large
+    size: 30
+  - file: "gfonts://Roboto"
+    id: font_medium
+    size: 24
+
+
+# Define colors
+color:
+  - id: color_black
+    hex: "000000"
+  - id: color_gray
+    hex: "AAAAAA"
+
+
+# https://esphome.io/components/display/
+display:
+  # https://esphome.io/components/display/st7789v/
+  - platform: st7789v
+    id: shottimer_display
+    cs_pin: GPIO5
+    dc_pin: GPIO16
+    reset_pin: GPIO23
+    backlight_pin: no
+    model: TTGO TDisplay 135x240
+    update_interval: 1s
+    rotation: 90°  # 90° causes the text to be upright when the USB port is to the right.
+    lambda: |-
+      // Background
+      it.fill(id(color_black));
+
+      // Time & Date
+      it.strftime(10, 10, id(font_large), id(color_gray), TextAlign::TOP_LEFT, "%H:%M", id(ha_time).now());
+      it.strftime(10, 40, id(font_medium), id(color_gray), TextAlign::TOP_LEFT, "%A, %B %d", id(ha_time).now());
+
+      // Thermostat temperature in Fahrenheit
+      if (id(thermostat_temperature).has_state()) {
+        it.printf(10, 70, id(font_small), id(color_gray), "Thermostat: %.1f °F", id(thermostat_temperature).state);
+      } else {
+        it.print(10, 70, id(font_small), id(color_gray), "Thermostat: -- °F");
+      }
+
+      // BME 280 Temperature in Fahrenheit
+      if ( id( room_temp ).has_state() ) {
+        it.printf(10, 95, id( font_medium ), id( color_gray ), "BME280 temp: %.1f °F", id( room_temp ).state);
+      } else {
+        it.print(10, 95, id( font_medium ), id( color_gray ), "BME280 temp: -- °F");
+      }
+
+      // BME 280 Pressure in hPa
+      if ( id( room_pressure ).has_state() ) {
+        it.printf(10, 120, id( font_medium ), id( color_gray ), "BME280 temp: %.1f °F", id( room_pressure ).state);
+      } else {
+        it.print(10, 120, id( font_medium ), id( color_gray ), "BME280 temp: -- °F");
+      }
