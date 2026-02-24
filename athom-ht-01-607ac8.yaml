@@ -1,3 +1,5 @@
+# https://devices.esphome.io/devices/Athom-Temperature-humidity-Sensor-SS01-TH/
+
 substitutions:
   name: athom-ht-01-607ac8
   friendly_name: Athom HT 01

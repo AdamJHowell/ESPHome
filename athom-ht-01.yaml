@@ -1,5 +1,6 @@
 # https://www.athom.tech/blank-1/tempreture-and-humidity-sensor
 # https://github.com/athom-tech/esp32-configs/blob/main/athom-sht40-sensor.yaml
+# https://devices.esphome.io/devices/Athom-Temperature-humidity-Sensor-SS01-TH/
 
 # Enable Home Assistant API
 # api:
