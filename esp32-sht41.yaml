@@ -32,7 +32,7 @@ esp32:
 # Enable debugging output. Set to WARN or ERROR for less verbose logs.
 logger:
   # Level of logging.
-  level: INFO
+  level: DEBUG
 
 # Enable the Home Assistant native API.
 api:
