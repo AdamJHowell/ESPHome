@@ -88,6 +88,12 @@ sensor:
     temperature:
       name: "Temperature"
       id: room_temp
+      filters:
+        - lambda: return x * ( 9.0 / 5.0 ) + 32.0;
+        - offset:
+            0.0
+        - delta:
+            max_value: 20
     humidity:
       name: "Humidity"
       id: room_humidity
@@ -167,7 +173,7 @@ i2c:
 font:
   - file: "gfonts://Roboto"
     id: font_small
-    size: 20
+    size: 16
   - file: "gfonts://Roboto"
     id: font_large
     size: 30
@@ -198,29 +204,38 @@ display:
     rotation: 90°  # 90° causes the text to be upright when the USB port is to the right.
     lambda: |-
       // Background
-      it.fill(id(color_black));
+      it.fill( id( color_black ) );
 
       // Time & Date
-      it.strftime(10, 10, id(font_large), id(color_gray), TextAlign::TOP_LEFT, "%H:%M", id(ha_time).now());
-      it.strftime(10, 40, id(font_medium), id(color_gray), TextAlign::TOP_LEFT, "%A, %B %d", id(ha_time).now());
+      it.strftime( 10, 10, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%H:%M", id( ha_time ).now() );
+      it.strftime( 10, 40, id( font_small ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
 
       // Thermostat temperature in Fahrenheit
-      if (id(thermostat_temperature).has_state()) {
-        it.printf(10, 70, id(font_small), id(color_gray), "Thermostat: %.1f °F", id(thermostat_temperature).state);
-      } else {
-        it.print(10, 70, id(font_small), id(color_gray), "Thermostat: -- °F");
+      if( id( thermostat_temperature ).has_state() )
+      {
+        it.printf( 10, 60, id( font_small ), id( color_gray ), "Thermostat: %.1f °F", id( thermostat_temperature ).state );
+      }
+      else
+      {
+        it.print( 10, 60, id( font_small ), id( color_gray ), "Thermostat: -- °F" );
       }
 
       // BME 280 Temperature in Fahrenheit
-      if ( id( room_temp ).has_state() ) {
-        it.printf(10, 95, id( font_medium ), id( color_gray ), "BME280 temp: %.1f °F", id( room_temp ).state);
-      } else {
-        it.print(10, 95, id( font_medium ), id( color_gray ), "BME280 temp: -- °F");
+      if( id( room_temp ).has_state() )
+      {
+        it.printf( 10, 80, id( font_small ), id( color_gray ), "BME280 temp: %.1f °F", id( room_temp ).state );
+      }
+      else
+      {
+        it.print( 10, 80, id( font_small ), id( color_gray ), "BME280 temp: -- °F" );
       }
 
       // BME 280 Pressure in hPa
-      if ( id( room_pressure ).has_state() ) {
-        it.printf(10, 120, id( font_medium ), id( color_gray ), "BME280 temp: %.1f °F", id( room_pressure ).state);
-      } else {
-        it.print(10, 120, id( font_medium ), id( color_gray ), "BME280 temp: -- °F");
+      if( id( room_pressure ).has_state() ) 
+      {
+        it.printf( 10, 100, id( font_small ), id( color_gray ), "BME280 press: %.1f hPa", id( room_pressure ).state );
+      }
+      else
+      {
+        it.print( 10, 100, id( font_small ), id( color_gray ), "BME280 press: -- hPa" );
       }
