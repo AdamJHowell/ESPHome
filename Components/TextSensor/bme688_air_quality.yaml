@@ -3,7 +3,7 @@
 platform: template
 name:     "BME688 IAQ Classification"
 icon:     "mdi:checkbox-marked-circle-outline"
-lambda:   |-
+lambda:   !lambda |- 
           if( int( id( iaq ).state ) <= 50 ) 
           {
             return { "Excellent" };

@@ -8,6 +8,9 @@ mac_address:
 ip_address:
   name: $device_name_friendly IP address
   id:   text_sensor_ip_address
+dns_address:
+  name: $device_name_friendly DNS Address
+  id:   text_sensor_dns_address
 ssid:
   name: $device_name_friendly connected SSID
 bssid:

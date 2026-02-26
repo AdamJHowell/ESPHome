@@ -1,5 +1,11 @@
 # ENS160 over I2C
 platform: ens160_i2c
+update_interval: 20s
+address: 0x53
+compensation:
+  temperature: aht21_temp
+  humidity: aht21_humidity
+
 eco2:
   name: "ENS160 eCO2"
   id:                  ens160_eco2
@@ -13,7 +19,7 @@ eco2:
   on_value:
     - mqtt.publish:
       topic:           "$mqtt_location/$mqtt_device/ens160/eCO2"
-      payload:         |- 
+      payload:         !lambda |- 
          return to_string( id( ens160_eco2 ).state );
 
 tvoc:
@@ -29,7 +35,7 @@ tvoc:
   on_value:
     - mqtt.publish:
       topic:           "$mqtt_location/$mqtt_device/ens160/tvoc"
-      payload:         |- 
+      payload:         !lambda |- 
          return to_string( id( ens160_tvoc ).state );
 
 aqi:
@@ -45,11 +51,5 @@ aqi:
   on_value:
     - mqtt.publish:
       topic:           "$mqtt_location/$mqtt_device/ens160/aqi"
-      payload:         |- 
+      payload:         !lambda |- 
          return to_string( id( ens160_air_quality_index ).state );
-
-update_interval: 20s
-address: 0x53
-compensation:
-  temperature: aht21_temp
-  humidity: aht21_humidity

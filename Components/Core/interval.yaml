@@ -5,9 +5,9 @@
     then:
       - mqtt.publish:
           topic:   "$mqtt_location/$mqtt_device/mac"
-          payload: |-
+          payload: !lambda |- 
             return id( text_sensor_mac_address ).state;
       - mqtt.publish:
           topic:   "$mqtt_location/$mqtt_device/ip"
-          payload: |-
+          payload: !lambda |- 
             return id( text_sensor_ip_address ).state;

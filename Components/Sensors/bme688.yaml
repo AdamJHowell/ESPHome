@@ -1,6 +1,8 @@
 # bme688.yaml
 #sensor:
 platform: bme680
+address: 0x77
+update_interval: 20s
 
 temperature:
     name:                "BME688 Temperature"
@@ -17,7 +19,7 @@ temperature:
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/temp"
-          payload:         |- 
+          payload:         !lambda |- 
                              return to_string( id( bme688_temp ).state );
 
 pressure:
@@ -34,7 +36,7 @@ pressure:
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/pressure"
-          payload:         |- 
+          payload:         !lambda |- 
                              return to_string( id( bme688_pressure ).state );
 
 humidity:
@@ -51,7 +53,7 @@ humidity:
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/humidity"
-          payload:         |- 
+          payload:         !lambda |- 
                              return to_string( id( bme688_humidity ).state );
 
 gas_resistance:
@@ -69,11 +71,8 @@ gas_resistance:
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/gas"
-          payload:         |- 
+          payload:         !lambda |- 
                              return to_string( id( bme688_gas_resistance ).state );
-
-address: 0x77
-update_interval: 20s
 
 # platform: template
 #     name: "BME688 Indoor Air Quality"

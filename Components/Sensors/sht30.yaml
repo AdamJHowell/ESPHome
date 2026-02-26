@@ -1,5 +1,7 @@
 # sht30.yaml
 platform:        sht3xd
+address:         0x44
+update_interval: 20s
 
 temperature:
   name:                "SHT30 temp"
@@ -12,7 +14,7 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/sht30/temp"
-        payload: |-
+        payload: !lambda |- 
                  return to_string( id( sht30_temp ).state );
 
 humidity:
@@ -24,8 +26,5 @@ humidity:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/sht30/humidity"
-        payload: |-
+        payload: !lambda |- 
                  return to_string( id( sht30_humidity ).state );
-
-address:         0x44
-update_interval: 20s

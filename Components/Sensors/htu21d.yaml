@@ -1,5 +1,7 @@
 # htu21d.yaml
 platform:        htu21d
+address:         0x44
+update_interval: 20s
 
 temperature:
   name:                "htu21d temp"
@@ -12,7 +14,7 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/htu21d/temp"
-        payload: |-
+        payload: !lambda |- 
                  return to_string( id( htu21d_temp ).state );
 
 humidity:
@@ -25,8 +27,5 @@ humidity:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/htu21d/humidity"
-        payload: |-
+        payload: !lambda |- 
                  return to_string( id( htu21d_humidity ).state );
-
-address:         0x44
-update_interval: 20s

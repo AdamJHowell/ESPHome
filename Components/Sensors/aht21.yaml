@@ -1,6 +1,8 @@
 # AHT21
+# https://esphome.io/components/sensor/aht10/
 platform:        aht10
-variant:         AHT10
+variant:         AHT20
+update_interval: 20s
 
 temperature:
   name:                "Living Room Temperature"
@@ -13,8 +15,8 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/aht21/temp"
-        payload: |-
-                 return to_string( id( aht21_temp ).state );
+        payload: !lambda |- 
+                 return to_string(x);
 
 humidity:
   name:                "Living Room Humidity"
@@ -25,7 +27,5 @@ humidity:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/aht21/humidity"
-        payload: |-
-                 return to_string( id( aht21_humidity ).state );
-
-update_interval: 20s
+        payload: !lambda |- 
+                 return to_string(x);
