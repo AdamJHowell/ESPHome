@@ -16,7 +16,7 @@ temperature:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/aht21/temp"
         payload: !lambda |- 
-                 return to_string(x);
+                 return to_string( x );
 
 humidity:
   name:                "Living Room Humidity"
@@ -28,4 +28,4 @@ humidity:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/aht21/humidity"
         payload: !lambda |- 
-                 return to_string(x);
+                 return to_string( x );

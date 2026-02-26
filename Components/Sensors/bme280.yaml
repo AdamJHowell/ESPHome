@@ -14,8 +14,8 @@ temperature:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/bme280/temp"
-        payload: !lambda |- 
-          return to_string(x);
+        payload: !lambda |-
+          return to_string( x );
 
 pressure:
   name:                "BME280 Pressure"
@@ -26,8 +26,8 @@ pressure:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/bme280/pressure"
-        payload: !lambda |- 
-          return to_string(x);
+        payload: !lambda |-
+          return to_string( x );
 
 humidity:
   name:                "BME280 Humidity"
@@ -38,5 +38,5 @@ humidity:
   on_value:
     - mqtt.publish:
         topic:   "$mqtt_location/$mqtt_device/bme280/humidity"
-        payload: !lambda |- 
-          return to_string(x);
+        payload: !lambda |-
+          return to_string( x );

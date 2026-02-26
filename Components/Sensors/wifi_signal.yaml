@@ -12,4 +12,4 @@ on_value:
   - mqtt.publish:
       topic:   "$mqtt_location/$mqtt_device/rssi"
       payload: !lambda |- 
-               return to_string( id( wifi_signal_db ).state );
+                       return to_string( x );

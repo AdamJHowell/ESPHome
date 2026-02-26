@@ -11,16 +11,11 @@ temperature:
     unit_of_measurement: "°C"
     accuracy_decimals:   1
     oversampling:        16x
-    # on_value:
-    #   - mqtt.publish:
-    #       topic:         "$mqtt_location/$mqtt_device/bme688/temp"
-    #       payload: !lambda |- 
-    #                          return to_string( id( bme688_temp ).state );
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/temp"
-          payload:         !lambda |- 
-                             return to_string( id( bme688_temp ).state );
+          payload:         !lambda |-
+            return to_string( x );
 
 pressure:
     name:                "BME688 Pressure"
@@ -28,16 +23,11 @@ pressure:
     device_class:        "atmospheric_pressure"
     unit_of_measurement: "hPa"
     accuracy_decimals:   1
-    # on_value:
-    #   - mqtt.publish:
-    #       topic:         "$mqtt_location/$mqtt_device/bme688/pressure"
-    #       payload: !lambda |- 
-    #                          return to_string( id( bme688_pressure ).state );
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/pressure"
           payload:         !lambda |- 
-                             return to_string( id( bme688_pressure ).state );
+                             return to_string( x );
 
 humidity:
     name:                "BME688 Humidity"
@@ -45,39 +35,27 @@ humidity:
     device_class:        "humidity"
     unit_of_measurement: "%"
     accuracy_decimals:   1
-    # on_value:
-    #   - mqtt.publish:
-    #       topic:         "$mqtt_location/$mqtt_device/bme688/humidity"
-    #       payload: !lambda |- 
-    #                          return to_string( id( bme688_humidity ).state );
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/humidity"
           payload:         !lambda |- 
-                             return to_string( id( bme688_humidity ).state );
+                             return to_string( x );
 
 gas_resistance:
     name:              "BME688 Gas Resistance"
     id:                bme688_gas_resistance
     device_class:      "aqi"
     accuracy_decimals: 0
-    # on_value:
-    #   - mqtt.publish:
-    #       topic:       "$mqtt_location/$mqtt_device/bme688/gas"
-    #       payload: !lambda |- 
-    #                          return to_string( id( bme688_gas_resistance ).state );
-    #   - lambda: |-
-    #       ESP_LOGD( "BME688", "Gas resistance: %.0f", id( bme688_gas_resistance ).state );
     on_value:
       - mqtt.publish:
           topic:           "$mqtt_location/$mqtt_device/bme688/gas"
           payload:         !lambda |- 
-                             return to_string( id( bme688_gas_resistance ).state );
+                             return to_string( x );
 
 # platform: template
 #     name: "BME688 Indoor Air Quality"
 #     id: iaq
 #     icon: "mdi:gauge"
-#     # caulculation: comp_gas = log(R_gas[ohm]) + 0.04 log(Ohm)/%rh * hum[%rh]
-#     lambda: |-
-#       return log( id( gas_resistance ).state ) + 0.04 *  id( humidity ).state;
+#     # calculation: comp_gas = log(R_gas[ohm]) + 0.04 log(Ohm)/%rh * hum[%rh]
+#     lambda: !lambda |-
+#       return to_string( x );

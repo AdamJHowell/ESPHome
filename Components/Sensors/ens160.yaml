@@ -9,47 +9,26 @@ compensation:
 eco2:
   name: "ENS160 eCO2"
   id:                  ens160_eco2
-#   on_value:
-#     - mqtt.publish:
-#         topic:           "$mqtt_location/$mqtt_device/ens160/eCO2"
-#         # payload: !lambda |-
-#                         #   return to_string( id( ens160_eco2 ).state );
-#         payload: !lambda |-
-#           return to_string( id( ens160_eco2 ).state );
   on_value:
     - mqtt.publish:
       topic:           "$mqtt_location/$mqtt_device/ens160/eCO2"
       payload:         !lambda |- 
-         return to_string( id( ens160_eco2 ).state );
+                               return to_string( x );
 
 tvoc:
   name: "ENS160 Total Volatile Organic Compounds"
   id:                  ens160_tvoc
-#   on_value:
-#     - mqtt.publish:
-#         topic:           "$mqtt_location/$mqtt_device/ens160/tvoc"
-#         # payload: !lambda |-
-#                         #   return to_string( id( ens160_tvoc ).state );
-#         payload: !lambda |-
-#           return to_string( id( ens160_tvoc ).state );
   on_value:
     - mqtt.publish:
       topic:           "$mqtt_location/$mqtt_device/ens160/tvoc"
       payload:         !lambda |- 
-         return to_string( id( ens160_tvoc ).state );
+                               return to_string( x );
 
 aqi:
   name: "ENS160 Air Quality Index"
   id: ens160_air_quality_index
-#   on_value:
-#     - mqtt.publish:
-#         topic:           "$mqtt_location/$mqtt_device/ens160/aqi"
-#         # payload: !lambda |-
-#                         #   return to_string( id( ens160_air_quality_index ).state );
-#         payload: !lambda |-
-#           return to_string( id( ens160_air_quality_index ).state );
   on_value:
     - mqtt.publish:
       topic:           "$mqtt_location/$mqtt_device/ens160/aqi"
       payload:         !lambda |- 
-         return to_string( id( ens160_air_quality_index ).state );
+                               return to_string( x );
