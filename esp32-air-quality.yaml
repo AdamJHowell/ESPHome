@@ -1,3 +1,5 @@
+# This ESP32 has a combination sensor: ENS160 with AHT21
+
 # https://esphome.io/components/substitutions/
 substitutions:
   device_name:              esp32-air-quality

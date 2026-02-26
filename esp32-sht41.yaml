@@ -1,3 +1,6 @@
+# This ESP32 has a SHT41 and a APDS-9660
+# I also connected a BME280
+
 # https://esphome.io/components/substitutions/
 substitutions:
   device_name:              esp32-sht41
