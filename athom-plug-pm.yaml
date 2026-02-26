@@ -1,0 +1,33 @@
+# https://github.com/athom-tech/athom-configs/blob/main/athom-without-relay-plug.yaml
+
+# https://esphome.io/components/substitutions/
+substitutions:
+  name: "athom-plug-pm"
+  friendly_name: "Athom Plug PM"
+
+
+# https://esphome.io/components/packages/
+packages:
+  China Athom Technology.Athom Without Relay Plug: github://athom-tech/athom-configs/athom-without-relay-plug.yaml
+
+
+# The ESPHome section sets the required node name and optional settings.
+# https://esphome.io/components/esphome/
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+
+
+# Enable the Home Assistant native API.
+# https://esphome.io/components/api/
+api:
+  encryption:
+    key: idiYlSc8WPb+aZLQsvKdltvrcmOU2opJ3uvwsfug7EM=
+
+
+# Enable Wi-Fi.
+# https://esphome.io/components/wifi/
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

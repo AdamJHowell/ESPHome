@@ -3,7 +3,7 @@ substitutions:
   device_name:              qtpy-bme688
   device_name_friendly:     "QTPy BME688"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Kitchen"
-  mqtt_device:              ${name}
+  mqtt_device:              ${device_name}
   api_password: !secret     qtpy_bme688_api
   ota_password: !secret     qtpy_bme688_ota
   wifi_ssid: !secret        wifi_ssid
