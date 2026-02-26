@@ -160,6 +160,12 @@ font:
   - file: "gfonts://Roboto"
     id: font_medium
     size: 20
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: icon_font
+    size: 30
+    glyphs:
+      - "\U000F050F" # The unicode for mdi:thermometer
+      - "\U000F058E" # The unicode for mdi:water-percent
 
 
 # https://esphome.io/components/color/
@@ -171,15 +177,15 @@ color:
 
 
 # https://esphome.io/components/image/
-image:
-  - file: mdi:thermometer
-    id: temperature_icon
-    resize: 30x30
-    type: rgb
-  - file: mdi:water-percent
-    id: humidity_icon
-    resize: 30x30
-    type: rgb
+# image:
+#   - file: mdi:thermometer
+#     id: temperature_icon
+#     resize: 30x30
+#     type: rgb
+#   - file: mdi:water-percent
+#     id: humidity_icon
+#     resize: 30x30
+#     type: rgb
 
 
 # https://esphome.io/components/display/
@@ -198,7 +204,9 @@ display:
           it.strftime( 10, 10, id( font_large ), id( color_gray ), TextAlign::TOP_LEFT, "%H:%M", id( ha_time ).now() );
           it.strftime( 10, 60, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
 
-          it.image( 10, 90, id( temperature_icon ) );
-          it.printf( 80, 90, id( font_medium ), Color( color_gray ), "%.1f°C", id( sht4x_temp ).state );
-          it.image( 10, 120, id( humidity_icon ) );
-          it.printf( 80, 120, id( font_medium ), Color( color_gray ), "%.1f%%", id( sht4x_humidity ).state );
+          // Icons & Sensor Values (Now fully colorized!)
+          it.printf( 10, 90, id( icon_font ), id( color_gray ), "\U000F050F" );
+          it.printf( 80, 90, id( font_medium ), id( color_gray ), "%.1f°C", id( sht4x_temp ).state );
+          
+          it.printf( 10, 120, id( icon_font ), id( color_gray ), "\U000F058E" );
+          it.printf( 80, 120, id( font_medium ), id( color_gray ), "%.1f%%", id( sht4x_humidity ).state );
