@@ -202,11 +202,11 @@ display:
 
           // Time & Date
           it.strftime( 10, 10, id( font_large ), id( color_gray ), TextAlign::TOP_LEFT, "%H:%M", id( ha_time ).now() );
-          it.strftime( 10, 60, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
+          it.strftime( 10, 45, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
 
           // Icons & Sensor Values (Now fully colorized!)
-          it.printf( 10, 90, id( icon_font ), id( color_gray ), "\U000F050F" );
-          it.printf( 80, 90, id( font_medium ), id( color_gray ), "%.1f°C", id( sht4x_temp ).state );
+          it.printf( 10, 85, id( icon_font ), id( color_gray ), "\U000F050F" );
+          it.printf( 30, 90, id( font_medium ), id( color_gray ), "%.1f°C", id( sht4x_temp ).state );
           
-          it.printf( 10, 120, id( icon_font ), id( color_gray ), "\U000F058E" );
-          it.printf( 80, 120, id( font_medium ), id( color_gray ), "%.1f%%", id( sht4x_humidity ).state );
+          it.printf( 10, 115, id( icon_font ), id( color_gray ), "\U000F058E" );
+          it.printf( 30, 120, id( font_medium ), id( color_gray ), "%.1f%%", id( sht4x_humidity ).state );

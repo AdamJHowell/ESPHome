@@ -93,7 +93,7 @@ interval:
     then:
       - mqtt.publish:
           topic:   "$mqtt_location/$mqtt_device/mac"
-          payload: |-
+          payload: !lambda |-
                    return id( text_sensor_mac_address ).state;
 
 # Expose the node state for Home Assistant.
