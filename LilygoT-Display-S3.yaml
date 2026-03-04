@@ -176,18 +176,6 @@ color:
     hex: "AAAAAA"
 
 
-# https://esphome.io/components/image/
-# image:
-#   - file: mdi:thermometer
-#     id: temperature_icon
-#     resize: 30x30
-#     type: rgb
-#   - file: mdi:water-percent
-#     id: humidity_icon
-#     resize: 30x30
-#     type: rgb
-
-
 # https://esphome.io/components/display/
 display:
   # https://esphome.io/components/display/mipi_spi/
@@ -202,11 +190,11 @@ display:
 
           // Time & Date
           it.strftime( 10, 10, id( font_large ), id( color_gray ), TextAlign::TOP_LEFT, "%H:%M", id( ha_time ).now() );
-          it.strftime( 10, 45, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
+          it.strftime( 110, 18, id( font_medium ), id( color_gray ), TextAlign::TOP_LEFT, "%A, %B %d", id( ha_time ).now() );
 
           // Icons & Sensor Values (Now fully colorized!)
-          it.printf( 10, 85, id( icon_font ), id( color_gray ), "\U000F050F" );
-          it.printf( 30, 90, id( font_medium ), id( color_gray ), "%.1f°C", id( sht4x_temp ).state );
-          
-          it.printf( 10, 115, id( icon_font ), id( color_gray ), "\U000F058E" );
-          it.printf( 30, 120, id( font_medium ), id( color_gray ), "%.1f%%", id( sht4x_humidity ).state );
+          it.printf( 7, 50, id( icon_font ), id( color_gray ), "\U000F050F" );
+          it.printf( 40, 55, id( font_medium ), id( color_gray ), "%.1f°C", id( sht4x_temp ).state );
+
+          it.printf( 7, 80, id( icon_font ), id( color_gray ), "\U000F058E" );
+          it.printf( 40, 85, id( font_medium ), id( color_gray ), "%.1f%%", id( sht4x_humidity ).state );
