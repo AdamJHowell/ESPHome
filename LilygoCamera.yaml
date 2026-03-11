@@ -22,22 +22,29 @@ esphome:
   area:          ${mqtt_location}
   comment:       "https://github.com/Xinyuan-LilyGO/LilyGo-Camera-Series/blob/master/docs/T_CarmerV162.md"
 
+
+# https://esphome.io/components/esp32/
 esp32:
   board: esp-wrover-kit
   framework:
     type: esp-idf
 
+
 # Define an I2C bus for the esp32_camera component to use.
+# https://esphome.io/components/i2c/
+#   - !include Components/Core/i2c_esp32.yaml
 i2c:
   sda:  GPIO18
   scl:  GPIO23
   scan: true
   id:   bus_a
 
+
 # https://esphome.io/components/psram/
 psram:
   mode:  quad
   speed: 80MHz
+
 
 # https://esphome.io/components/esp32_camera/
 esp32_camera:
@@ -64,6 +71,8 @@ esp32_camera:
   vertical_flip:     true
   horizontal_mirror: true
 
+
+# https://esphome.io/components/display/
 display:
   - platform:        ssd1306_i2c
     model:           "SSD1306 128x64"
@@ -74,6 +83,8 @@ display:
                      it.strftime( 64, 0, id( tnr1 ), TextAlign::TOP_CENTER,"%Y-%m-%d", id( homeassistant_time ).now() );
                      it.strftime( 64, 64, id( tnr2 ), TextAlign::BASELINE_CENTER, "%H:%M", id( homeassistant_time ).now() );
 
+
+# https://esphome.io/components/binary_sensor/
 binary_sensor:
   # Expose the node state for Home Assistant.
   - !include Components/BinarySensors/status.yaml
@@ -89,6 +100,8 @@ binary_sensor:
       inverted: True
     name:     $device_name_friendly Button
 
+
+# https://esphome.io/components/font/
 font:
   - file: "fonts/times-new-roman.ttf"
     id:   tnr1
@@ -97,39 +110,55 @@ font:
     id:   tnr2
     size: 35
 
+
+# https://esphome.io/components/time/
 time:
   - platform: homeassistant
     id:       homeassistant_time
 
-# Enable I2C communication.
-# i2c:
-#   - !include Components/Core/i2c_esp32.yaml
 
 # Enable Wi-Fi.
+# https://esphome.io/components/wifi/
 wifi:
   !include Components/Core/wifi.yaml
 
+
+# https://esphome.io/components/captive_portal/
+captive_portal:
+
+
 # Enable the Home Assistant native API.
+# https://esphome.io/components/api/
 api:
   !include Components/Core/api.yaml
 
+
 # Enable OTA updates.
+# https://esphome.io/components/ota/
 ota:
   !include Components/Core/ota.yaml
 
+
 # Safe mode used to be part of the OTA component.
+# https://esphome.io/components/safe_mode/
 safe_mode:
   !include Components/Core/safe_mode.yaml
 
+
 # Enable logging.
+# https://esphome.io/components/logger/
 logger:
   !include Components/Core/logger.yaml
 
+
 # Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
 mqtt:
   !include Components/Core/mqtt.yaml
 
+
 # Enable various sensors.
+# https://esphome.io/components/sensor/
 sensor:
   - !include Components/Sensors/wifi_signal.yaml
   - !include Components/Sensors/wifi_signal_percent.yaml
@@ -137,14 +166,20 @@ sensor:
   - platform: internal_temperature
     name:     "Internal Temperature"
 
+
 # The text_sensor handles many MQTT publishing duties.
+# https://esphome.io/components/text_sensor/
 text_sensor:
   - !include Components/TextSensor/wifi_info.yaml
 
+
 # The interval component handles many MQTT publishing duties.
+# https://esphome.io/components/interval/
 interval:
   !include Components/Core/interval.yaml
 
+
 # Enable the onboard LED as diagnostic output.
+# https://esphome.io/components/status_led/
 status_led:
   !include Components/Core/status_led.yaml
