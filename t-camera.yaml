@@ -1,17 +1,17 @@
 # https://esphome.io/components/substitutions/
 substitutions:
-  device_name:              lilygo-camera
-  device_name_friendly:     "Lilygo Camera"  # Quoted to ensure spaces are handled correctly.
+  device_name:              t-camera
+  device_name_friendly:     "T-Camera"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Dining Room"
   mqtt_device:              $device_name_friendly
-  api_password: !secret     lilygo_t_camera_api
-  ota_password: !secret     lilygo_t_camera_ota
-  wifi_ssid: !secret        iot_no_internet
+  api_password: !secret     t_camera_api
+  ota_password: !secret     t_camera_ota
+  # wifi_ssid: !secret        iot_no_internet
+  wifi_ssid:               "Red5"
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup
   wifi_pass_backup: !secret wifi_password
   broker_address: !secret   broker_address
-  led_gpio:                 GPIO2
 
 
 # The ESPHome section sets the required node name and optional settings.
@@ -59,7 +59,9 @@ esp32_camera:
   #   sda: GPIO18
   #   scl: GPIO23
   data_pins: [ GPIO34, GPIO13, GPIO14, GPIO35, GPIO39, GPIO38, GPIO37, GPIO36 ]
-  vsync_pin:         GPIO5
+  vsync_pin:
+    number:          GPIO5
+    ignore_strapping_warning: true
   href_pin:          GPIO27
   pixel_clock_pin:   GPIO25
   # power_down_pin: GPIO26 No PWD GPIO existing
@@ -74,11 +76,12 @@ esp32_camera:
 
 # https://esphome.io/components/display/
 display:
+  # https://esphome.io/components/display/ssd1306/
   - platform:        ssd1306_i2c
     model:           "SSD1306 128x64"
     address:         0x3C
-    rotation:        0°
-    update_interval: 20s
+    rotation:        180°
+    update_interval: 10s
     lambda:          |-
                      it.strftime( 64, 0, id( tnr1 ), TextAlign::TOP_CENTER,"%Y-%m-%d", id( homeassistant_time ).now() );
                      it.strftime( 64, 64, id( tnr2 ), TextAlign::BASELINE_CENTER, "%H:%M", id( homeassistant_time ).now() );
@@ -97,6 +100,7 @@ binary_sensor:
   - platform: gpio
     pin:
       number:   GPIO15
+      ignore_strapping_warning: true
       inverted: True
     name:     $device_name_friendly Button
 
@@ -177,9 +181,3 @@ text_sensor:
 # https://esphome.io/components/interval/
 interval:
   !include Components/Core/interval.yaml
-
-
-# Enable the onboard LED as diagnostic output.
-# https://esphome.io/components/status_led/
-status_led:
-  !include Components/Core/status_led.yaml

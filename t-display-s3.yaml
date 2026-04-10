@@ -6,8 +6,8 @@ substitutions:
   device_name_friendly:     "T-Display-S3"  # Quoted to ensure spaces are handled correctly.
   mqtt_location:            "Mobile"
   mqtt_device:              ${device_name_friendly}
-  api_password: !secret     lilygo_t_display_s3_api
-  ota_password: !secret     lilygo_t_display_s3_ota
+  api_password: !secret     t_display_s3_api
+  ota_password: !secret     t_display_s3_ota
   wifi_ssid: !secret        wifi_ssid
   wifi_pass: !secret        wifi_password
   wifi_ssid_backup: !secret wifi_ssid_backup
