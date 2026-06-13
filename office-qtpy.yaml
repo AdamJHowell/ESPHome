@@ -11,6 +11,8 @@ substitutions:
   wifi_ssid_backup: !secret wifi_ssid_backup
   wifi_pass_backup: !secret wifi_password
   broker_address: !secret   broker_address
+  mqtt_username: !secret    broker_username
+  mqtt_password: !secret    broker_password
   led_gpio:                 GPIO2
 
 
@@ -62,7 +64,7 @@ logger:
 # Enable MQTT publishing.
 # https://esphome.io/components/mqtt/
 mqtt:
-  !include Components/Core/mqtt.yaml
+  !include Components/Core/mqtt_mtls.yaml
 
 # Enable the BME280 sensor.
 # https://esphome.io/components/sensor/

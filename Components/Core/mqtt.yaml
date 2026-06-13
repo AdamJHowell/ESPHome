@@ -1,3 +1,5 @@
 # mqtt.yaml
 # https://esphome.io/components/mqtt/
 broker: ${broker_address}
+username: ${mqtt_username}
+password: ${mqtt_password}

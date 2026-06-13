@@ -174,10 +174,14 @@ color:
     hex: "000000"
   - id: color_gray
     hex: "AAAAAA"
-  - id: color_green
-    hex: "00FF00"
+  - id: color_white
+    hex: "FFFFFF"
   - id: color_red
     hex: "FF0000"
+  - id: color_green
+    hex: "00FF00"
+  - id: color_blue
+    hex: "0000FF"
 
 # https://esphome.io/components/display/
 display:

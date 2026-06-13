@@ -1,0 +1,15 @@
+# /homeassistant/esphome/Components/Core/mqtt_mtls.yaml
+# https://esphome.io/components/mqtt/
+broker: ${broker_address}
+port:   8884
+
+certificate_authority:  !secret mqtt_ca_cert
+client_certificate:     !secret mqtt_client_cert
+client_certificate_key: !secret mqtt_client_key
+
+# Set a dynamic client_id based on the ESP32 node name 
+# to prevent collisions since theyuse the same cert.
+client_id: ${device_name}
+
+# This may be needed since the broker is not the HA server.
+# skip_cert_cn_check: true
