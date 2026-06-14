@@ -49,8 +49,9 @@ wifi:
 captive_portal:
 
 # Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
 mqtt:
-  !include Components/Core/mqtt.yaml
+  !include Components/Core/mqtt_mtls.yaml
 
 # Configure the I2C bus. The SHT41 communicates over I2C.
 # Default SDA for ESP32 is GPIO21, default SCL is GPIO22.

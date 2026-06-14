@@ -56,8 +56,9 @@ text_sensor:
   - !include Components/TextSensor/ethernet_info.yaml
 
 # Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
 mqtt:
-  !include Components/Core/mqtt.yaml
+  !include Components/Core/mqtt_mtls.yaml
 
 # The interval component handles many MQTT publishing duties.
 interval:

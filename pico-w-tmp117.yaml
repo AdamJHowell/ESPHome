@@ -15,8 +15,9 @@ substitutions:
   wifi_ssid_backup: !secret wifi_ssid_backup
   wifi_pass_backup: !secret wifi_password
   broker_address: !secret   broker_address
+  mqtt_username: !secret    broker_username
+  mqtt_password: !secret    broker_password
   led_gpio:                 GPIO2
-
 
 # The ESPHome section sets the required node name and optional settings.
 # https://esphome.io/components/esphome/

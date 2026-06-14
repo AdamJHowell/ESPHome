@@ -49,6 +49,12 @@ wifi:
     password: "ajh14113"
 
 
+# Enable MQTT publishing.
+# https://esphome.io/components/mqtt/
+mqtt:
+  !include Components/Core/mqtt_mtls.yaml
+
+
 # https://esphome.io/components/captive_portal/
 captive_portal:
 

@@ -14,7 +14,6 @@ substitutions:
   network_gateway:          192.168.55.1
   network_subnet:           255.255.255.0
 
-
 # https://esphome.io/components/esphome/
 esphome:
   name:          ${device_name}
@@ -64,7 +63,7 @@ captive_portal:
 # Enable MQTT publishing.
 # https://esphome.io/components/mqtt/
 mqtt:
-  !include Components/Core/mqtt.yaml
+  !include Components/Core/mqtt_mtls.yaml
 
 
 # --- TIME ---
